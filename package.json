@@ -10,8 +10,11 @@
     "dev:admin": "npm run dev --workspace=@bharatyatra/admin",
     "dev:api": "npm run dev --workspace=@bharatyatra/api",
     "dev:mobile": "npm run android --workspace=@bharatyatra/mobile",
-    "build": "npm run build --workspace=@bharatyatra/web && npm run build --workspace=@bharatyatra/admin",
+    "build": "npx prisma generate && npm run build --workspace=@bharatyatra/web && npm run build --workspace=@bharatyatra/admin",
     "check": "npm run check --workspaces --if-present"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0"
   },
   "engines": { "node": ">=22.12.0", "npm": ">=10.9.0" }
 }
