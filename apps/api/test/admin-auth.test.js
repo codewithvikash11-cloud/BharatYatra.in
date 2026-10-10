@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAdminActorId, issueAdminSession } from '@bharatyatra/admin-auth';
+import { createAdminActorId, issueAdminSession } from '../src/auth/core.js';
 import { resolveAdminSession } from '../src/auth/admin-auth.js';
 
 const env={ADMIN_EMAIL:'admin@example.invalid',ADMIN_SESSION_SECRET:'test-only-session-secret-which-is-long-enough'};

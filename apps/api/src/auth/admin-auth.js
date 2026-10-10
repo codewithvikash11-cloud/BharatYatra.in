@@ -1,4 +1,4 @@
-import { hasAdminSessionSecret, verifyAdminSession } from '@bharatyatra/admin-auth';
+import { hasAdminSessionSecret, verifyAdminSession } from './core.js';
 
 export function resolveAdminSession(token, env = process.env) {
   if (!hasAdminSessionSecret(env)) return { state: 'unavailable' };
