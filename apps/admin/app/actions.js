@@ -7,7 +7,7 @@ import {
   createLoginRateLimiter,
   issueAdminSession,
   verifyAdminCredentials,
-} from '@bharatyatra/admin-auth';
+} from '../lib/admin-auth.js';
 
 const loginLimiter=createLoginRateLimiter();
 const LOGIN_ERROR='Invalid email or password. Try again later.';

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '@bharatyatra/admin-auth';
+import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '../../../../lib/admin-auth.js';
 
 const MUTATIONS=new Set(['POST','PATCH','DELETE']);
 async function forward(request,context){
