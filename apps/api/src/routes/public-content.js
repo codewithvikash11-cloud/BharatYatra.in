@@ -125,7 +125,7 @@ function notFound(response) {
 
 function databaseFailure(response, error) {
   console.error('Public content query failed:', error);
-  return response.status(503).json({ error: 'Content temporarily unavailable', details: error?.message });
+  return response.status(503).json({ error: 'Content temporarily unavailable' });
 }
 
 async function sendPage(response, model, where, select, pagination) {

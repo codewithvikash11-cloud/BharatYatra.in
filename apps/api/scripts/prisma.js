@@ -19,11 +19,11 @@ for (const key of ['DATABASE_URL', 'DIRECT_URL']) {
   else delete process.env[key];
 }
 
-const prismaCli = path.join(workspaceRoot, 'node_modules', 'prisma', 'build', 'index.js');
-const result = spawnSync(process.execPath, [prismaCli, ...process.argv.slice(2)], {
+const result = spawnSync('npx', ['prisma', ...process.argv.slice(2)], {
   cwd: workspaceRoot,
   env: process.env,
   stdio: 'inherit',
+  shell: true
 });
 
 if (result.error) {
