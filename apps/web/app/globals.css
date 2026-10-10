@@ -2,20 +2,20 @@
 
 :root {
   color-scheme: light;
-  --ink: #18312F;
+  --ink: #173633;
   --muted: #64736F;
-  --paper: #F7F5ED;
+  --paper: #F7F3E8;
   --saffron: #C58B32;
   --teal: #153E3A;
-  --teal-secondary: #2C8C82;
+  --teal-secondary: #247A72;
   --line: #DCE4DC;
   --card: #FFFFFF;
-  --soft-bg: #EAEFE8;
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  --soft-bg: #E9E0CF;
+  --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(220, 228, 220, 0.6);
-  --glass-shadow: 0 8px 32px rgba(21, 62, 58, 0.05);
-  --gradient-brand: linear-gradient(135deg, #2C8C82 0%, #153E3A 100%);
-  --gradient-accent: linear-gradient(135deg, #e3a652 0%, #C58B32 100%);
+  --glass-shadow: 0 12px 40px rgba(21, 62, 58, 0.08);
+  --gradient-brand: linear-gradient(135deg, #247A72 0%, #153E3A 100%);
+  --gradient-accent: linear-gradient(135deg, #B9653F 0%, #C58B32 100%);
 }
 
 * { box-sizing: border-box; }

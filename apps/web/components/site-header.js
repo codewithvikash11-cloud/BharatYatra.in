@@ -5,21 +5,27 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function getNavbarImage() {
+async function getSiteMedia() {
   try {
-    const asset = await prisma.media_assets.findUnique({
-      where: { storage_path: 'site/home/navbar' }
+    const assets = await prisma.media_assets.findMany({
+      where: { storage_path: { startsWith: 'site/home/' } }
     });
-    return asset?.public_url || null;
+    return assets.reduce((acc, asset) => {
+      acc[asset.storage_path.replace('site/home/', '')] = asset.public_url || null;
+      return acc;
+    }, {});
   } catch {
-    return null;
+    return {};
   }
 }
 
 export default async function SiteHeader() {
   const dict = await getDictionary();
   const lang = await getLanguage();
-  const navbarImage = await getNavbarImage();
+  const siteMedia = await getSiteMedia();
+  const navbarImage = siteMedia['navbar'] || null;
+  const logoHorizontal = siteMedia['logo'] || '/logo-horizontal.svg';
+  const logoCompact = siteMedia['logo-compact'] || '/logo-compact.svg';
 
   const navStyle = navbarImage ? {
     backgroundImage: `linear-gradient(rgba(247, 245, 237, 0.85), rgba(247, 245, 237, 0.95)), url(${navbarImage})`,
@@ -33,8 +39,8 @@ export default async function SiteHeader() {
     <nav className="site-nav" style={navStyle} aria-label={lang === 'hi' ? 'मुख्य नेविगेशन' : 'Main navigation'}>
       <Link className="brand" href="/" aria-label="BharatYatra — Home">
         <picture>
-          <source media="(min-width: 768px)" srcSet="/logo-horizontal.svg" />
-          <img src="/logo-compact.svg" alt="BharatYatra" width="160" height="40" className="brand-logo" />
+          <source media="(min-width: 768px)" srcSet={logoHorizontal} />
+          <img src={logoCompact} alt="BharatYatra" width="160" height="40" className="brand-logo" style={{ objectFit: 'contain' }} />
         </picture>
       </Link>
       <div className="nav-links">
