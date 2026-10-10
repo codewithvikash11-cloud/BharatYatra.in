@@ -11,7 +11,8 @@
     "prisma:generate": "node scripts/prisma.js generate",
     "prisma:validate": "node scripts/prisma.js validate",
     "db:pull": "node scripts/prisma.js db pull",
-    "db:status": "node scripts/prisma.js migrate status"
+    "db:status": "node scripts/prisma.js migrate status",
+    "postinstall": "npm run prisma:generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

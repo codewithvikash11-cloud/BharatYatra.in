@@ -123,9 +123,9 @@ function notFound(response) {
   return response.status(404).json({ error: 'Not found' });
 }
 
-function databaseFailure(response) {
-  console.warn('Public content query failed.');
-  return response.status(503).json({ error: 'Content temporarily unavailable' });
+function databaseFailure(response, error) {
+  console.error('Public content query failed:', error);
+  return response.status(503).json({ error: 'Content temporarily unavailable', details: error?.message });
 }
 
 async function sendPage(response, model, where, select, pagination) {
@@ -152,8 +152,8 @@ async function sendPage(response, model, where, select, pagination) {
         totalPages: Math.ceil(total / pagination.limit),
       },
     });
-  } catch {
-    return databaseFailure(response);
+  } catch (error) {
+    return databaseFailure(response, error);
   }
 }
 
