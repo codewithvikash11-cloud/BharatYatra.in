@@ -18,7 +18,7 @@ async function forward(request,context){
     if(!verifyAdminSession(token,process.env)) return NextResponse.json({error:'Authentication required'},{status:401});
     const apiBase=process.env.NEXT_PUBLIC_API_BASE_URL;
     if(!apiBase) return NextResponse.json({error:'Admin API is not configured'},{status:503});
-    const target=new URL(`/admin/${path.map(encodeURIComponent).join('/')}`,apiBase.replace(/\/$/,''));
+    const target=new URL(`${apiBase.replace(/\/+$/, '')}/admin/${path.map(encodeURIComponent).join('/')}`);
     target.search=request.nextUrl.search;
     const headers={authorization:`Bearer ${token}`,accept:'application/json'};
     let body;

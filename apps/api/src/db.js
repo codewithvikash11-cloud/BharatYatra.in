@@ -1,13 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-dotenv.config({ path: fileURLToPath(new URL('../../../.env', import.meta.url)) });
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const globalForPrisma = globalThis;
 
-export const prisma = globalForPrisma.bharatYatraPrisma ?? new PrismaClient();
+export const prisma = globalForPrisma.bharatYatraPrisma ?? new PrismaClient({
+  log: ['error', 'warn'],
+});
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.bharatYatraPrisma = prisma;
-}
+globalForPrisma.bharatYatraPrisma = prisma;
+

@@ -1,10 +1,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import publicContentRouter from './routes/public-content.js';
 import { createAdminRouter } from './routes/admin.js';
 
-dotenv.config({ path: fileURLToPath(new URL('../../../.env', import.meta.url)) });
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 app.disable('x-powered-by');
@@ -57,8 +61,8 @@ app.get('/api/v1/health/database', async (_request, response) => {
     const { prisma } = await import('./db.js');
     await prisma.$queryRaw`SELECT 1`;
     return response.json({ status: 'ok', database: 'connected' });
-  } catch {
-    console.warn('Database connectivity check failed. Verify DATABASE_URL and DIRECT_URL configuration.');
+  } catch (error) {
+    console.error('Database connectivity check failed:', error);
     return response.status(503).json({ status: 'error', database: 'unavailable' });
   }
 });

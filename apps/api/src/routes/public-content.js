@@ -124,7 +124,11 @@ function notFound(response) {
 }
 
 function databaseFailure(response, error) {
-  console.error('Public content query failed:', error);
+  if (error) {
+    console.error('Public content query failed:', error);
+  } else {
+    console.error('Public content query failed: Unknown error');
+  }
   return response.status(503).json({ error: 'Content temporarily unavailable' });
 }
 
@@ -180,8 +184,8 @@ router.get('/destinations/:slug', async (request, response) => {
     if (!data) return notFound(response);
     setPublicCache(response);
     return response.json({ data });
-  } catch {
-    return databaseFailure(response);
+  } catch (error) {
+    return databaseFailure(response, error);
   }
 });
 
@@ -215,8 +219,8 @@ router.get('/attractions/:destinationSlug/:slug', async (request, response) => {
     if (!data) return notFound(response);
     setPublicCache(response);
     return response.json({ data });
-  } catch {
-    return databaseFailure(response);
+  } catch (error) {
+    return databaseFailure(response, error);
   }
 });
 
@@ -236,8 +240,8 @@ router.get('/articles/:slug', async (request, response) => {
     if (!data) return notFound(response);
     setPublicCache(response);
     return response.json({ data });
-  } catch {
-    return databaseFailure(response);
+  } catch (error) {
+    return databaseFailure(response, error);
   }
 });
 
@@ -254,7 +258,9 @@ router.get('/states/:slug', async (request, response) => {
     if (!data) return notFound(response);
     setPublicCache(response);
     return response.json({ data });
-  } catch { return databaseFailure(response); }
+  } catch (error) {
+    return databaseFailure(response, error);
+  }
 });
 
 router.get('/districts', (request, response) => {
@@ -278,7 +284,9 @@ router.get('/districts/:stateSlug/:slug', async (request, response) => {
     if (!data) return notFound(response);
     setPublicCache(response);
     return response.json({ data });
-  } catch { return databaseFailure(response); }
+  } catch (error) {
+    return databaseFailure(response, error);
+  }
 });
 
 router.get('/tehsils', (request, response) => {
@@ -302,7 +310,9 @@ router.get('/tehsils/:districtSlug/:slug', async (request, response) => {
     if (!data) return notFound(response);
     setPublicCache(response);
     return response.json({ data });
-  } catch { return databaseFailure(response); }
+  } catch (error) {
+    return databaseFailure(response, error);
+  }
 });
 
 export default router;
