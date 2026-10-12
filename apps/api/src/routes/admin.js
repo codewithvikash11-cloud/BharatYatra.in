@@ -16,6 +16,10 @@ const RESOURCES = {
     model: 'articles', fields: ['slug','title_en','title_hi','excerpt_en','excerpt_hi','body_en','body_hi','author_name','category','tags','destination_id','state_id','cover_image_url','cover_image_alt','canonical_url','seo_title_en','seo_title_hi','seo_description_en','seo_description_hi'],
     required: ['slug','title_en'], publishRequired:['excerpt_en','body_en','author_name'], searchable: ['slug','title_en','title_hi','author_name','category','tags'],
   },
+  itineraries: {
+    model: 'itineraries', fields: ['destination_id','slug','title_en','title_hi','description_en','description_hi','duration_days'],
+    required: ['slug','title_en','duration_days'], publishRequired:['description_en','duration_days'], searchable: ['slug','title_en','title_hi'],
+  },
   states: {
     model: 'states', fields: ['slug','name_en','name_hi','type','description_en','description_hi'],
     required: ['slug','name_en'], publishRequired:['description_en'], searchable: ['slug','name_en','name_hi'],
@@ -52,6 +56,10 @@ function parseFields(resource, body, { partial = false } = {}) {
     if (key === 'status') {
       if (!STATUSES.includes(value)) return { error: 'Invalid status' };
       data.status = value;
+    } else if (key === 'duration_days') {
+      const num = Number(value);
+      if (!Number.isInteger(num) || num < 1 || num > 60) return { error: 'Invalid duration_days' };
+      data[key] = num;
     } else if (['latitude','longitude'].includes(key)) {
       if (value !== null && (typeof value !== 'number' || !Number.isFinite(value) || value < (key === 'latitude' ? -90 : -180) || value > (key === 'latitude' ? 90 : 180))) return { error: `Invalid ${key}` };
       data[key] = value;
@@ -70,13 +78,13 @@ function parseFields(resource, body, { partial = false } = {}) {
   return { data };
 }
 function validateComplete(resource, data) {
-  const missing = resource.required.filter((field) => typeof data[field] !== 'string' || !data[field].trim());
+  const missing = resource.required.filter((field) => (field === 'duration_days' ? typeof data[field] !== 'number' : typeof data[field] !== 'string' || !data[field].trim()));
   if (missing.length) return `Required field: ${missing[0]}`;
   return null;
 }
 function validateForReview(resource,data){
   const basic=validateComplete(resource,data);if(basic)return basic;
-  const missing=(resource.publishRequired||[]).find((field)=>typeof data[field]!=='string'||!data[field].trim());
+  const missing=(resource.publishRequired||[]).find((field)=>(field === 'duration_days' ? typeof data[field] !== 'number' : typeof data[field]!=='string'||!data[field].trim()));
   return missing?`Required before review: ${missing}`:null;
 }
 function statusTransitionAllowed(role, current, next) {

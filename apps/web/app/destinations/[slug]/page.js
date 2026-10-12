@@ -38,7 +38,7 @@ const jaipurData = {
   about: {
     text:
       'Jaipur, the capital of Rajasthan, is known as the Pink City for its stunning pink-coloured buildings, royal palaces and rich cultural heritage. Founded in 1727 by Maharaja Sawai Jai Singh II, Jaipur beautifully blends history, architecture, tradition and modern city life. From majestic forts like Amer Fort to vibrant markets and delicious Rajasthani cuisine, Jaipur offers a complete travel experience for history lovers, photographers and culture enthusiasts.',
-    thumb: 'https://images.unsplash.com/photo-1605649487212-47bdab064df8?auto=format&fit=crop&w=600&q=80',
+    thumb: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=600&q=80',
     thumbCaption: 'Jal Mahal, Jaipur',
   },
   highlights: [

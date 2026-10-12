@@ -61,6 +61,18 @@ const configs = {
       ['canonical_url', 'Canonical URL (optional override)', 'url', false],
     ],
   },
+  itineraries: {
+    label: 'Itineraries',
+    fields: [
+      ['destination_id', 'Destination (Selection)', 'destination_select', false],
+      ['slug', 'URL slug (auto-generated or custom)', 'text', true],
+      ['title_en', 'Itinerary Title (English)', 'text', true],
+      ['title_hi', 'Itinerary Title (Hindi)', 'text', false],
+      ['duration_days', 'Duration in Days (e.g. 2, 3, 4, 7)', 'number', true],
+      ['description_en', 'Detailed Day-by-Day Itinerary (Markdown supported)', 'textarea', true],
+      ['description_hi', 'Description (Hindi)', 'textarea', false],
+    ],
+  },
   states: {
     label: 'States',
     fields: [
