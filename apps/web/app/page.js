@@ -1,8 +1,20 @@
 import Link from 'next/link';
-import { ArticleCard, ApiState, AttractionCard, ContentSearch, DestinationCard, PageHeading } from '../components/content.js';
+import {
+  DestinationCard,
+  AttractionCard,
+  ArticleCard,
+  ContentSearch,
+  ApiState,
+} from '../components/content.js';
 import { getCollection } from '../lib/content-api.mjs';
-import { getDictionary, getLanguage } from '../lib/i18n.js';
-import { MapSymbol, RouteSymbol, MountainSymbol, TempleSymbol, HeritageFortSymbol } from '../components/travel-symbols.js';
+import {
+  HeritageFortSymbol,
+  MountainSymbol,
+  TempleSymbol,
+  CoastlineSymbol,
+  RouteSymbol,
+  MapSymbol,
+} from '../components/travel-symbols.js';
 import { PrismaClient } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +24,7 @@ const prisma = new PrismaClient();
 async function getSiteMedia() {
   try {
     const assets = await prisma.media_assets.findMany({
-      where: { storage_path: { startsWith: 'site/home/' } }
+      where: { storage_path: { startsWith: 'site/home/' } },
     });
     return assets.reduce((acc, asset) => {
       acc[asset.storage_path.replace('site/home/', '')] = asset.public_url || null;
@@ -24,129 +36,463 @@ async function getSiteMedia() {
 }
 
 export default async function HomePage() {
-  const dict = await getDictionary();
-  const lang = await getLanguage();
-  const showHi = lang === 'hi';
-
-  const [destinations, attractions, articles, statesRes, stats] = await Promise.all([
+  // Fetch real published data from API & database
+  const [destinationsRes, attractionsRes, articlesRes, statesRes, siteMedia] = await Promise.all([
     getCollection('destinations', { limit: 4 }),
     getCollection('attractions', { limit: 4 }),
-    getCollection('articles', { limit: 4 }),
+    getCollection('articles', { limit: 3 }),
     getCollection('states', { limit: 8 }),
-    prisma.$transaction([
-      prisma.states.count({ where: { type: 'STATE', status: 'PUBLISHED' } }),
-      prisma.states.count({ where: { type: 'UT', status: 'PUBLISHED' } }),
-      prisma.destinations.count({ where: { status: 'PUBLISHED' } }),
-      prisma.articles.count({ where: { status: 'PUBLISHED' } }),
-    ]).catch(() => [28, 8, 1000, 5000])
+    getSiteMedia(),
   ]);
-  
-  const [stateCount, utCount, destCount, articleCount] = stats;
 
-  const siteMedia = await getSiteMedia();
   const heroImage = siteMedia['hero'] || '/hero.jpg';
 
-  const regions = [
-    { name: 'North India', nameHi: 'उत्तर भारत', slug: 'north', desc: 'Mountains, Heritage & Spirituality' },
-    { name: 'South India', nameHi: 'दक्षिण भारत', slug: 'south', desc: 'Temples, Backwaters & Beaches' },
-    { name: 'East India', nameHi: 'पूर्वी भारत', slug: 'east', desc: 'Culture, Rivers & Lush Landscapes' },
-    { name: 'West India', nameHi: 'पश्चिम भारत', slug: 'west', desc: 'Deserts, Forts & Coastlines' },
-    { name: 'Central India', nameHi: 'मध्य भारत', slug: 'central', desc: 'Forests, Wildlife & Ancient Heritage' },
-    { name: 'Northeast India', nameHi: 'पूर्वोत्तर भारत', slug: 'northeast', desc: 'Hills, Waterfalls & Tribal Cultures' }
+  const travelInterests = [
+    {
+      title: 'Heritage & Fortresses',
+      query: 'heritage',
+      desc: 'Rajasthan citadels, Mughal arches, and ancient Deccan ruins.',
+      Icon: HeritageFortSymbol,
+    },
+    {
+      title: 'Himalayas & Valleys',
+      query: 'himalaya',
+      desc: 'High mountain passes, apple orchards, and alpine sanctuaries.',
+      Icon: MountainSymbol,
+    },
+    {
+      title: 'Spiritual Journeys',
+      query: 'spiritual',
+      desc: 'Sacred river ghats, ancient temple corridors, and inner peace.',
+      Icon: TempleSymbol,
+    },
+    {
+      title: 'Wildlife & Sanctuaries',
+      query: 'wildlife',
+      desc: 'Tiger reserves, elephant corridors, and pristine bird sanctuaries.',
+      Icon: RouteSymbol,
+    },
+    {
+      title: 'Coasts & Backwaters',
+      query: 'beach',
+      desc: 'Tropical lagoons, Arabian Sea cliffs, and quiet coastal hamlets.',
+      Icon: CoastlineSymbol,
+    },
+    {
+      title: 'Living Arts & Traditions',
+      query: 'culture',
+      desc: 'Centuries-old artisanal clusters, tribal arts, and vibrant fairs.',
+      Icon: MapSymbol,
+    },
   ];
 
-  return <main>
-    <section className="hero page-shell" style={{ position: 'relative' }}>
-      <div className="hero-copy">
-        <p className="eyebrow">BHARATYATRA <span className="language-tag">{showHi ? 'हिंदी' : 'EN'}</span></p>
-        <h1>{showHi ? 'भारत, हर यात्रा में' : 'India, through every journey.'}</h1>
-        <p>{showHi ? 'भारत के हर कोने से स्थान, कहानियाँ, मार्ग और अनुभव खोजें।' : 'Discover places, stories, routes and experiences from every corner of India.'}</p>
-        <ContentSearch pathname="/destinations" />
-        <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['Rajasthan', 'Kerala', 'Nawalgarh', 'Jaipur', 'Varanasi', 'Leh', 'Goa', 'Hampi'].map(s => (
-             <Link key={s} href={`/destinations?q=${s}`} className="language-tag" style={{ color: 'var(--muted)', borderColor: 'var(--line)' }}>{s}</Link>
-          ))}
-        </div>
-        <div className="hero-actions">
-          <Link className="button-link" href="/states">{showHi ? 'भारत खोजें' : 'Explore India'}</Link>
-          <Link className="text-link" href="/articles">{showHi ? 'यात्रा गाइड पढ़ें' : 'Read Travel Guides'}</Link>
-        </div>
-      </div>
+  return (
+    <main>
+      {/* ====================================================
+          HOMEPAGE HERO SECTION
+          ==================================================== */}
+      <section className="hero-section page-shell" aria-labelledby="hero-heading">
+        <div className="hero-grid">
+          <div className="hero-copy">
+            <div className="hero-eyebrow-badge">
+              <span className="badge-dot" aria-hidden="true" />
+              <span>BHARATYATRA DISCOVERY</span>
+            </div>
 
-      <div className="hero-art-image" style={{ width: '100%', height: '100%', minHeight: '500px', borderRadius: '24px', overflow: 'hidden', boxShadow: 'var(--glass-shadow)', position: 'relative' }}>
-        <img src={heroImage} alt="Travel India Map" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </div>
-    </section>
+            <h1 id="hero-heading" className="hero-title">
+              India, through every journey.
+            </h1>
 
-    <section className="page-shell" style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', background: 'var(--card)', padding: '2rem', borderRadius: '16px', boxShadow: 'var(--glass-shadow)', border: '1px solid var(--line)', marginTop: '-2rem', position: 'relative', zIndex: 10 }}>
-       <div style={{ flex: 1, minWidth: '150px', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--saffron)', fontFamily: 'Playfair Display, serif' }}>{stateCount > 0 ? stateCount : 28}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase' }}>{showHi ? 'राज्य' : 'States'}</div>
-       </div>
-       <div style={{ flex: 1, minWidth: '150px', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--saffron)', fontFamily: 'Playfair Display, serif' }}>{utCount > 0 ? utCount : 8}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase' }}>{showHi ? 'केंद्र शासित प्रदेश' : 'Union Territories'}</div>
-       </div>
-       <div style={{ flex: 1, minWidth: '150px', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--saffron)', fontFamily: 'Playfair Display, serif' }}>{destCount > 0 ? `${destCount}+` : '1000+'}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase' }}>{showHi ? 'गंतव्य' : 'Destinations'}</div>
-       </div>
-       <div style={{ flex: 1, minWidth: '150px', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--saffron)', fontFamily: 'Playfair Display, serif' }}>{articleCount > 0 ? `${articleCount}+` : '5000+'}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase' }}>{showHi ? 'यात्रा कहानियाँ' : 'Travel Stories'}</div>
-       </div>
-    </section>
+            <p className="hero-description">
+              Discover published destinations, sacred monuments, cultural heritage, and curated travel guides across every state of India — thoughtfully crafted for mindful explorers.
+            </p>
 
-    <section className="page-shell content-section" style={{ marginTop: '4rem' }}>
-      <div className="section-heading">
-        <PageHeading eyebrow="EXPLORE INDIA" title={showHi ? 'राज्यों और केंद्र शासित प्रदेशों को खोजें' : 'States & Union Territories'} description={showHi ? 'हिमालय से लेकर हिंद महासागर तक' : 'From the Himalayas to the Indian Ocean.'} />
-        <Link className="button-link" href="/map" style={{ padding: '0.75rem 1.25rem', fontSize: '0.85rem' }}>{showHi ? 'इंटरएक्टिव मैप देखें' : 'View Interactive Map →'}</Link>
-      </div>
-      {statesRes.state !== 'success' ? <ApiState state={statesRes.state} label="States" /> : statesRes.data.length === 0 ? <ApiState state="empty" label="States" /> : (
-        <div className="card-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-          {statesRes.data.map(st => (
-            <Link href={`/states/${st.slug}`} key={st.slug} className="content-card" style={{ minHeight: '200px', padding: '1.5rem', background: 'var(--card)' }}>
-              <h2 style={{ fontSize: '1.5rem', color: 'var(--teal)' }}>{showHi && st.name_hi ? st.name_hi : st.name_en}</h2>
-              {!showHi && st.name_hi && <span className="hindi-name" style={{ marginTop: '0' }}>{st.name_hi}</span>}
-              <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                 <span style={{ fontSize: '0.8rem', color: 'var(--saffron)', fontWeight: 600 }}>{st.type}</span>
+            {/* Destination Search Box */}
+            <ContentSearch pathname="/destinations" />
+
+            {/* Curated Search Suggestions */}
+            <div className="hero-suggestions">
+              <span className="suggestions-label">Explore:</span>
+              <Link href="/destinations?q=Rajasthan" className="suggestion-pill">Rajasthan</Link>
+              <Link href="/destinations?q=Kerala" className="suggestion-pill">Kerala</Link>
+              <Link href="/destinations?q=Varanasi" className="suggestion-pill">Varanasi</Link>
+              <Link href="/destinations?q=Himachal" className="suggestion-pill">Himachal</Link>
+              <Link href="/destinations?q=Goa" className="suggestion-pill">Goa</Link>
+              <Link href="/destinations?q=Meghalaya" className="suggestion-pill">Meghalaya</Link>
+            </div>
+
+            {/* Hero Calls to Action */}
+            <div className="hero-actions-row">
+              <Link href="/destinations" className="button-link">
+                Explore All Destinations
+              </Link>
+              <Link href="/states" className="button-link-secondary">
+                Browse States & UTs
+              </Link>
+            </div>
+          </div>
+
+          {/* Hero Visual Frame */}
+          <div className="hero-visual-frame">
+            <img
+              src={heroImage}
+              alt="Scenic view of India's historic landscape and travel heritage"
+              className="hero-visual-img"
+            />
+            <div className="hero-visual-overlay" aria-hidden="true" />
+            <div className="hero-visual-caption">
+              <div>
+                <p className="caption-tag">NORTH TO SOUTH, EAST TO WEST</p>
+                <p className="caption-title">Timeless Landscapes & Heritage</p>
               </div>
-            </Link>
-          ))}
+              <span className="caption-pill">28 States · 8 UTs</span>
+            </div>
+          </div>
         </div>
-      )}
-    </section>
+      </section>
 
-    <section className="page-shell content-section" style={{ background: 'var(--soft-bg)', padding: '4rem 2rem', borderRadius: '24px' }}>
-       <div className="section-heading">
-          <PageHeading eyebrow="REGIONS" title={showHi ? 'क्षेत्र के अनुसार खोजें' : 'Discover by Region'} description={showHi ? 'भारत के विविध क्षेत्रों का अन्वेषण करें' : 'Explore India\'s diverse regions, each with its own unique culture, landscapes and experiences.'} />
-       </div>
-       <div className="card-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-          {regions.map(r => (
-             <Link key={r.slug} href={`/destinations?region=${r.slug}`} className="content-card" style={{ padding: '2rem', background: 'var(--gradient-brand)', color: 'white', borderColor: 'transparent' }}>
-                <h2 style={{ color: 'white' }}>{showHi ? r.nameHi : r.name}</h2>
-                <p style={{ color: 'rgba(255,255,255,0.8)' }}>{r.desc}</p>
-                <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.85rem' }}>
-                   Explore →
+      {/* ====================================================
+          VALUE PILLARS / PLATFORM PROPOSITIONS
+          ==================================================== */}
+      <section className="page-shell" aria-label="Platform highlights">
+        <div className="pillars-banner">
+          <div className="pillars-grid">
+            <div className="pillar-item">
+              <div className="pillar-icon-box" aria-hidden="true">
+                <MapSymbol />
+              </div>
+              <div className="pillar-content">
+                <h3>Pan-India Coverage</h3>
+                <p>Curated states and territories from Kashmir to Kanyakumari.</p>
+              </div>
+            </div>
+
+            <div className="pillar-item">
+              <div className="pillar-icon-box" aria-hidden="true">
+                <HeritageFortSymbol />
+              </div>
+              <div className="pillar-content">
+                <h3>Living Heritage</h3>
+                <p>Centuries of sacred temples, royal forts, and UNESCO landmarks.</p>
+              </div>
+            </div>
+
+            <div className="pillar-item">
+              <div className="pillar-icon-box" aria-hidden="true">
+                <RouteSymbol />
+              </div>
+              <div className="pillar-content">
+                <h3>Curated Guides</h3>
+                <p>In-depth cultural stories and route perspectives from editors.</p>
+              </div>
+            </div>
+
+            <div className="pillar-item">
+              <div className="pillar-icon-box" aria-hidden="true">
+                <TempleSymbol />
+              </div>
+              <div className="pillar-content">
+                <h3>Mindful Travel</h3>
+                <p>Respectful, authentic exploration of India’s living diversity.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================
+          SECTION A: FEATURED DESTINATIONS
+          ==================================================== */}
+      <section className="content-section page-shell" aria-labelledby="featured-dest-heading">
+        <div className="section-heading-row">
+          <div className="section-title-group">
+            <p className="section-eyebrow">FEATURED DESTINATIONS</p>
+            <h2 id="featured-dest-heading" className="section-main-title">Places That Define India</h2>
+            <p className="section-subtext">
+              Handpicked destinations steeped in timeless architecture, natural splendour, and living cultural heritage.
+            </p>
+          </div>
+          <Link href="/destinations" className="section-link-more">
+            All Destinations <span>→</span>
+          </Link>
+        </div>
+
+        {destinationsRes.state !== 'success' ? (
+          <ApiState state={destinationsRes.state} label="Destinations" />
+        ) : destinationsRes.data.length === 0 ? (
+          <div className="empty-editorial-card">
+            <p>
+              New published destinations are being added by our travel editors. In the meantime, browse our comprehensive guide across India’s states.
+            </p>
+            <Link href="/states" className="button-link" style={{ fontSize: '0.88rem' }}>
+              Browse States & UTs
+            </Link>
+          </div>
+        ) : (
+          <div className="cards-grid-4">
+            {destinationsRes.data.map((item) => (
+              <DestinationCard key={item.slug} item={item} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ====================================================
+          SECTION B: EXPLORE INDIA BY STATE AND REGION
+          ==================================================== */}
+      <section className="content-section shaded" aria-labelledby="states-region-heading">
+        <div className="page-shell">
+          <div className="section-heading-row">
+            <div className="section-title-group">
+              <p className="section-eyebrow">REGIONAL DISCOVERY</p>
+              <h2 id="states-region-heading" className="section-main-title">Explore by State & Region</h2>
+              <p className="section-subtext">
+                From the snow-crowned valleys of Himachal to the backwaters of Kerala, discover the geographic diversity of India.
+              </p>
+            </div>
+            <Link href="/states" className="section-link-more">
+              All States & UTs <span>→</span>
+            </Link>
+          </div>
+
+          {statesRes.state !== 'success' ? (
+            <ApiState state={statesRes.state} label="States" />
+          ) : statesRes.data.length === 0 ? (
+            <div className="empty-editorial-card">
+              <p>State guides are currently being prepared.</p>
+            </div>
+          ) : (
+            <div className="states-grid">
+              {statesRes.data.map((st) => (
+                <Link key={st.slug} href={`/states/${st.slug}`} className="state-card-link">
+                  <div className="state-card-header">
+                    <h3 className="state-card-title">{st.name_en}</h3>
+                    <span className="state-type-badge">{st.type === 'UT' ? 'Union Territory' : 'State'}</span>
+                  </div>
+                  <p className="state-card-desc">
+                    {st.description_en || `Discover destinations, districts, and travel stories across ${st.name_en}.`}
+                  </p>
+                  <div className="state-card-cta">
+                    Explore {st.name_en} <span>→</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ====================================================
+          SECTION C: EXPLORE BY TRAVEL INTEREST
+          ==================================================== */}
+      <section className="content-section page-shell" aria-labelledby="travel-interests-heading">
+        <div className="section-heading-row">
+          <div className="section-title-group">
+            <p className="section-eyebrow">TRAVEL THEMES</p>
+            <h2 id="travel-interests-heading" className="section-main-title">Curated Journeys by Interest</h2>
+            <p className="section-subtext">
+              Tailor your discovery around India’s architectural wonders, spiritual sanctuaries, or tranquil wilderness.
+            </p>
+          </div>
+        </div>
+
+        <div className="interest-grid">
+          {travelInterests.map((interest) => {
+            const Icon = interest.Icon;
+            return (
+              <Link
+                key={interest.query}
+                href={`/destinations?q=${encodeURIComponent(interest.query)}`}
+                className="interest-card"
+              >
+                <div className="interest-icon-circle" aria-hidden="true">
+                  <Icon />
                 </div>
-             </Link>
-          ))}
-       </div>
-    </section>
+                <h3 className="interest-title">{interest.title}</h3>
+                <p className="interest-desc">{interest.desc}</p>
+                <div className="interest-cta">
+                  Browse {interest.title} <span>→</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
-    <section className="page-shell content-section" aria-label={dict.home.destTitle}>
-      <div className="section-heading"><PageHeading eyebrow={dict.home.destEyebrow} title={showHi ? 'विशेष गंतव्य' : 'Featured Destinations'} description={showHi ? 'आपकी अगली यात्रा को प्रेरित करने के लिए चुने गए स्थान' : 'Handpicked places to inspire your next journey across India.'} /><Link className="text-link" href="/destinations">{dict.common.allDestinations}</Link></div>
-      {destinations.state !== 'success' ? <ApiState state={destinations.state} label={dict.nav.destinations} /> : destinations.data.length === 0 ? <ApiState state="empty" label={dict.nav.destinations} /> : <div className="card-grid">{destinations.data.map((item) => <DestinationCard key={item.slug} item={item} />)}</div>}
-    </section>
+      {/* ====================================================
+          SECTION D: POPULAR ATTRACTIONS & MONUMENTS
+          ==================================================== */}
+      <section className="content-section shaded" aria-labelledby="attractions-heading">
+        <div className="page-shell">
+          <div className="section-heading-row">
+            <div className="section-title-group">
+              <p className="section-eyebrow">MONUMENTS & WONDERS</p>
+              <h2 id="attractions-heading" className="section-main-title">Iconic Attractions Across the Land</h2>
+              <p className="section-subtext">
+                Ancient stepwells, Dravidian temples, and UNESCO heritage sites that showcase centuries of architectural grandeur.
+              </p>
+            </div>
+            <Link href="/attractions" className="section-link-more">
+              All Attractions <span>→</span>
+            </Link>
+          </div>
 
-    <section className="page-shell content-section" aria-label={dict.content.attractionGuide}>
-      <div className="section-heading"><PageHeading eyebrow="ATTRACTIONS" title={showHi ? 'देखने योग्य जगहें' : 'Places to Explore'} description={showHi ? 'विरासत, प्रकृति, मंदिर और बहुत कुछ' : 'Heritage, Nature, Temples, Beaches, Mountains, and Culture.'} /><Link className="text-link" href="/attractions">{showHi ? 'सभी आकर्षण ↗' : 'All attractions ↗'}</Link></div>
-      {attractions.state !== 'success' ? <ApiState state={attractions.state} label={dict.nav.attractions} /> : attractions.data.length === 0 ? <ApiState state="empty" label={dict.nav.attractions} /> : <div className="card-grid">{attractions.data.map((item) => <AttractionCard key={`${item.destinations?.slug}-${item.slug}`} item={item} />)}</div>}
-    </section>
+          {attractionsRes.state !== 'success' ? (
+            <ApiState state={attractionsRes.state} label="Attractions" />
+          ) : attractionsRes.data.length === 0 ? (
+            <div className="empty-editorial-card">
+              <p>
+                Attraction guides are currently being cataloged. Explore our published destinations to see landmark highlights.
+              </p>
+              <Link href="/destinations" className="button-link" style={{ fontSize: '0.88rem' }}>
+                View Destinations
+              </Link>
+            </div>
+          ) : (
+            <div className="cards-grid-4">
+              {attractionsRes.data.map((item) => (
+                <AttractionCard key={`${item.destinations?.slug || 'guide'}-${item.slug}`} item={item} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
-    <section className="page-shell content-section" aria-label={dict.home.artTitle}>
-      <div className="section-heading"><PageHeading eyebrow={dict.home.artEyebrow} title={showHi ? 'नवीनतम यात्रा कहानियाँ' : 'Latest Travel Stories'} description={showHi ? 'हमारे संपादकों से गाइड, कहानियाँ और अंतर्दृष्टि' : 'Guides, stories and insights from our editors.'} /><Link className="text-link" href="/articles">{dict.home.artLink}</Link></div>
-      {articles.state !== 'success' ? <ApiState state={articles.state} label={dict.nav.articles} /> : articles.data.length === 0 ? <ApiState state="empty" label={dict.nav.articles} /> : <div className="card-grid">{articles.data.map((item) => <ArticleCard key={item.slug} item={item} />)}</div>}
-    </section>
-  </main>;
+      {/* ====================================================
+          SECTION E: TRAVEL GUIDES & EDITORIAL ARTICLES
+          ==================================================== */}
+      <section className="content-section page-shell" aria-labelledby="editorial-heading">
+        <div className="section-heading-row">
+          <div className="section-title-group">
+            <p className="section-eyebrow">THE TRAVEL JOURNAL</p>
+            <h2 id="editorial-heading" className="section-main-title">Stories, Guides & Field Notes</h2>
+            <p className="section-subtext">
+              In-depth perspectives and cultural context written for thoughtful travelers discovering India.
+            </p>
+          </div>
+          <Link href="/articles" className="section-link-more">
+            All Stories & Guides <span>→</span>
+          </Link>
+        </div>
+
+        {articlesRes.state !== 'success' ? (
+          <ApiState state={articlesRes.state} label="Articles" />
+        ) : articlesRes.data.length === 0 ? (
+          <div className="empty-editorial-card">
+            <p>
+              Our editorial stories and field guides are currently being prepared for publication. Visit our destinations section to begin exploring.
+            </p>
+            <Link href="/destinations" className="button-link" style={{ fontSize: '0.88rem' }}>
+              Explore Destinations
+            </Link>
+          </div>
+        ) : (
+          <div className="editorial-grid">
+            {articlesRes.data.map((item) => (
+              <ArticleCard key={item.slug} item={item} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ====================================================
+          SECTION F: SUGGESTED ITINERARIES (INFO/EMPTY STATE)
+          ==================================================== */}
+      <section className="content-section shaded" aria-labelledby="itineraries-heading">
+        <div className="page-shell">
+          <div className="itinerary-info-box">
+            <div className="itinerary-info-icon" aria-hidden="true">
+              <RouteSymbol />
+            </div>
+            <p className="section-eyebrow" style={{ marginBottom: '0.5rem' }}>JOURNEY BLUEPRINTS</p>
+            <h2 id="itineraries-heading" className="itinerary-info-title">Suggested Travel Itineraries</h2>
+            <p className="itinerary-info-desc">
+              Curated multi-day route itineraries are currently being crafted by our travel editors. In the meantime, browse our destinations and states to plan your bespoke journey across India.
+            </p>
+            <div className="itinerary-actions">
+              <Link href="/destinations" className="button-link">
+                Browse Destinations
+              </Link>
+              <Link href="/states" className="button-link-secondary">
+                Explore by State
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================
+          SECTION G: INDIA, CULTURE, AND EXPERIENCES
+          ==================================================== */}
+      <section className="content-section page-shell" aria-labelledby="culture-heading">
+        <div className="section-heading-row">
+          <div className="section-title-group">
+            <p className="section-eyebrow">LIVING CULTURE</p>
+            <h2 id="culture-heading" className="section-main-title">Cultural Tapestry & Traditions</h2>
+            <p className="section-subtext">
+              Immerse yourself in regional craftsmanship, sacred rituals, and historic architectural marvels.
+            </p>
+          </div>
+        </div>
+
+        <div className="culture-grid">
+          <div className="culture-card">
+            <span className="culture-tag">SACRED TRADITIONS</span>
+            <h3 className="culture-title">Rivers, Ghats & Sacred Waters</h3>
+            <p className="culture-text">
+              From the dawn arati along the Varanasi riverfront to the pristine springs of Uttarakhand, India’s sacred waters reflect millennia of living ritual and continuous community veneration.
+            </p>
+            <Link href="/destinations?q=Varanasi" className="culture-link">
+              Discover Sacred Trails <span>→</span>
+            </Link>
+          </div>
+
+          <div className="culture-card">
+            <span className="culture-tag">ARTISAN CLUSTERS</span>
+            <h3 className="culture-title">Living Crafts & Handlooms</h3>
+            <p className="culture-text">
+              Centuries-old artisan traditions endure across regions — from Pashmina wool in Kashmir and Chanderi silks in Madhya Pradesh to the intricate block prints of Rajasthan.
+            </p>
+            <Link href="/destinations?q=Rajasthan" className="culture-link">
+              Explore Craft Centers <span>→</span>
+            </Link>
+          </div>
+
+          <div className="culture-card">
+            <span className="culture-tag">TIMELESS ARCHITECTURE</span>
+            <h3 className="culture-title">Stepwells, Havelis & Palaces</h3>
+            <p className="culture-text">
+              Extraordinary subterranean stepwells in Gujarat, painted havelis of Shekhawati, and monolithic rock-cut cave temples showcase unprecedented feats of Indian design.
+            </p>
+            <Link href="/destinations?q=Heritage" className="culture-link">
+              Explore Architectural Wonders <span>→</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================================================
+          SECTION H: FINAL EXPLORATION CALL TO ACTION
+          ==================================================== */}
+      <section className="closing-cta-section" aria-labelledby="closing-cta-heading">
+        <div className="page-shell closing-cta-content">
+          <p className="closing-cta-eyebrow">YOUR JOURNEY BEGINS HERE</p>
+          <h2 id="closing-cta-heading" className="closing-cta-title">
+            Ready to experience the true essence of India?
+          </h2>
+          <p className="closing-cta-desc">
+            Discover authentic destinations, read curated travel guides, and immerse yourself in the rich tapestry of Indian heritage and natural wonders.
+          </p>
+          <div className="closing-cta-buttons">
+            <Link href="/destinations" className="btn-cta-gold">
+              Explore Destinations
+            </Link>
+            <Link href="/states" className="btn-cta-outline-cream">
+              Browse States & UTs
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 }
