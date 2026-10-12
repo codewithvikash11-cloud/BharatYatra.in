@@ -179,6 +179,10 @@ export default async function HomePage() {
             <img
               src="https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop"
               alt={destinations && destinations[0] ? destinations[0].name_en : 'Hawa Mahal in Jaipur Rajasthan'}
+              loading="lazy"
+              decoding="async"
+              width="600"
+              height="440"
             />
             <div className="dest-card-gradient-overlay" aria-hidden="true" />
             <div className="dest-tall-card-content">
@@ -201,6 +205,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=800&auto=format&fit=crop"
                 alt="Kerala backwaters and houseboats"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="260"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="dest-thumb-card-content">
@@ -214,6 +222,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=800&auto=format&fit=crop"
                 alt="Taj Mahal framed through archway"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="260"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="dest-thumb-card-content">
@@ -227,6 +239,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=800&auto=format&fit=crop"
                 alt="Goa coastline and Arabian sea"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="260"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="dest-thumb-card-content">
@@ -240,6 +256,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=800&auto=format&fit=crop"
                 alt="Varanasi river ghats on Ganges"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="260"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="dest-thumb-card-content">
@@ -275,6 +295,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=800&auto=format&fit=crop"
                 alt="North India Taj Mahal"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="region-photo-card-content">
@@ -289,6 +313,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=800&auto=format&fit=crop"
                 alt="South India Backwaters"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="region-photo-card-content">
@@ -303,6 +331,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=800&auto=format&fit=crop"
                 alt="Himalayan alpine mountains"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="region-photo-card-content">
@@ -317,6 +349,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800&auto=format&fit=crop"
                 alt="West India Desert Citadels"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
               <div className="region-photo-card-content">
@@ -496,6 +532,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop"
                 alt="The Golden Triangle tour"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <span className="itinerary-badge-pill">7 DAYS</span>
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
@@ -510,6 +550,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop"
                 alt="Southern Serenity Kerala tour"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <span className="itinerary-badge-pill">10 DAYS</span>
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
@@ -524,6 +568,10 @@ export default async function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=1200&auto=format&fit=crop"
                 alt="Heritage of the Heart North India"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="280"
               />
               <span className="itinerary-badge-pill">8 DAYS</span>
               <div className="dest-card-gradient-overlay" aria-hidden="true" />
@@ -561,6 +609,10 @@ export default async function HomePage() {
                   <img
                     src={article.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800&auto=format&fit=crop'}
                     alt={article.cover_image_alt || article.title_en}
+                    loading="lazy"
+                    decoding="async"
+                    width="400"
+                    height="250"
                   />
                 </div>
                 <div className="story-card-body">
@@ -614,6 +666,10 @@ export default async function HomePage() {
             <img
               src="https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=1200&auto=format&fit=crop"
               alt="Taj Mahal reflecting pool in morning sunlight"
+              loading="lazy"
+              decoding="async"
+              width="600"
+              height="400"
             />
           </div>
         </div>

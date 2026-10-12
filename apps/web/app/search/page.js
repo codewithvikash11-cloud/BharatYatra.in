@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import prisma from '../lib/db.js';
+import prisma from '../../lib/db.js';
 
 export const dynamic = 'force-dynamic';
 
