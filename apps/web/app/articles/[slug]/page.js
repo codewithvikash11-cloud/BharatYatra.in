@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getContent } from '../../../lib/content-api.mjs';
 import { MarkdownContent } from '../../../lib/markdown.js';
 import prisma from '../../../lib/db.js';
+import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -169,11 +170,7 @@ export default async function ArticleDetailPage({ params }) {
 
           {/* Category & Location Badges */}
           <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
-            {item.category && (
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold-muted)', background: 'var(--teal-deep)', padding: '0.25rem 0.75rem', borderRadius: '999px' }}>
-                {item.category}
-              </span>
-            )}
+            {item.category && <ContentTypeBadge category={item.category} />}
             {destination && (
               <Link
                 href={`/destinations/${destination.slug}`}
@@ -251,6 +248,14 @@ export default async function ArticleDetailPage({ params }) {
           <article className="article-prose-container" style={{ fontSize: '1.1rem', lineHeight: 1.85, color: 'var(--text-primary)' }}>
             <MarkdownContent content={item.body_en} />
           </article>
+
+          {/* Content-Aware Specialized Template Extras */}
+          <ContentTypeTemplateExtras
+            category={item.category}
+            destination={destination}
+            state={state}
+            title={item.title_en}
+          />
 
           {/* Related Destination Banner */}
           {destination && (
