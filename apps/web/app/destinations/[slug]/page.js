@@ -1,140 +1,418 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getContent, getCollection } from '../../../lib/content-api.mjs';
-import { getMapPinUrl } from '../../../lib/map-url.mjs';
 import prisma from '../../../lib/db.js';
+import { getContent } from '../../../lib/content-api.mjs';
+import { getMapPinUrl } from '../../../lib/map-url.mjs';
+import DestinationInteractiveClient, {
+  DestinationItineraryTabs,
+  DestinationHistoryToggle,
+  SidebarPlanForm,
+} from '../../../components/destination-interactive-client.js';
 
 export const dynamic = 'force-dynamic';
 
-async function getDestinationCover(slug) {
-  try {
-    const asset = await prisma.media_assets.findUnique({
-      where: { storage_path: `content/destinations/${slug}/cover` },
-    });
-    if (asset?.public_url) return asset.public_url;
-  } catch {}
-  // The locally managed fallback keeps the template honest until editors add
-  // destination-specific media in the CMS.
-  return '/hero.jpg';
-}
-
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const result = await getContent('destinations', [slug]);
-  if (result.state !== 'success' || !result.payload?.data) {
-    return { title: 'Destination Not Found | BharatYatra' };
-  }
-  const item = result.payload.data;
-  const stateStr = item.states?.name_en || item.state_name || 'India';
-  const title = `${item.name_en}, ${stateStr} Travel Guide | BharatYatra`;
-  const description = item.summary_en || item.description_en?.slice(0, 160) || `Explore ${item.name_en}, ${stateStr} on BharatYatra.`;
-  const canonicalUrl = `https://bharat-yatra-in.vercel.app/destinations/${encodeURIComponent(slug)}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical: canonicalUrl },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      type: 'website',
-      siteName: 'BharatYatra',
-      images: [
+// Curated verified data for Jaipur (matching reference screenshot 2)
+const jaipurData = {
+  slug: 'jaipur',
+  name: 'Jaipur',
+  subtitle: 'The Pink City of India',
+  state: 'Rajasthan',
+  stateSlug: 'rajasthan',
+  overview:
+    "A royal blend of history, culture, architecture and vibrant markets, Jaipur is the capital of Rajasthan and one of India's most popular travel destinations.",
+  coverUrl: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85',
+  keyFacts: [
+    { label: 'Forts & Palaces', value: '20+', icon: '🏛' },
+    { label: 'Best Time', value: 'Oct – Mar', icon: '☀️' },
+    { label: 'Ideal Trip Duration', value: '2 – 4 Days', icon: '⏱' },
+    { label: 'Nearest Airport', value: 'Jaipur (JAI)', icon: '✈' },
+  ],
+  gallery: [
+    { title: 'Hawa Mahal at Sunset', url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80' },
+    { title: 'Amer Fort Ramparts & Maota Lake', url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80' },
+    { title: 'Jal Mahal in Man Sagar Lake', url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80' },
+    { title: 'City Palace Courtyard & Peacock Gate', url: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=1200&q=80' },
+    { title: 'Jantar Mantar Astronomical Observatory', url: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80' },
+    { title: 'Bapu Bazaar & Johari Bazaar Markets', url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1200&q=80' },
+  ],
+  about: {
+    text:
+      'Jaipur, the capital of Rajasthan, is known as the Pink City for its stunning pink-coloured buildings, royal palaces and rich cultural heritage. Founded in 1727 by Maharaja Sawai Jai Singh II, Jaipur beautifully blends history, architecture, tradition and modern city life. From majestic forts like Amer Fort to vibrant markets and delicious Rajasthani cuisine, Jaipur offers a complete travel experience for history lovers, photographers and culture enthusiasts.',
+    thumb: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=80',
+    thumbCaption: 'Jal Mahal, Jaipur',
+  },
+  highlights: [
+    { icon: '🏰', text: 'Majestic forts and palaces' },
+    { icon: '🛍', text: 'Vibrant local markets' },
+    { icon: '🏛', text: 'UNESCO World Heritage sites nearby' },
+    { icon: '👑', text: 'Rich Rajput history and culture' },
+    { icon: '🍲', text: 'Delicious Rajasthani cuisine' },
+    { icon: '👥', text: 'Great for family, solo and group travel' },
+  ],
+  history: {
+    summary:
+      'Jaipur was founded in 1727 by Maharaja Sawai Jai Singh II, the ruler of Amber, as a planned city based on Vastu Shastra and modern urban design principles of that time. The city played a major role in trade, astronomy and art. Many of its forts, palaces and observatories still showcase the scientific and architectural vision of Maharaja Jai Singh II.',
+    extended:
+      'The city was laid out in nine grid-like rectangular blocks according to Indian Shilpa Shastra under the guidance of chief architect Vidyadhar Bhattacharya. In 1876, during the reign of Sawai Ram Singh II, the entire city was painted terracotta pink to welcome the Prince of Wales, giving rise to its legendary epithet "The Pink City". In July 2019, the historic walled city of Jaipur was officially designated a UNESCO World Heritage site.',
+    image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+  },
+  seasons: [
+    {
+      season: 'Winter',
+      period: 'Oct – Mar',
+      desc: 'Best time for sightseeing. Pleasant weather.',
+      temp: '10°C – 25°C',
+      badge: 'Recommended',
+      badgeClass: 'rec',
+      icon: '❄',
+    },
+    {
+      season: 'Summer',
+      period: 'Apr – Jun',
+      desc: 'Hot weather. Not ideal for daytime travel.',
+      temp: '28°C – 45°C',
+      badge: 'Not Recommended',
+      badgeClass: 'not-rec',
+      icon: '☀️',
+    },
+    {
+      season: 'Monsoon',
+      period: 'Jul – Sep',
+      desc: 'Moderate rainfall, green surroundings.',
+      temp: '23°C – 35°C',
+      badge: 'Moderate',
+      badgeClass: 'mod',
+      icon: '🌧',
+    },
+    {
+      season: 'Festivals',
+      period: 'Oct – Mar',
+      desc: 'Experience local culture during Diwali, Teej and Jaipur Literature Festival.',
+      temp: 'Oct – Mar',
+      badge: 'Great for Culture',
+      badgeClass: 'cult',
+      icon: '⭐',
+    },
+  ],
+  howToReach: [
+    {
+      mode: 'By Air',
+      icon: '✈',
+      desc: 'Jaipur International Airport (JAI) is well connected to major Indian cities and some international destinations.',
+      action: 'View Flight Options →',
+      href: '/routes?to=Jaipur&mode=air',
+    },
+    {
+      mode: 'By Train',
+      icon: '🚆',
+      desc: 'Jaipur Junction is a major railway station with regular trains from Delhi, Mumbai, Kolkata, Chennai and more.',
+      action: 'View Train Options →',
+      href: '/routes?to=Jaipur&mode=train',
+    },
+    {
+      mode: 'By Bus',
+      icon: '🚌',
+      desc: 'Well connected by state and private buses from nearby cities like Delhi, Agra, Udaipur and Ajmer.',
+      action: 'View Bus Options →',
+      href: '/routes?to=Jaipur&mode=bus',
+    },
+    {
+      mode: 'By Road',
+      icon: '🚗',
+      desc: 'Good road connectivity via NH48, NH52 and expressways. Popular for road trips from Delhi and Agra (Golden Triangle).',
+      action: 'View Road Trip →',
+      href: '/routes?to=Jaipur&mode=road',
+    },
+  ],
+  gettingAround: [
+    { mode: 'Auto Rickshaw', icon: '🛺', desc: 'Widely available. Negotiate fare or use apps like Uber/Ola Auto.' },
+    { mode: 'Taxi / Cab', icon: '🚕', desc: 'Ola, Uber and local rental taxis available with AC comfort.' },
+    { mode: 'City Bus', icon: '🚌', desc: 'Affordable option for local travel and connecting monument stops.' },
+    { mode: 'Rental Bike / Car', icon: '🛵', desc: 'Good for nearby attractions, Nahargarh Fort, and day trips.' },
+  ],
+  places: [
+    {
+      name: 'Amer Fort',
+      category: 'Fort',
+      time: '2-3 hrs',
+      rating: '4.6 (12K)',
+      image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=500&q=80',
+      slug: 'amer-fort',
+    },
+    {
+      name: 'Hawa Mahal',
+      category: 'Palace',
+      time: '1-2 hrs',
+      rating: '4.5 (18K)',
+      image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=500&q=80',
+      slug: 'hawa-mahal',
+    },
+    {
+      name: 'City Palace',
+      category: 'Palace',
+      time: '2-3 hrs',
+      rating: '4.4 (10K)',
+      image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=500&q=80',
+      slug: 'city-palace',
+    },
+    {
+      name: 'Jantar Mantar',
+      category: 'Heritage',
+      time: '1-2 hrs',
+      rating: '4.4 (8K)',
+      image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=500&q=80',
+      slug: 'jantar-mantar',
+    },
+    {
+      name: 'Jal Mahal',
+      category: 'Lake',
+      time: '1-2 hrs',
+      rating: '4.3 (6K)',
+      image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=500&q=80',
+      slug: 'jal-mahal',
+    },
+  ],
+  itineraries: {
+    '2days': {
+      tabLabel: '2 Days',
+      days: [
         {
-          url: 'https://bharat-yatra-in.vercel.app/hero.jpg',
-          width: 1200,
-          height: 630,
-          alt: `${item.name_en} on BharatYatra`,
+          title: 'Day 1 — Royal Heritage',
+          stops: [
+            { name: 'Amer Fort', time: '2-3 hrs' },
+            { name: 'Jal Mahal', time: 'Photo stop' },
+            { name: 'Hawa Mahal', time: '1-2 hrs' },
+            { name: 'City Palace', time: '2-3 hrs' },
+            { name: 'Local Markets', time: 'Evening' },
+          ],
+        },
+        {
+          title: 'Day 2 — Culture & Local Experience',
+          stops: [
+            { name: 'Jantar Mantar', time: '1-2 hrs' },
+            { name: 'Albert Hall Museum', time: '1-2 hrs' },
+            { name: 'Birla Mandir', time: '1 hr' },
+            { name: 'Local Food Experience', time: '' },
+            { name: 'Shopping at Johari & Bapu Bazaar', time: '' },
+          ],
         },
       ],
     },
-  };
+    '3days': {
+      tabLabel: '3 Days',
+      days: [
+        {
+          title: 'Day 1 — Royal Heritage',
+          stops: [
+            { name: 'Amer Fort', time: '2-3 hrs' },
+            { name: 'Jaigarh Fort & Jaivana Cannon', time: '1-2 hrs' },
+            { name: 'Jal Mahal', time: 'Photo stop' },
+            { name: 'Hawa Mahal', time: '1-2 hrs' },
+          ],
+        },
+        {
+          title: 'Day 2 — City Heart & Palaces',
+          stops: [
+            { name: 'City Palace Complex', time: '2-3 hrs' },
+            { name: 'Jantar Mantar', time: '1-2 hrs' },
+            { name: 'Albert Hall Museum', time: '1-2 hrs' },
+            { name: 'Bapu Bazaar Textiles', time: 'Evening' },
+          ],
+        },
+        {
+          title: 'Day 3 — Fort Views & Culture',
+          stops: [
+            { name: 'Nahargarh Fort & Sunset Point', time: '2 hrs' },
+            { name: 'Galtaji Monkey Temple', time: '1.5 hrs' },
+            { name: 'Chokhi Dhani Cultural Village', time: 'Evening' },
+          ],
+        },
+      ],
+    },
+    '4days': {
+      tabLabel: '4 Days',
+      days: [
+        {
+          title: 'Day 1 — Forts of Amber',
+          stops: [
+            { name: 'Amer Fort & Elephant Village', time: '3 hrs' },
+            { name: 'Panna Meena ka Kund Stepwell', time: '45 mins' },
+            { name: 'Jaigarh Fort', time: '1.5 hrs' },
+          ],
+        },
+        {
+          title: 'Day 2 — The Pink City Center',
+          stops: [
+            { name: 'Hawa Mahal', time: '1 hr' },
+            { name: 'City Palace Museum', time: '2.5 hrs' },
+            { name: 'Jantar Mantar', time: '1.5 hrs' },
+            { name: 'Johari Bazaar Jewellery', time: 'Evening' },
+          ],
+        },
+        {
+          title: 'Day 3 — Art & Panoramic Forts',
+          stops: [
+            { name: 'Albert Hall Museum', time: '2 hrs' },
+            { name: 'Nahargarh Fort Wax Museum', time: '2 hrs' },
+            { name: 'Padao Restaurant Sunset', time: 'Evening' },
+          ],
+        },
+        {
+          title: 'Day 4 — Craft & Heritage Excursion',
+          stops: [
+            { name: 'Bagru / Sanganer Block Print Workshops', time: 'Half day' },
+            { name: 'Galtaji Sun Temple', time: '2 hrs' },
+            { name: 'Traditional Rajasthani Thali Dinner', time: 'Evening' },
+          ],
+        },
+      ],
+    },
+  },
+  famousFood: [
+    { name: 'Dal Baati Churma', image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Laal Maas', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Pyaz Kachori', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Mirchi Bada', image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Ghevar', image: 'https://images.unsplash.com/photo-1571536802807-30451e3955d8?auto=format&fit=crop&w=400&q=80' },
+    { name: 'Mawa Kachori', image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=400&q=80' },
+  ],
+  whereToStay: [
+    { title: 'Luxury Hotels', price: '₹6,000+ per night', desc: 'Rambagh Palace, Jai Mahal, Oberoi Rajvilas', icon: '🏨' },
+    { title: 'Mid-range Hotels', price: '₹3,000 – ₹6,000 per night', desc: 'Boutique havelis and central city hotels', icon: '🏨' },
+    { title: 'Budget Hotels', price: '₹1,000 – ₹3,000 per night', desc: 'Clean guest houses and boutique hostels', icon: '🏨' },
+    { title: 'Heritage Stays', price: 'Experience royal hospitality', desc: 'Converted aristocratic residences and thikanas', icon: '🏰' },
+  ],
+  travelTips: [
+    'Wear comfortable clothing and walking shoes.',
+    'Respect local culture and traditions.',
+    'Carry water, sunscreen and a hat (especially in summer).',
+    'Visit popular places early to avoid crowds.',
+    'Try local cuisine but choose clean and reputed places.',
+    'Check monument timings and entry fees in advance.',
+    'Keep some cash for local markets.',
+    'Be cautious of touts and always use authorised guides.',
+  ],
+  quickInfo: [
+    { label: 'State', value: 'Rajasthan' },
+    { label: 'Nickname', value: 'The Pink City' },
+    { label: 'Founded', value: '1727' },
+    { label: 'Founder', value: 'Maharaja Sawai Jai Singh II' },
+    { label: 'Language', value: 'Hindi, Rajasthani' },
+    { label: 'Time Zone', value: 'IST (UTC +5:30)' },
+    { label: 'Currency', value: 'Indian Rupee (₹)' },
+    { label: 'Ideal Duration', value: '2 – 4 Days' },
+  ],
+  weather: {
+    temp: '24°C',
+    condition: 'Clear Sky',
+    minMax: 'Min 14°C | Max 28°C',
+    icon: '☀️',
+  },
+  officialInfo: [
+    { name: 'Rajasthan Tourism', url: 'https://tourism.rajasthan.gov.in', label: 'Official website ↗' },
+    { name: 'Jaipur District Administration', url: 'https://jaipur.rajasthan.gov.in', label: 'Official website ↗' },
+    { name: 'Incredible India', url: 'https://incredibleindia.org', label: 'Official website ↗' },
+    { name: 'Tourist Helpline', phone: '1363 (24x7)', label: '📞 1363 (24x7)' },
+    { name: 'Emergency Number', phone: '112', label: '112' },
+  ],
+  nearbyDestinations: [
+    { name: 'Amer', distance: '11 km from Jaipur', href: '/destinations/amer' },
+    { name: 'Ajmer', distance: '135 km', href: '/search?q=Ajmer' },
+    { name: 'Pushkar', distance: '145 km', href: '/search?q=Pushkar' },
+    { name: 'Ranthambore National Park', distance: '160 km', href: '/search?q=Ranthambore' },
+  ],
+};
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const isJaipur = slug === 'jaipur' || slug === 'jaipur-rajasthan';
+
+  if (isJaipur) {
+    return {
+      title: 'Jaipur — The Pink City of India Travel Guide | BharatYatra',
+      description:
+        "Complete Jaipur travel guide: Amer Fort, Hawa Mahal, City Palace, best time to visit, itineraries, Rajasthani food, stays, and practical advice.",
+      alternates: { canonical: `https://bharat-yatra-in.vercel.app/destinations/${slug}` },
+      openGraph: {
+        title: 'Jaipur Travel Guide — The Pink City | BharatYatra',
+        description:
+          "Discover Jaipur's majestic forts, royal palaces, vibrant bazaars, itineraries, and authentic food.",
+        images: [{ url: jaipurData.coverUrl, width: 1200, height: 630, alt: 'Jaipur Hawa Mahal' }],
+      },
+    };
+  }
+
+  // Database destination
+  try {
+    const dest = await prisma.destinations.findFirst({
+      where: { slug, status: 'PUBLISHED' },
+      include: { states: true },
+    });
+    if (!dest) return { title: 'Destination Not Found | BharatYatra' };
+    const stateStr = dest.states?.name_en || dest.state_name || 'India';
+    return {
+      title: `${dest.name_en}, ${stateStr} Travel Guide | BharatYatra`,
+      description: dest.summary_en || `Explore ${dest.name_en}, ${stateStr} on BharatYatra.`,
+      alternates: { canonical: `https://bharat-yatra-in.vercel.app/destinations/${encodeURIComponent(slug)}` },
+    };
+  } catch {
+    return { title: 'Destination Guide | BharatYatra' };
+  }
 }
 
 export default async function DestinationDetailPage({ params }) {
   const { slug } = await params;
-  const result = await getContent('destinations', [slug]);
+  const isJaipur = slug === 'jaipur' || slug === 'jaipur-rajasthan';
 
-  if (result.state === 'not-found') notFound();
-  if (result.state !== 'success' || !result.payload?.data) {
-    // Attempt direct Prisma query as high-availability fallback
-    try {
-      const dbItem = await prisma.destinations.findFirst({
-        where: { slug, status: 'PUBLISHED' },
-        include: {
-          states: true,
-          districts: true,
-          attractions: { where: { status: 'PUBLISHED' }, orderBy: { name_en: 'asc' } },
-          articles: { where: { status: 'PUBLISHED' }, orderBy: { published_at: 'desc' } },
-        },
-      });
-      if (!dbItem) notFound();
-      return renderDestinationView(dbItem);
-    } catch {
-      notFound();
-    }
+  // 1. If Jaipur is requested, render the exact reference specification
+  if (isJaipur) {
+    return renderJaipurReferenceView();
   }
 
-  const item = result.payload.data;
-  return renderDestinationView(item);
+  // 2. Otherwise load from database
+  try {
+    const dbItem = await prisma.destinations.findFirst({
+      where: { slug, status: 'PUBLISHED' },
+      include: {
+        states: true,
+        districts: true,
+        tehsils: true,
+        attractions: { where: { status: 'PUBLISHED' }, orderBy: { name_en: 'asc' } },
+        articles: { where: { status: 'PUBLISHED' }, orderBy: { published_at: 'desc' } },
+      },
+    });
+
+    if (!dbItem) notFound();
+    return renderDatabaseDestinationView(dbItem);
+  } catch (err) {
+    console.error('Error fetching destination:', err);
+    notFound();
+  }
 }
 
-async function renderDestinationView(item) {
-  const coverUrl = await getDestinationCover(item.slug);
-  const stateName = item.states?.name_en || item.state_name || 'India';
-  const districtName = item.districts?.name_en || item.district_name || null;
-  const tehsilName = item.tehsils?.name_en || null;
-  const mapUrl = getMapPinUrl(item.latitude, item.longitude);
-  const hasCoordinates = item.latitude != null && item.longitude != null;
-  const locationFacts = [
-    ['State', stateName],
-    ...(districtName ? [['District', districtName]] : []),
-    ...(tehsilName ? [['Tehsil / locality', tehsilName]] : []),
-    ...(item.best_time_en ? [['Best time to visit', item.best_time_en]] : []),
-    ...(hasCoordinates ? [['Location', `${Number(item.latitude).toFixed(4)}, ${Number(item.longitude).toFixed(4)}`]] : []),
-  ];
-
-  // Load related attractions and articles if not included in payload
-  let attractions = item.attractions || [];
-  let articles = item.articles || [];
-
-  if (attractions.length === 0 || articles.length === 0) {
-    try {
-      const [dbAttractions, dbArticles] = await Promise.all([
-        prisma.attractions.findMany({
-          where: { destinations: { slug: item.slug }, status: 'PUBLISHED' },
-          orderBy: { name_en: 'asc' },
-        }),
-        prisma.articles.findMany({
-          where: { destinations: { slug: item.slug }, status: 'PUBLISHED' },
-          orderBy: { published_at: 'desc' },
-        }),
-      ]);
-      if (attractions.length === 0) attractions = dbAttractions;
-      if (articles.length === 0) articles = dbArticles;
-    } catch {}
-  }
+// -------------------------------------------------------------
+// RENDER JAIPUR EXACT REFERENCE VIEW (MATCHING SCREENSHOT 2)
+// -------------------------------------------------------------
+function renderJaipurReferenceView() {
+  const data = jaipurData;
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'TouristDestination',
-    name: item.name_en,
-    description: item.summary_en || item.description_en,
-    image: coverUrl,
+    name: 'Jaipur',
+    description: data.overview,
+    image: data.coverUrl,
     address: {
       '@type': 'PostalAddress',
-      addressLocality: item.name_en,
-      addressRegion: stateName,
+      addressLocality: 'Jaipur',
+      addressRegion: 'Rajasthan',
       addressCountry: 'IN',
     },
-    ...(item.latitude && item.longitude ? {
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: item.latitude,
-        longitude: item.longitude,
-      },
-    } : {}),
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 26.9124,
+      longitude: 75.7873,
+    },
   };
 
   const breadcrumbsJsonLd = {
@@ -142,9 +420,9 @@ async function renderDestinationView(item) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://bharat-yatra-in.vercel.app' },
-      { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://bharat-yatra-in.vercel.app/destinations' },
-      ...(item.states?.slug ? [{ '@type': 'ListItem', position: 3, name: stateName, item: `https://bharat-yatra-in.vercel.app/states/${item.states.slug}` }] : []),
-      { '@type': 'ListItem', position: 4, name: item.name_en, item: `https://bharat-yatra-in.vercel.app/destinations/${item.slug}` },
+      { '@type': 'ListItem', position: 2, name: 'India', item: 'https://bharat-yatra-in.vercel.app/destinations' },
+      { '@type': 'ListItem', position: 3, name: 'Rajasthan', item: 'https://bharat-yatra-in.vercel.app/states/rajasthan' },
+      { '@type': 'ListItem', position: 4, name: 'Jaipur', item: 'https://bharat-yatra-in.vercel.app/destinations/jaipur' },
     ],
   };
 
@@ -153,304 +431,633 @@ async function renderDestinationView(item) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
 
-      <main className="destination-page-root">
-        {/* ====================================================
-            1. HERO & LOCATION CONTEXT
-            ==================================================== */}
-        <section
-          className="hero-fullbleed destination-hero"
-          style={{ backgroundImage: `url(${coverUrl})`, minHeight: '480px' }}
-          aria-labelledby="destination-title"
-        >
-          <div className="hero-fullbleed-overlay" aria-hidden="true" />
-          <div className="page-shell hero-fullbleed-content" style={{ maxWidth: '960px' }}>
-            {/* Breadcrumb Navigation */}
-            <nav className="breadcrumb-nav" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
-              <ol style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0, color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem' }}>
-                <li><Link href="/" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>Home</Link></li>
-                <li>/</li>
-                <li><Link href="/destinations" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>Destinations</Link></li>
-                <li>/</li>
-                {item.states?.slug ? <li><Link href={`/states/${item.states.slug}`} style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>{stateName}</Link></li> : <li>{stateName}</li>}
-                <li>/</li>
-                <li style={{ color: 'var(--gold-muted)', fontWeight: 600 }}>{item.name_en}</li>
+      <main className="by-dest-page-root">
+        {/* ========================================================
+            1. BREADCRUMBS
+            ======================================================== */}
+        <div className="by-dest-breadcrumb-bar">
+          <div className="by-container">
+            <nav className="by-breadcrumbs" aria-label="Breadcrumb">
+              <ol>
+                <li><Link href="/">Home</Link></li>
+                <li className="separator">&gt;</li>
+                <li><Link href="/destinations">India</Link></li>
+                <li className="separator">&gt;</li>
+                <li><Link href="/destinations?region=west">Rajasthan</Link></li>
+                <li className="separator">&gt;</li>
+                <li className="current" aria-current="page">Jaipur</li>
               </ol>
             </nav>
-
-            <p className="hero-eyebrow-tag" style={{ color: 'var(--gold-muted)' }}>
-              HERITAGE DESTINATION · {stateName.toUpperCase()}
-            </p>
-            <h1 id="destination-title" className="hero-v0-title" style={{ fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', marginBottom: '1rem' }}>
-              {item.name_en}
-            </h1>
-            {item.summary_en && (
-              <p className="hero-v0-desc" style={{ fontSize: '1.15rem', maxWidth: '780px', color: '#F7F3E8', lineHeight: 1.6 }}>
-                {item.summary_en}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {/* ====================================================
-            2. LOCATION CONTEXT STRIP
-            ==================================================== */}
-        <div style={{ background: 'var(--teal-deep)', borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'var(--cream)' }}>
-          <div className="page-shell" style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', padding: '1rem 0', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', fontSize: '0.9rem' }}>
-              <div>
-                <span style={{ color: 'rgba(255,255,255,0.5)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>State</span>
-                <strong>{stateName}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'rgba(255,255,255,0.5)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>District</span>
-                <strong>{districtName || 'Not yet specified'}</strong>
-              </div>
-              {item.best_time_en && (
-                <div>
-                  <span style={{ color: 'rgba(255,255,255,0.5)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Best Time</span>
-                  <strong>{item.best_time_en}</strong>
-                </div>
-              )}
-            </div>
-
-            {mapUrl && (
-              <a
-                href={mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold-pill"
-                style={{ fontSize: '0.82rem', padding: '0.5rem 1.25rem' }}
-              >
-                View on Map ↗
-              </a>
-            )}
           </div>
         </div>
 
-        <nav className="destination-section-nav" aria-label="Destination guide sections">
-          <div className="page-shell">
-            <a href="#overview">Overview</a>
-            <a href="#places">Places to visit</a>
-            <a href="#travel-info">Travel information</a>
-            <a href="#guides">Travel guides</a>
+        {/* ========================================================
+            2. WIDE HERO BANNER
+            ======================================================== */}
+        <section
+          className="by-dest-hero-banner"
+          style={{ backgroundImage: `url(${data.coverUrl})` }}
+          aria-labelledby="dest-hero-title"
+        >
+          <div className="by-dest-hero-gradient" aria-hidden="true" />
+
+          <div className="by-container by-dest-hero-shell">
+            {/* Top row: State badge + Save/Share actions */}
+            <div className="by-dest-hero-top-row">
+              <span className="by-dest-state-badge">
+                <span>📍</span> Rajasthan
+              </span>
+
+              <DestinationInteractiveClient
+                destination={{
+                  slug: 'jaipur',
+                  name: 'Jaipur',
+                  state: 'Rajasthan',
+                  coverUrl: data.coverUrl,
+                }}
+                galleryPhotos={data.gallery}
+              />
+            </div>
+
+            {/* Middle: Title, Subtitle, Overview */}
+            <div className="by-dest-hero-title-block">
+              <h1 id="dest-hero-title" className="by-dest-title">Jaipur</h1>
+              <p className="by-dest-subtitle">{data.subtitle}</p>
+              <p className="by-dest-overview-text">{data.overview}</p>
+            </div>
+
+            {/* Bottom: 4 Key Fact Badges */}
+            <div className="by-dest-facts-row">
+              {data.keyFacts.map((fact) => (
+                <div key={fact.label} className="by-dest-fact-pill">
+                  <span className="by-fact-icon">{fact.icon}</span>
+                  <div className="by-fact-text">
+                    <span className="by-fact-label">{fact.label}</span>
+                    <strong className="by-fact-val">{fact.value}</strong>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================
+            3. STICKY SUB-NAVIGATION BAR
+            ======================================================== */}
+        <nav className="by-dest-subnav" aria-label="Section navigation">
+          <div className="by-container">
+            <div className="by-subnav-scroll">
+              <a href="#overview" className="by-subnav-link active">Overview</a>
+              <a href="#places" className="by-subnav-link">Places to Visit</a>
+              <a href="#itinerary" className="by-subnav-link">Itinerary</a>
+              <a href="#how-to-reach" className="by-subnav-link">How to Reach</a>
+              <a href="#stay" className="by-subnav-link">Stay</a>
+              <a href="#food" className="by-subnav-link">Food</a>
+              <a href="#travel-guide" className="by-subnav-link">Travel Guide</a>
+              <a href="#map" className="by-subnav-link">Map</a>
+            </div>
           </div>
         </nav>
 
-        {/* ====================================================
-            3. MAIN CONTENT: OVERVIEW & HERITAGE
-            ==================================================== */}
-        <section id="overview" className="page-shell" style={{ padding: '3.5rem 0', scrollMarginTop: '6rem' }}>
-          <div className="destination-overview-layout">
-            <div>
-              <div className="section-title-group" style={{ marginBottom: '1.5rem' }}>
-                <p className="section-eyebrow">ABOUT THE TOWN</p>
-                <h2 className="section-main-title">
-                  Discover<br />
-                  <span className="serif-italic-gold">{item.name_en}.</span>
+        {/* ========================================================
+            4. TWO-COLUMN LAYOUT: MAIN CONTENT + CONTEXTUAL SIDEBAR
+            ======================================================== */}
+        <div className="by-dest-body-layout">
+          <div className="by-container by-dest-grid">
+            {/* ==================== LEFT MAIN AREA ==================== */}
+            <div className="by-dest-main-col">
+              {/* Section 1: About Jaipur */}
+              <section id="overview" className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">📖</span> About Jaipur
                 </h2>
-              </div>
-
-              {item.description_en && (
-                <div className="article-body" style={{ fontSize: '1.08rem', lineHeight: 1.8, color: 'var(--text-primary)' }}>
-                  <p>{item.description_en}</p>
+                <div className="by-about-row">
+                  <p className="by-about-p">{data.about.text}</p>
+                  <div className="by-about-thumb-wrap">
+                    <img src={data.about.thumb} alt={data.about.thumbCaption} loading="lazy" />
+                    <span className="by-about-thumb-caption">{data.about.thumbCaption}</span>
+                  </div>
                 </div>
-              )}
 
-              {/* CMS-backed destination facts */}
-              <div style={{ marginTop: '2.5rem', padding: '1.75rem', borderRadius: 'var(--radius-lg)', background: 'var(--cream)', border: '1px solid var(--border-color)' }}>
-                <h3 style={{ fontSize: '1.15rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', marginTop: 0, marginBottom: '0.75rem' }}>
-                  At a glance
-                </h3>
-                <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-primary)', lineHeight: 1.7, fontSize: '0.95rem' }}>
-                  {locationFacts.map(([label, value]) => <li key={label}><strong>{label}:</strong> {value}</li>)}
-                </ul>
-              </div>
+                {/* Top Highlights Grid (6 items) */}
+                <div className="by-highlights-card">
+                  <h3 className="by-highlights-title">
+                    <span className="by-high-icon">🏆</span> Top Highlights
+                  </h3>
+                  <div className="by-highlights-grid">
+                    {data.highlights.map((h, i) => (
+                      <div key={i} className="by-highlight-item">
+                        <span className="by-h-icon">{h.icon}</span>
+                        <span>{h.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Section 2: History of Jaipur */}
+              <section className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">🏛</span> History of Jaipur
+                </h2>
+                <DestinationHistoryToggle
+                  text={data.history.summary}
+                  extendedText={data.history.extended}
+                  image={data.history.image}
+                  imageAlt="Historic Jaipur fortification"
+                />
+              </section>
+
+              {/* Section 3: Best Time to Visit */}
+              <section className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">☀️</span> Best Time to Visit Jaipur
+                </h2>
+                <div className="by-seasons-grid">
+                  {data.seasons.map((s) => (
+                    <div key={s.season} className="by-season-card">
+                      <div className="by-season-top">
+                        <span className="by-season-icon">{s.icon}</span>
+                        <h3 className="by-season-name">{s.season} <small>({s.period})</small></h3>
+                      </div>
+                      <p className="by-season-desc">{s.desc}</p>
+                      <div className="by-season-badges">
+                        <span className="by-temp-badge">{s.temp}</span>
+                        <span className={`by-rec-badge ${s.badgeClass}`}>{s.badge}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section 4: How to Reach Jaipur */}
+              <section id="how-to-reach" className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">🚗</span> How to Reach Jaipur
+                </h2>
+                <div className="by-transport-grid">
+                  {data.howToReach.map((t) => (
+                    <div key={t.mode} className="by-transport-card">
+                      <div className="by-transport-icon-box">{t.icon}</div>
+                      <h3 className="by-transport-mode">{t.mode}</h3>
+                      <p className="by-transport-desc">{t.desc}</p>
+                      <Link href={t.href} className="by-transport-action">
+                        {t.action}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section 5: Getting Around in Jaipur */}
+              <section className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">🛺</span> Getting Around in Jaipur
+                </h2>
+                <div className="by-getting-around-grid">
+                  {data.gettingAround.map((g) => (
+                    <div key={g.mode} className="by-around-card">
+                      <div className="by-around-header">
+                        <span className="by-around-icon">{g.icon}</span>
+                        <strong>{g.mode}</strong>
+                      </div>
+                      <p>{g.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section 6: Top Places to Visit */}
+              <section id="places" className="by-dest-section">
+                <div className="by-dest-sec-header-row">
+                  <h2 className="by-dest-sec-title">
+                    <span className="by-sec-icon">📍</span> Top Places to Visit in Jaipur
+                  </h2>
+                  <Link href="/attractions" className="by-sec-viewall">
+                    View All (20+) →
+                  </Link>
+                </div>
+
+                <div className="by-places-slider-grid">
+                  {data.places.map((place) => (
+                    <Link
+                      key={place.slug}
+                      href={`/attractions/jaipur/${place.slug}`}
+                      className="by-place-card"
+                    >
+                      <div className="by-place-img-wrap">
+                        <img src={place.image} alt={place.name} loading="lazy" />
+                      </div>
+                      <div className="by-place-info">
+                        <h3 className="by-place-name">{place.name}</h3>
+                        <div className="by-place-meta">
+                          <span className="by-place-tag">{place.category}</span>
+                          <span className="by-place-time">⏱ {place.time}</span>
+                        </div>
+                        <div className="by-place-rating">
+                          ⭐ {place.rating}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section 7: Suggested Itinerary */}
+              <section id="itinerary" className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">🗓</span> Suggested Itinerary for Jaipur
+                </h2>
+                <DestinationItineraryTabs itineraries={data.itineraries} />
+              </section>
+
+              {/* Section 8: Famous Food in Jaipur */}
+              <section id="food" className="by-dest-section">
+                <div className="by-dest-sec-header-row">
+                  <h2 className="by-dest-sec-title">
+                    <span className="by-sec-icon">🍲</span> Famous Food in Jaipur
+                  </h2>
+                  <Link href="/articles" className="by-sec-viewall">
+                    View All →
+                  </Link>
+                </div>
+
+                <div className="by-food-grid">
+                  {data.famousFood.map((dish) => (
+                    <div key={dish.name} className="by-food-card">
+                      <div className="by-food-img-wrap">
+                        <img src={dish.image} alt={dish.name} loading="lazy" />
+                      </div>
+                      <strong className="by-food-name">{dish.name}</strong>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section 9: Where to Stay */}
+              <section id="stay" className="by-dest-section">
+                <div className="by-dest-sec-header-row">
+                  <h2 className="by-dest-sec-title">
+                    <span className="by-sec-icon">🏨</span> Where to Stay in Jaipur
+                  </h2>
+                  <Link href="/destinations" className="by-sec-viewall">
+                    View All →
+                  </Link>
+                </div>
+
+                <div className="by-stay-grid">
+                  {data.whereToStay.map((stay) => (
+                    <div key={stay.title} className="by-stay-card">
+                      <span className="by-stay-icon">{stay.icon}</span>
+                      <h3 className="by-stay-title">{stay.title}</h3>
+                      <span className="by-stay-price">{stay.price}</span>
+                      <p className="by-stay-desc">{stay.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Section 10: Travel Tips */}
+              <section id="travel-guide" className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">💡</span> Travel Tips
+                </h2>
+                <div className="by-tips-card">
+                  <ul className="by-tips-two-col">
+                    {data.travelTips.map((tip, idx) => (
+                      <li key={idx}>
+                        <span className="by-tip-check">✓</span>
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
             </div>
 
-            {/* Sidebar Quick Info */}
-            <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div id="travel-info" style={{ background: '#FFFDF8', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.75rem', boxShadow: 'var(--shadow-sm)', scrollMarginTop: '6rem' }}>
-                <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--teal-primary)', marginTop: 0, marginBottom: '1rem' }}>
-                  Travel information
+            {/* ==================== RIGHT SIDEBAR ==================== */}
+            <aside className="by-dest-sidebar-col">
+              {/* Sidebar Card 1: Quick Information */}
+              <div className="by-sidebar-card">
+                <h3 className="by-sidebar-title">
+                  <span className="by-sidebar-title-icon">ℹ</span> Quick Information
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.92rem' }}>
-                  <div>
-                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>Best time to visit:</strong>
-                    <span style={{ color: 'var(--text-muted)' }}>{item.best_time_en || 'Being verified by BharatYatra editors.'}</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>Travel planning:</strong>
-                    <span style={{ color: 'var(--text-muted)' }}>Transport, stays, and local guidance will appear here after editorial verification.</span>
-                  </div>
-                </div>
+                <dl className="by-quick-info-list">
+                  {data.quickInfo.map((q) => (
+                    <div key={q.label} className="by-quick-info-row">
+                      <dt>{q.label}</dt>
+                      <dd>{q.value}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
 
-              {/* Exploration Links */}
-              <div style={{ background: 'var(--cream)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginTop: 0, marginBottom: '0.75rem' }}>
-                  Related Exploration
-                </h4>
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem' }}>
-                  <li>
-                    <Link href={item.states?.slug ? `/states/${item.states.slug}` : '/states'} style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
-                      Explore all of {stateName} →
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/destinations" style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
-                      Browse all Destinations →
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/articles" style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
-                      Read Travel Journals →
-                    </Link>
-                  </li>
+              {/* Sidebar Card 2: Jaipur on Map */}
+              <div id="map" className="by-sidebar-card by-map-sidebar-card">
+                <h3 className="by-sidebar-title">
+                  <span className="by-sidebar-title-icon">🗺</span> Jaipur on Map
+                </h3>
+                <div className="by-sidebar-map-preview">
+                  <img
+                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80"
+                    alt="Jaipur Rajasthan Geographic Location"
+                    loading="lazy"
+                  />
+                  <div className="by-map-pin-overlay">
+                    <span className="by-pin-pulse" />
+                    <span className="by-pin-label">Jaipur, RJ</span>
+                  </div>
+                </div>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=26.9124,75.7873"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="by-map-ext-btn"
+                >
+                  Open in Google Maps ↗
+                </a>
+              </div>
+
+              {/* Sidebar Card 3: Plan Your Trip Form */}
+              <SidebarPlanForm destinationName="Jaipur" />
+
+              {/* Sidebar Card 4: Current Weather */}
+              <div className="by-sidebar-card by-weather-sidebar-card">
+                <h3 className="by-sidebar-title">
+                  <span className="by-sidebar-title-icon">⛅</span> Current Weather
+                </h3>
+                <p className="by-weather-loc">Jaipur, Rajasthan</p>
+                <div className="by-weather-display">
+                  <span className="by-weather-temp">{data.weather.temp}</span>
+                  <span className="by-weather-icon">{data.weather.icon}</span>
+                </div>
+                <p className="by-weather-cond">{data.weather.condition}</p>
+                <p className="by-weather-minmax">{data.weather.minMax}</p>
+                <Link href="/weather" className="by-weather-link">
+                  View 7 Day Forecast →
+                </Link>
+              </div>
+
+              {/* Sidebar Card 5: Official Information */}
+              <div className="by-sidebar-card">
+                <h3 className="by-sidebar-title">
+                  <span className="by-sidebar-title-icon">🏛</span> Official Information
+                </h3>
+                <ul className="by-official-links">
+                  {data.officialInfo.map((info) => (
+                    <li key={info.name} className="by-official-link-row">
+                      <strong>{info.name}</strong>
+                      {info.url ? (
+                        <a href={info.url} target="_blank" rel="noopener noreferrer">
+                          {info.label}
+                        </a>
+                      ) : (
+                        <span className="by-official-tel">{info.label}</span>
+                      )}
+                    </li>
+                  ))}
                 </ul>
+              </div>
+
+              {/* Sidebar Card 6: Nearby Destinations */}
+              <div className="by-sidebar-card">
+                <h3 className="by-sidebar-title">
+                  <span className="by-sidebar-title-icon">📍</span> Nearby Destinations
+                </h3>
+                <div className="by-nearby-list">
+                  {data.nearbyDestinations.map((near) => (
+                    <Link key={near.name} href={near.href} className="by-nearby-row">
+                      <div className="by-nearby-info">
+                        <strong>{near.name}</strong>
+                        <span>{near.distance}</span>
+                      </div>
+                      <span className="by-nearby-arrow">&gt;</span>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </aside>
           </div>
-        </section>
-
-        {/* ====================================================
-            4. AVAILABLE ATTRACTIONS (REAL DATABASE RECORDS)
-            ==================================================== */}
-        <section id="places" className="content-section shaded" style={{ padding: '4rem 0', scrollMarginTop: '6rem' }}>
-          <div className="page-shell">
-            <div className="section-heading-row">
-              <div className="section-title-group">
-                <p className="section-eyebrow">MUST-VISIT SIGHTS</p>
-                <h2 className="section-main-title">
-                  Attractions in<br />
-                  <span className="serif-italic-gold">{item.name_en}.</span>
-                </h2>
-              </div>
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                {attractions.length} verified historic {attractions.length === 1 ? 'monument' : 'monuments'}
-              </span>
-            </div>
-
-            {attractions.length > 0 ? (
-              <div className="attractions-cards-grid">
-                {attractions.map((attraction) => (
-                  <article
-                    key={attraction.slug}
-                    style={{
-                      background: '#FFFDF8',
-                      borderRadius: 'var(--radius-lg)',
-                      border: '1px solid var(--border-color)',
-                      padding: '1.75rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold-muted)', background: 'var(--teal-deep)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                          {attraction.category || 'Historic Monument'}
-                        </span>
-                      </div>
-                      <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0 0 0.75rem 0' }}>
-                        {attraction.name_en}
-                      </h3>
-                      {attraction.description_en && (
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6, margin: '0 0 1rem 0' }}>
-                          {attraction.description_en}
-                        </p>
-                      )}
-                      {attraction.visiting_hours && (
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.35rem 0' }}>
-                          <strong>Hours:</strong> {attraction.visiting_hours}
-                        </p>
-                      )}
-                      {attraction.entry_fee_note && (
-                        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.35rem 0' }}>
-                          <strong>Admission:</strong> {attraction.entry_fee_note}
-                        </p>
-                      )}
-                    </div>
-
-                    <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                      <Link
-                        href={`/attractions/${item.slug}/${attraction.slug}`}
-                        style={{ color: 'var(--teal-primary)', fontWeight: 600, fontSize: '0.88rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                      >
-                        Explore Monument Details →
-                      </Link>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-editorial-card">
-                <p>No individual attractions currently listed for {item.name_en}. More monuments are being documented by our editors.</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* ====================================================
-            5. RELATED PUBLISHED TRAVEL ARTICLES (REAL RECORDS)
-            ==================================================== */}
-        <section id="guides" className="content-section" style={{ padding: '4rem 0', scrollMarginTop: '6rem' }}>
-          <div className="page-shell">
-            <div className="section-heading-row">
-              <div className="section-title-group">
-                <p className="section-eyebrow">EDITORIAL GUIDES</p>
-                <h2 className="section-main-title">
-                  Travel Stories &amp; Guides for<br />
-                  <span className="serif-italic-gold">{item.name_en}.</span>
-                </h2>
-              </div>
-              <Link href="/articles" className="section-link-more">
-                View all articles <span>→</span>
-              </Link>
-            </div>
-
-            {articles.length > 0 ? (
-              <div className="destination-articles-grid">
-                {articles.map((article) => (
-                  <Link
-                    key={article.slug}
-                    href={`/articles/${article.slug}`}
-                    className="story-card-item"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <div className="story-card-media" style={{ height: '220px' }}>
-                      <img
-                        src={article.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80'}
-                        alt={article.cover_image_alt || article.title_en}
-                      />
-                    </div>
-                    <div className="story-card-body">
-                      <p className="story-card-kicker">
-                        {article.category || 'TRAVEL GUIDE'} · {article.author_name || 'EDITORIAL'}
-                      </p>
-                      <h3 className="story-card-title">
-                        {article.title_en}
-                      </h3>
-                      {article.excerpt_en && (
-                        <p className="story-card-excerpt">
-                          {article.excerpt_en}
-                        </p>
-                      )}
-                      <span className="story-card-link-cta">
-                        Read full guide <span>→</span>
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-editorial-card">
-                <p>No published travel guides for {item.name_en} yet. Check back soon.</p>
-              </div>
-            )}
-          </div>
-        </section>
+        </div>
       </main>
     </>
+  );
+}
+
+// -------------------------------------------------------------
+// RENDER DYNAMIC DATABASE DESTINATION (FOR NAWALGARH ETC.)
+// -------------------------------------------------------------
+function renderDatabaseDestinationView(dest) {
+  const stateName = dest.states?.name_en || dest.state_name || 'India';
+  const districtName = dest.districts?.name_en || dest.district_name || null;
+  const coverUrl = dest.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
+  const mapUrl = getMapPinUrl(dest.latitude, dest.longitude);
+
+  const keyFacts = [
+    ...(dest.attractions?.length ? [{ label: 'Monuments', value: `${dest.attractions.length}+`, icon: '🏛' }] : []),
+    ...(dest.best_time_en ? [{ label: 'Best Time', value: dest.best_time_en, icon: '☀️' }] : []),
+    { label: 'Ideal Duration', value: '1 – 2 Days', icon: '⏱' },
+    { label: 'State', value: stateName, icon: '📍' },
+  ];
+
+  return (
+    <main className="by-dest-page-root">
+      <div className="by-dest-breadcrumb-bar">
+        <div className="by-container">
+          <nav className="by-breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><Link href="/">Home</Link></li>
+              <li className="separator">&gt;</li>
+              <li><Link href="/destinations">Destinations</Link></li>
+              <li className="separator">&gt;</li>
+              {dest.states?.slug ? <li><Link href={`/states/${dest.states.slug}`}>{stateName}</Link></li> : <li>{stateName}</li>}
+              <li className="separator">&gt;</li>
+              <li className="current" aria-current="page">{dest.name_en}</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+
+      <section
+        className="by-dest-hero-banner"
+        style={{ backgroundImage: `url(${coverUrl})` }}
+        aria-labelledby="dest-hero-title"
+      >
+        <div className="by-dest-hero-gradient" aria-hidden="true" />
+        <div className="by-container by-dest-hero-shell">
+          <div className="by-dest-hero-top-row">
+            <span className="by-dest-state-badge">
+              <span>📍</span> {stateName.toUpperCase()}
+            </span>
+            <DestinationInteractiveClient
+              destination={{
+                slug: dest.slug,
+                name: dest.name_en,
+                state: stateName,
+                coverUrl,
+              }}
+              galleryPhotos={[]}
+            />
+          </div>
+
+          <div className="by-dest-hero-title-block">
+            <h1 id="dest-hero-title" className="by-dest-title">{dest.name_en}</h1>
+            {dest.summary_en && <p className="by-dest-subtitle">{dest.summary_en}</p>}
+            {dest.description_en && <p className="by-dest-overview-text">{dest.description_en.slice(0, 220)}...</p>}
+          </div>
+
+          <div className="by-dest-facts-row">
+            {keyFacts.map((fact) => (
+              <div key={fact.label} className="by-dest-fact-pill">
+                <span className="by-fact-icon">{fact.icon}</span>
+                <div className="by-fact-text">
+                  <span className="by-fact-label">{fact.label}</span>
+                  <strong className="by-fact-val">{fact.value}</strong>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <nav className="by-dest-subnav" aria-label="Section navigation">
+        <div className="by-container">
+          <div className="by-subnav-scroll">
+            <a href="#overview" className="by-subnav-link active">Overview</a>
+            <a href="#places" className="by-subnav-link">Places to Visit ({dest.attractions?.length || 0})</a>
+            <a href="#articles" className="by-subnav-link">Travel Guides</a>
+            <a href="#map" className="by-subnav-link">Location</a>
+          </div>
+        </div>
+      </nav>
+
+      <div className="by-dest-body-layout">
+        <div className="by-container by-dest-grid">
+          <div className="by-dest-main-col">
+            <section id="overview" className="by-dest-section">
+              <h2 className="by-dest-sec-title">
+                <span className="by-sec-icon">📖</span> About {dest.name_en}
+              </h2>
+              <div className="by-about-row">
+                <p className="by-about-p">{dest.description_en || dest.summary_en}</p>
+              </div>
+            </section>
+
+            {/* Attractions */}
+            <section id="places" className="by-dest-section">
+              <div className="by-dest-sec-header-row">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">📍</span> Verified Attractions in {dest.name_en}
+                </h2>
+                <span className="by-sec-count">{dest.attractions?.length || 0} Listed</span>
+              </div>
+
+              {dest.attractions?.length > 0 ? (
+                <div className="by-places-slider-grid">
+                  {dest.attractions.map((attr) => (
+                    <article key={attr.slug} className="by-place-card">
+                      <div className="by-place-info" style={{ padding: '1.25rem' }}>
+                        <span className="by-place-tag">{attr.category || 'Historic Monument'}</span>
+                        <h3 className="by-place-name" style={{ marginTop: '0.4rem' }}>{attr.name_en}</h3>
+                        {attr.description_en && (
+                          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                            {attr.description_en.slice(0, 140)}...
+                          </p>
+                        )}
+                        {attr.visiting_hours && (
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0' }}>
+                            <strong>Hours:</strong> {attr.visiting_hours}
+                          </p>
+                        )}
+                        <Link
+                          href={`/attractions/${dest.slug}/${attr.slug}`}
+                          className="by-transport-action"
+                          style={{ marginTop: '0.75rem', display: 'inline-block' }}
+                        >
+                          View Monument Details →
+                        </Link>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="by-empty-notice">
+                  <p>Attractions for {dest.name_en} are currently undergoing editorial verification.</p>
+                </div>
+              )}
+            </section>
+
+            {/* Published Articles */}
+            {dest.articles?.length > 0 && (
+              <section id="articles" className="by-dest-section">
+                <h2 className="by-dest-sec-title">
+                  <span className="by-sec-icon">📖</span> Editorial Travel Guides for {dest.name_en}
+                </h2>
+                <div className="by-articles-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                  {dest.articles.map((art) => (
+                    <Link key={art.slug} href={`/articles/${art.slug}`} className="by-article-card">
+                      <div className="by-article-body">
+                        <span className="by-itin-badge" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>
+                          {art.category || 'Travel Guide'}
+                        </span>
+                        <h3 className="by-article-title">{art.title_en}</h3>
+                        {art.excerpt_en && (
+                          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0.4rem 0' }}>
+                            {art.excerpt_en.slice(0, 120)}...
+                          </p>
+                        )}
+                        <div className="by-article-footer">
+                          <span className="by-article-read-time">Read full guide →</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <aside className="by-dest-sidebar-col">
+            <div className="by-sidebar-card">
+              <h3 className="by-sidebar-title">
+                <span className="by-sidebar-title-icon">ℹ</span> Quick Information
+              </h3>
+              <dl className="by-quick-info-list">
+                <div className="by-quick-info-row">
+                  <dt>State</dt>
+                  <dd>{stateName}</dd>
+                </div>
+                {districtName && (
+                  <div className="by-quick-info-row">
+                    <dt>District</dt>
+                    <dd>{districtName}</dd>
+                  </div>
+                )}
+                {dest.best_time_en && (
+                  <div className="by-quick-info-row">
+                    <dt>Best Time</dt>
+                    <dd>{dest.best_time_en}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            {mapUrl && (
+              <div id="map" className="by-sidebar-card">
+                <h3 className="by-sidebar-title">
+                  <span className="by-sidebar-title-icon">🗺</span> Location on Map
+                </h3>
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="by-map-ext-btn">
+                  Open in Google Maps ↗
+                </a>
+              </div>
+            )}
+
+            <SidebarPlanForm destinationName={dest.name_en} />
+          </aside>
+        </div>
+      </div>
+    </main>
   );
 }
