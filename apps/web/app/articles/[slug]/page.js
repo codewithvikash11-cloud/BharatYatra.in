@@ -2,11 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getContent } from '../../../lib/content-api.mjs';
 import { MarkdownContent } from '../../../lib/markdown.js';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../../lib/db.js';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -227,10 +225,14 @@ export default async function ArticleDetailPage({ params }) {
             ==================================================== */}
         <div className="page-shell" style={{ maxWidth: '1040px', marginBottom: '2.5rem' }}>
           <figure style={{ margin: 0 }}>
-            <div style={{ width: '100%', height: 'clamp(320px, 45vw, 520px)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
+            <div style={{ width: '100%', aspectRatio: '16/9', maxHeight: '520px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
               <img
                 src={coverUrl}
                 alt={item.cover_image_alt || item.title_en}
+                fetchPriority="high"
+                decoding="async"
+                width="1200"
+                height="675"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
@@ -288,13 +290,17 @@ export default async function ArticleDetailPage({ params }) {
                 </Link>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+              <div className="article-related-grid">
                 {relatedArticles.map((rel) => (
                   <Link key={rel.slug} href={`/articles/${rel.slug}`} className="story-card-item" style={{ textDecoration: 'none' }}>
                     <div className="story-card-media" style={{ height: '180px' }}>
                       <img
                         src={rel.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80'}
                         alt={rel.cover_image_alt || rel.title_en}
+                        loading="lazy"
+                        decoding="async"
+                        width="600"
+                        height="360"
                       />
                     </div>
                     <div className="story-card-body">

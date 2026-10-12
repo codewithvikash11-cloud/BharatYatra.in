@@ -1,10 +1,8 @@
 import Link from 'next/link';
 import { getCollection } from '../lib/content-api.mjs';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/db.js';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 async function getSiteMedia() {
   try {

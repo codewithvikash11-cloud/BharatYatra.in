@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/db.js';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
-
-const prisma = new PrismaClient();
 
 export default async function sitemap() {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');

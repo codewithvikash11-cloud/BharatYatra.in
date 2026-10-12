@@ -1,9 +1,7 @@
 import Link from 'next/link';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/db.js';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 export async function generateMetadata({ searchParams }) {
   const { q } = (await searchParams) || {};
@@ -230,7 +228,7 @@ export default async function SearchPage({ searchParams }) {
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.75rem' }}>
               {destinations.map((dest) => {
                 const location = [dest.districts?.name_en || dest.district_name, dest.states?.name_en || dest.state_name].filter(Boolean).join(' · ');
                 return (
@@ -240,6 +238,10 @@ export default async function SearchPage({ searchParams }) {
                         src="https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80"
                         alt={dest.name_en}
                         className="destination-card-img"
+                        loading="lazy"
+                        decoding="async"
+                        width="600"
+                        height="400"
                       />
                       <span className="destination-card-badge">Destination</span>
                     </div>
@@ -275,13 +277,17 @@ export default async function SearchPage({ searchParams }) {
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.75rem' }}>
               {articles.map((art) => (
                 <Link key={art.slug} href={`/articles/${art.slug}`} className="story-card-item" style={{ textDecoration: 'none' }}>
                   <div className="story-card-media" style={{ height: '200px' }}>
                     <img
                       src={art.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80'}
                       alt={art.cover_image_alt || art.title_en}
+                      loading="lazy"
+                      decoding="async"
+                      width="600"
+                      height="400"
                     />
                   </div>
                   <div className="story-card-body">
@@ -311,7 +317,7 @@ export default async function SearchPage({ searchParams }) {
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.25rem' }}>
               {attractions.map((attr) => (
                 <article
                   key={attr.slug}

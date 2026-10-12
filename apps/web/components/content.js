@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { getMapPinUrl } from '../lib/map-url.mjs';
 import { getDictionary, getLanguage } from '../lib/i18n.js';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/db.js';
 
 export async function getCoverImage(type, slug) {
   try {
@@ -91,7 +89,15 @@ export async function DestinationCard({ item }) {
     <article className="destination-card-item">
       <div className="destination-card-media">
         {coverUrl ? (
-          <img src={coverUrl} alt={item.name_en || 'Destination'} className="destination-card-img" />
+          <img
+            src={coverUrl}
+            alt={item.name_en || 'Destination'}
+            className="destination-card-img"
+            loading="lazy"
+            decoding="async"
+            width="600"
+            height="400"
+          />
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #153E3A 0%, #247A72 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>BharatYatra</span>
@@ -130,7 +136,15 @@ export async function AttractionCard({ item }) {
     <article className="destination-card-item">
       <div className="destination-card-media">
         {coverUrl ? (
-          <img src={coverUrl} alt={item.name_en || 'Attraction'} className="destination-card-img" />
+          <img
+            src={coverUrl}
+            alt={item.name_en || 'Attraction'}
+            className="destination-card-img"
+            loading="lazy"
+            decoding="async"
+            width="600"
+            height="400"
+          />
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #102F2C 0%, #153E3A 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Attraction</span>
@@ -169,7 +183,15 @@ export async function ArticleCard({ item }) {
     <article className="article-card-item">
       <div className="article-card-media">
         {coverUrl ? (
-          <img src={coverUrl} alt={item.title_en || 'Travel Guide'} className="article-card-img" />
+          <img
+            src={coverUrl}
+            alt={item.title_en || 'Travel Guide'}
+            className="article-card-img"
+            loading="lazy"
+            decoding="async"
+            width="600"
+            height="380"
+          />
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #153E3A 0%, #247A72 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Journal</span>

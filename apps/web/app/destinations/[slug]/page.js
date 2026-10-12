@@ -2,11 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getContent, getCollection } from '../../../lib/content-api.mjs';
 import { getMapPinUrl } from '../../../lib/map-url.mjs';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../../lib/db.js';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 async function getDestinationCover(slug) {
   try {
@@ -230,7 +228,7 @@ async function renderDestinationView(item) {
             3. MAIN CONTENT: OVERVIEW & HERITAGE
             ==================================================== */}
         <section className="page-shell" style={{ padding: '3.5rem 0' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '3.5rem', alignItems: 'start' }}>
+          <div className="destination-overview-layout">
             <div>
               <div className="section-title-group" style={{ marginBottom: '1.5rem' }}>
                 <p className="section-eyebrow">ABOUT THE TOWN</p>
@@ -331,7 +329,7 @@ async function renderDestinationView(item) {
             </div>
 
             {attractions.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.75rem', marginTop: '2rem' }}>
+              <div className="attractions-cards-grid">
                 {attractions.map((attraction) => (
                   <article
                     key={attraction.slug}
@@ -410,7 +408,7 @@ async function renderDestinationView(item) {
             </div>
 
             {articles.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem', marginTop: '2rem' }}>
+              <div className="destination-articles-grid">
                 {articles.map((article) => (
                   <Link
                     key={article.slug}
