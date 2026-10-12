@@ -37,6 +37,7 @@ export default function SiteHeader() {
     { href: '/states', label: 'States & UTs' },
     { href: '/attractions', label: 'Attractions' },
     { href: '/articles', label: 'Travel Guides' },
+    { href: '/search', label: 'Search' },
     { href: '/about', label: 'About' },
   ];
 

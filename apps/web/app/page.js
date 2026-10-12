@@ -104,6 +104,24 @@ export default async function HomePage() {
           <p className="hero-v0-desc">
             Curated journeys, forgotten temples, and timeless landscapes across the subcontinent — thoughtfully crafted for mindful explorers.
           </p>
+          <form action="/search" method="get" role="search" className="hero-search-box" style={{ maxWidth: '620px', margin: '2rem 0 1.75rem 0' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#87938F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              id="hero-destination-search"
+              className="search-input-field"
+              type="search"
+              name="q"
+              maxLength={100}
+              placeholder="Search destinations (e.g., Nawalgarh Rajasthan, Jaipur)..."
+              aria-label="Search destinations across India"
+            />
+            <button className="search-submit-btn" type="submit">
+              Search
+            </button>
+          </form>
           <div className="hero-v0-actions">
             <Link href="/destinations" className="btn-gold-pill">
               Start exploring
@@ -158,18 +176,18 @@ export default async function HomePage() {
         </div>
 
         <div className="destinations-asymmetric-grid">
-          {/* Left Tall Card - Jaipur & Amber */}
-          <Link href="/destinations" className="dest-tall-card">
+          {/* Left Tall Card - Featured Destination */}
+          <Link href={destinations && destinations[0] ? `/destinations/${destinations[0].slug}` : '/destinations'} className="dest-tall-card">
             <img
               src="https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop"
-              alt="Hawa Mahal in Jaipur Rajasthan"
+              alt={destinations && destinations[0] ? destinations[0].name_en : 'Hawa Mahal in Jaipur Rajasthan'}
             />
             <div className="dest-card-gradient-overlay" aria-hidden="true" />
             <div className="dest-tall-card-content">
-              <p className="dest-kicker">RAJASTHAN</p>
-              <h3 className="dest-tall-card-title">Jaipur & Amber</h3>
+              <p className="dest-kicker">{destinations && destinations[0]?.state_name ? destinations[0].state_name.toUpperCase() : 'RAJASTHAN'}</p>
+              <h3 className="dest-tall-card-title">{destinations && destinations[0] ? destinations[0].name_en : 'Jaipur & Amber'}</h3>
               <p className="dest-tall-card-summary">
-                Pink sandstone palaces, royal observatories, and centuries of artisan craft.
+                {destinations && destinations[0]?.summary_en ? destinations[0].summary_en : 'Pink sandstone palaces, royal observatories, and centuries of artisan craft.'}
               </p>
               <div className="dest-card-cta-row">
                 <span>Explore Destination</span>
@@ -538,71 +556,38 @@ export default async function HomePage() {
         </div>
 
         <div className="stories-row-grid">
-          {/* Article 1 */}
-          <Link href="/articles" className="story-card-item">
-            <div className="story-card-media">
-              <img
-                src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=800&auto=format&fit=crop"
-                alt="Traditional Rajasthani folk craft"
-              />
+          {articles && articles.length > 0 ? (
+            articles.map((article) => (
+              <Link key={article.slug} href={`/articles/${article.slug}`} className="story-card-item">
+                <div className="story-card-media">
+                  <img
+                    src={article.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800&auto=format&fit=crop'}
+                    alt={article.cover_image_alt || article.title_en}
+                  />
+                </div>
+                <div className="story-card-body">
+                  <p className="story-card-kicker">
+                    {(article.category || 'TRAVEL JOURNAL').toUpperCase()} · {article.author_name || 'EDITORIAL'}
+                  </p>
+                  <h3 className="story-card-title">
+                    {article.title_en}
+                  </h3>
+                  {article.excerpt_en && (
+                    <p className="story-card-excerpt">
+                      {article.excerpt_en}
+                    </p>
+                  )}
+                  <span className="story-card-link-cta">
+                    Read story <span>→</span>
+                  </span>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="empty-editorial-card">
+              <p>No published articles currently available.</p>
             </div>
-            <div className="story-card-body">
-              <p className="story-card-kicker">CRAFTS & CULTURE · 6 MIN</p>
-              <h3 className="story-card-title">
-                The living craft traditions of Rajasthan&apos;s desert towns
-              </h3>
-              <p className="story-card-excerpt">
-                Meeting the multi-generational block-printers, weavers, and blue pottery masters keeping ancient heritage alive.
-              </p>
-              <span className="story-card-link-cta">
-                Read story <span>→</span>
-              </span>
-            </div>
-          </Link>
-
-          {/* Article 2 */}
-          <Link href="/articles" className="story-card-item">
-            <div className="story-card-media">
-              <img
-                src="https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800&auto=format&fit=crop"
-                alt="Culinary flavors of India"
-              />
-            </div>
-            <div className="story-card-body">
-              <p className="story-card-kicker">CULINARY TRAILS · 8 MIN</p>
-              <h3 className="story-card-title">
-                A culinary map of Old Delhi, Awadh & Lucknow
-              </h3>
-              <p className="story-card-excerpt">
-                Centuries of royal kitchens, secret spice blends, and the historic street-corner delicacies of the walled city.
-              </p>
-              <span className="story-card-link-cta">
-                Read story <span>→</span>
-              </span>
-            </div>
-          </Link>
-
-          {/* Article 3 */}
-          <Link href="/articles" className="story-card-item">
-            <div className="story-card-media">
-              <img
-                src="https://images.unsplash.com/photo-1595815771614-ade9d652a65d?q=80&w=800&auto=format&fit=crop"
-                alt="Kashmir valley sheep and shepherds"
-              />
-            </div>
-            <div className="story-card-body">
-              <p className="story-card-kicker">SLOW TRAVEL · 11 MIN</p>
-              <h3 className="story-card-title">
-                Walking with the shepherds in Kashmir&apos;s high valleys
-              </h3>
-              <p className="story-card-excerpt">
-                Following nomadic Bakarwal trails through untouched alpine meadows above the mountain treeline.
-              </p>
-              <span className="story-card-link-cta">
-                Read story <span>→</span>
-              </span>
-            </div>
-          </Link>
+          )}
         </div>
       </section>
 

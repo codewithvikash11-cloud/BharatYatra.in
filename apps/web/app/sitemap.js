@@ -1,30 +1,59 @@
-import { getCollection } from '../lib/content-api.mjs';
+import { PrismaClient } from '@prisma/client';
 
-export const dynamic='force-dynamic';
-export const revalidate=0;
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
-async function publishedRecords(resource){
-  const first=await getCollection(resource,{page:1,limit:100});
-  if(first.state!=='success')return [];
-  const pages=[...Array(Math.max(0,first.pagination.totalPages-1)).keys()].map((index)=>index+2);
-  const remaining=[];
-  for(let index=0;index<pages.length;index+=4){
-    const batch=await Promise.all(pages.slice(index,index+4).map((page)=>getCollection(resource,{page,limit:100})));
-    if(batch.some((result)=>result.state!=='success'))return [];
-    remaining.push(...batch.flatMap((result)=>result.data));
-  }
-  return [...first.data,...remaining];
-}
+const prisma = new PrismaClient();
 
-export default async function sitemap(){
-  const base=(process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000').replace(/\/+$/,'');
-  const [destinations,attractions,articles]=await Promise.all([
-    publishedRecords('destinations'),publishedRecords('attractions'),publishedRecords('articles'),
-  ]);
-  const fixed=['/','/destinations','/attractions','/articles','/about'].map((path)=>({url:`${base}${path}`}));
-  return [...fixed,
-    ...destinations.map((item)=>({url:`${base}/destinations/${encodeURIComponent(item.slug)}`,lastModified:item.published_at||undefined})),
-    ...attractions.filter((item)=>item.destinations?.slug).map((item)=>({url:`${base}/attractions/${encodeURIComponent(item.destinations.slug)}/${encodeURIComponent(item.slug)}`,lastModified:item.published_at||undefined})),
-    ...articles.map((item)=>({url:`${base}/articles/${encodeURIComponent(item.slug)}`,lastModified:item.published_at||undefined})),
+export default async function sitemap() {
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
+
+  const fixed = [
+    { url: `${base}/`, lastModified: new Date() },
+    { url: `${base}/destinations`, lastModified: new Date() },
+    { url: `${base}/states`, lastModified: new Date() },
+    { url: `${base}/attractions`, lastModified: new Date() },
+    { url: `${base}/articles`, lastModified: new Date() },
+    { url: `${base}/search`, lastModified: new Date() },
+    { url: `${base}/about`, lastModified: new Date() },
   ];
+
+  try {
+    const [destinations, attractions, articles] = await Promise.all([
+      prisma.destinations.findMany({
+        where: { status: 'PUBLISHED' },
+        select: { slug: true, published_at: true },
+      }),
+      prisma.attractions.findMany({
+        where: { status: 'PUBLISHED', destinations: { status: 'PUBLISHED' } },
+        select: { slug: true, published_at: true, destinations: { select: { slug: true } } },
+      }),
+      prisma.articles.findMany({
+        where: { status: 'PUBLISHED' },
+        select: { slug: true, published_at: true },
+      }),
+    ]);
+
+    const destUrls = destinations.map((item) => ({
+      url: `${base}/destinations/${encodeURIComponent(item.slug)}`,
+      lastModified: item.published_at || new Date(),
+    }));
+
+    const attrUrls = attractions
+      .filter((item) => item.destinations?.slug)
+      .map((item) => ({
+        url: `${base}/attractions/${encodeURIComponent(item.destinations.slug)}/${encodeURIComponent(item.slug)}`,
+        lastModified: item.published_at || new Date(),
+      }));
+
+    const articleUrls = articles.map((item) => ({
+      url: `${base}/articles/${encodeURIComponent(item.slug)}`,
+      lastModified: item.published_at || new Date(),
+    }));
+
+    return [...fixed, ...destUrls, ...attrUrls, ...articleUrls];
+  } catch (err) {
+    console.error('Failed to generate dynamic sitemap:', err);
+    return fixed;
+  }
 }
