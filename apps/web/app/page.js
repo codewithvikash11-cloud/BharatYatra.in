@@ -14,6 +14,7 @@ import {
   CoastlineSymbol,
   RouteSymbol,
   MapSymbol,
+  PaletteSymbol,
 } from '../components/travel-symbols.js';
 import { PrismaClient } from '@prisma/client';
 
@@ -35,13 +36,81 @@ async function getSiteMedia() {
   }
 }
 
+async function getDestinationsData() {
+  const apiRes = await getCollection('destinations', { limit: 4 });
+  if (apiRes.state === 'success') return apiRes;
+  try {
+    const data = await prisma.destinations.findMany({
+      where: { status: 'PUBLISHED' },
+      take: 4,
+      orderBy: { created_at: 'desc' },
+      include: { states: true, districts: true },
+    });
+    return { state: 'success', data, pagination: { total: data.length, page: 1, limit: 4 } };
+  } catch {
+    return apiRes;
+  }
+}
+
+async function getStatesData() {
+  const apiRes = await getCollection('states', { limit: 8 });
+  if (apiRes.state === 'success') return apiRes;
+  try {
+    const data = await prisma.states.findMany({
+      take: 8,
+      orderBy: { name_en: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        name_en: true,
+        type: true,
+        description_en: true,
+      },
+    });
+    return { state: 'success', data, pagination: { total: data.length, page: 1, limit: 8 } };
+  } catch {
+    return apiRes;
+  }
+}
+
+async function getAttractionsData() {
+  const apiRes = await getCollection('attractions', { limit: 4 });
+  if (apiRes.state === 'success') return apiRes;
+  try {
+    const data = await prisma.attractions.findMany({
+      where: { status: 'PUBLISHED' },
+      take: 4,
+      orderBy: { created_at: 'desc' },
+      include: { destinations: true },
+    });
+    return { state: 'success', data, pagination: { total: data.length, page: 1, limit: 4 } };
+  } catch {
+    return apiRes;
+  }
+}
+
+async function getArticlesData() {
+  const apiRes = await getCollection('articles', { limit: 3 });
+  if (apiRes.state === 'success') return apiRes;
+  try {
+    const data = await prisma.articles.findMany({
+      where: { status: 'PUBLISHED' },
+      take: 3,
+      orderBy: { published_at: 'desc' },
+    });
+    return { state: 'success', data, pagination: { total: data.length, page: 1, limit: 3 } };
+  } catch {
+    return apiRes;
+  }
+}
+
 export default async function HomePage() {
-  // Fetch real published data from API & database
+  // Fetch real published data with resilient fallback to Prisma database
   const [destinationsRes, attractionsRes, articlesRes, statesRes, siteMedia] = await Promise.all([
-    getCollection('destinations', { limit: 4 }),
-    getCollection('attractions', { limit: 4 }),
-    getCollection('articles', { limit: 3 }),
-    getCollection('states', { limit: 8 }),
+    getDestinationsData(),
+    getAttractionsData(),
+    getArticlesData(),
+    getStatesData(),
     getSiteMedia(),
   ]);
 
@@ -82,7 +151,7 @@ export default async function HomePage() {
       title: 'Living Arts & Traditions',
       query: 'culture',
       desc: 'Centuries-old artisanal clusters, tribal arts, and vibrant fairs.',
-      Icon: MapSymbol,
+      Icon: PaletteSymbol,
     },
   ];
 
