@@ -170,19 +170,34 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
     const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
     if(!url||!key)return safeError(response,503,'Supabase Storage is not configured');
     const storagePath=`admin/${randomUUID()}.${image.ext}`;
-    const endpoint=`${url.replace(/\/+$/,'')}/storage/v1/object/${encodeURIComponent(bucket)}/${storagePath.split('/').map(encodeURIComponent).join('/')}`;
+    const cleanUrl = url.replace(/\/+$/, '');
+    const cleanBucket = encodeURIComponent(bucket);
+    const encodedPath = storagePath.split('/').map(encodeURIComponent).join('/');
+    const endpoint=`${cleanUrl}/storage/v1/object/${cleanBucket}/${encodedPath}`;
+    const publicUrl=`${cleanUrl}/storage/v1/object/public/${cleanBucket}/${encodedPath}`;
     try{
-      const uploaded=await fetch(endpoint,{method:'POST',headers:{authorization:`Bearer ${request.adminPrincipal.accessToken}`,apikey:key,'content-type':image.type,'cache-control':'3600','x-upsert':'false'},body,signal:AbortSignal.timeout(15000)});
+      const uploaded=await fetch(endpoint,{
+        method:'POST',
+        headers:{
+          authorization:`Bearer ${key}`,
+          apikey:key,
+          'content-type':image.type,
+          'cache-control':'3600',
+          'x-upsert':'false'
+        },
+        body,
+        signal:AbortSignal.timeout(15000)
+      });
       if(!uploaded.ok)return safeError(response,uploaded.status===403?403:503,uploaded.status===403?'Supabase Storage upload policy denied this account':'Storage upload failed');
       let asset;
       try{
         asset=await prisma.$transaction(async(tx)=>{
-          const row=await tx.media_assets.create({data:{storage_path:storagePath,public_url:null}});
-          await createAudit(tx,request.adminPrincipal,{action:'media_uploaded',entity_type:'media_assets',entity_id:row.id,changed_fields:['storage_path']});
+          const row=await tx.media_assets.create({data:{storage_path:storagePath,public_url:publicUrl}});
+          await createAudit(tx,request.adminPrincipal,{action:'media_uploaded',entity_type:'media_assets',entity_id:row.id,changed_fields:['storage_path','public_url']});
           return row;
         });
       }catch{
-        try{await fetch(endpoint,{method:'DELETE',headers:{authorization:`Bearer ${request.adminPrincipal.accessToken}`,apikey:key},signal:AbortSignal.timeout(5000)});}catch{}
+        try{await fetch(endpoint,{method:'DELETE',headers:{authorization:`Bearer ${key}`,apikey:key},signal:AbortSignal.timeout(5000)});}catch{}
         return safeError(response,503,'Media metadata could not be saved; verify the audit migration is applied');
       }
       return response.status(201).set('Cache-Control','no-store').json({data:asset});
