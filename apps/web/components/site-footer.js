@@ -1,15 +1,17 @@
+'use client';
+
 import Link from 'next/link';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="site-footer">
-      <div className="page-shell footer-inner">
-        <div className="footer-grid">
-          {/* Brand Col */}
-          <div className="footer-col brand-col">
-            <Link className="footer-brand" href="/" aria-label="BharatYatra — Home">
+    <footer className="footer-v0">
+      <div className="page-shell">
+        <div className="footer-top-row">
+          {/* Brand Left */}
+          <div>
+            <Link className="brand" href="/" aria-label="BharatYatra — Home">
               <div className="brand-mark-wrapper sm">
                 <svg
                   className="brand-mark-svg"
@@ -38,56 +40,58 @@ export default function SiteFooter() {
                     strokeLinecap="round"
                   />
                   <circle cx="48" cy="18" r="5" fill="#C58B32" />
+                  <path d="M17 69h62" stroke="#C58B32" strokeWidth="3.5" strokeLinecap="round" />
+                  <circle cx="48" cy="78" r="2.5" fill="#F7F3E8" />
                 </svg>
               </div>
-              <span className="brand-name">BharatYatra</span>
+              <div className="brand-text">
+                <span className="brand-name" style={{ color: '#FFFDF8' }}>BharatYatra</span>
+                <span className="brand-sub">TRAVEL INDIA</span>
+              </div>
             </Link>
-            <p className="footer-description">
-              An editorial travel discovery platform for India. Explore timeless heritage, Himalayan passes, sacred ghats, and living cultural traditions across every state and union territory.
+            <p className="footer-v0-tagline">
+              Curated travel discovery across India's living heritage, sacred landscapes, and timeless cultures.
             </p>
           </div>
 
-          {/* Navigation Links */}
-          <div className="footer-col">
-            <h3 className="footer-heading">Discover</h3>
-            <ul className="footer-links-list">
-              <li><Link href="/destinations">All Destinations</Link></li>
-              <li><Link href="/states">States & Union Territories</Link></li>
-              <li><Link href="/attractions">Monuments & Attractions</Link></li>
-              <li><Link href="/articles">Travel Stories & Guides</Link></li>
-            </ul>
-          </div>
-
-          {/* Regional Highlights */}
-          <div className="footer-col">
-            <h3 className="footer-heading">Explore India</h3>
-            <ul className="footer-links-list">
-              <li><Link href="/destinations?q=Rajasthan">Rajasthan & Forts</Link></li>
-              <li><Link href="/destinations?q=Kerala">Kerala & Backwaters</Link></li>
-              <li><Link href="/destinations?q=Himachal">Himalayas & Hills</Link></li>
-              <li><Link href="/destinations?q=Varanasi">Spiritual Centers</Link></li>
-              <li><Link href="/destinations?q=Goa">Coastal Getaways</Link></li>
-            </ul>
-          </div>
-
-          {/* About & Legal */}
-          <div className="footer-col">
-            <h3 className="footer-heading">About</h3>
-            <ul className="footer-links-list">
-              <li><Link href="/about">About BharatYatra</Link></li>
-              <li><Link href="/contact">Contact & Feedback</Link></li>
-              <li><Link href="/privacy">Privacy Policy</Link></li>
-              <li><Link href="/terms">Terms of Service</Link></li>
-            </ul>
+          {/* Newsletter Right */}
+          <div className="newsletter-box">
+            <h3 className="newsletter-title">A little inspiration for your inbox.</h3>
+            <form
+              className="newsletter-form-row"
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert('Thank you for subscribing to BharatYatra stories!');
+              }}
+            >
+              <input
+                type="email"
+                placeholder="Your email address"
+                className="newsletter-input"
+                aria-label="Your email address"
+                required
+              />
+              <button type="submit" className="newsletter-btn">
+                Subscribe →
+              </button>
+            </form>
           </div>
         </div>
 
-        <div className="footer-bottom">
-          <p className="footer-copyright">
-            © {currentYear} BharatYatra. All rights reserved. Thoughtfully crafted for Indian travel discovery.
-          </p>
-          <p className="footer-subtext">
-            Preserving India’s heritage and natural beauty through respectful exploration.
+        {/* Bottom Nav Links & Copyright */}
+        <div className="footer-bottom-nav">
+          <ul className="footer-links-inline">
+            <li><Link href="/destinations">Destinations</Link></li>
+            <li><Link href="/states">States & Regions</Link></li>
+            <li><Link href="/attractions">Attractions</Link></li>
+            <li><Link href="/articles">Travel Journal</Link></li>
+            <li><Link href="/about">About Us</Link></li>
+            <li><Link href="/privacy">Privacy</Link></li>
+            <li><Link href="/terms">Terms</Link></li>
+          </ul>
+
+          <p className="footer-copy-text">
+            © {currentYear} BharatYatra. All rights reserved. Thoughtfully crafted for mindful travelers.
           </p>
         </div>
       </div>

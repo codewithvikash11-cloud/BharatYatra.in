@@ -40,8 +40,10 @@ export default function SiteHeader() {
     { href: '/about', label: 'About' },
   ];
 
+  const isHome = pathname === '/';
+
   return (
-    <header className="site-header-wrapper">
+    <header className={`site-header-wrapper ${isHome ? 'is-home-header' : 'is-solid-header'}`}>
       <nav className="site-nav" aria-label="Main navigation">
         <Link className="brand" href="/" aria-label="BharatYatra — Home">
           <div className="brand-mark-wrapper">
