@@ -85,7 +85,7 @@ export async function DestinationCard({ item }) {
     item.states?.name_en || item.state_name
   ].filter(Boolean).join(' · ') || 'India';
 
-  const coverUrl = await getCoverImage('destinations', item.slug);
+  const coverUrl = item.cover_image_url || await getCoverImage('destinations', item.slug) || (item.slug?.includes('nawalgarh') ? 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80' : null);
 
   return (
     <article className="destination-card-item">
@@ -161,7 +161,7 @@ export async function AttractionCard({ item }) {
 }
 
 export async function ArticleCard({ item }) {
-  const coverUrl = await getCoverImage('articles', item.slug);
+  const coverUrl = item.cover_image_url || await getCoverImage('articles', item.slug);
   const wordCount = (item.body_en || item.excerpt_en || '').split(/\s+/).length;
   const readingTime = Math.max(2, Math.ceil(wordCount / 200));
 
