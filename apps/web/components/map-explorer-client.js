@@ -1,0 +1,160 @@
+'use client';
+import { useState } from 'react';
+import Link from 'next/link';
+
+const mapPins = [
+  { id: 'jaipur', name: 'Jaipur', state: 'Rajasthan', region: 'west', lat: 26.9124, lng: 75.7873, tag: 'Forts & Royal Palaces', slug: 'jaipur' },
+  { id: 'udaipur', name: 'Udaipur', state: 'Rajasthan', region: 'west', lat: 24.5854, lng: 73.7125, tag: 'Lakes & Heritage', slug: 'jaipur' },
+  { id: 'varanasi', name: 'Varanasi', state: 'Uttar Pradesh', region: 'north', lat: 25.3176, lng: 82.9739, tag: 'Spiritual Ganges & Ghats', slug: 'articles' },
+  { id: 'manali', name: 'Manali', state: 'Himachal Pradesh', region: 'north', lat: 32.2432, lng: 77.1892, tag: 'Himalayan Valleys', slug: 'destinations' },
+  { id: 'rishikesh', name: 'Rishikesh', state: 'Uttarakhand', region: 'north', lat: 30.0869, lng: 78.2676, tag: 'Yoga & River Rafting', slug: 'destinations' },
+  { id: 'goa', name: 'Goa', state: 'Goa', region: 'west', lat: 15.2993, lng: 74.1240, tag: 'Beaches & Heritage Churches', slug: 'destinations' },
+  { id: 'kerala', name: 'Alleppey (Alappuzha)', state: 'Kerala', region: 'south', lat: 9.4981, lng: 76.3388, tag: 'Backwaters & Lagoons', slug: 'destinations' },
+  { id: 'nawalgarh', name: 'Nawalgarh', state: 'Rajasthan', region: 'west', lat: 27.8483, lng: 75.2677, tag: 'Shekhawati Painted Havelis', slug: 'nawalgarh-rajasthan' },
+  { id: 'khajuraho', name: 'Khajuraho', state: 'Madhya Pradesh', region: 'central', lat: 24.8318, lng: 79.9199, tag: 'UNESCO Temples & Carvings', slug: 'destinations' },
+  { id: 'hampi', name: 'Hampi', state: 'Karnataka', region: 'south', lat: 15.3350, lng: 76.4600, tag: 'Vijayanagara Ruins & Boulders', slug: 'destinations' },
+  { id: 'kaziranga', name: 'Kaziranga', state: 'Assam', region: 'northeast', lat: 26.5775, lng: 93.1711, tag: 'One-Horned Rhinoceros', slug: 'destinations' },
+];
+
+export default function MapExplorerClient() {
+  const [selectedRegion, setSelectedRegion] = useState('all');
+  const [activePin, setActivePin] = useState(mapPins[0]);
+
+  const filtered = selectedRegion === 'all'
+    ? mapPins
+    : mapPins.filter((p) => p.region === selectedRegion);
+
+  return (
+    <div>
+      {/* Region Filter Bar */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
+        {[
+          { id: 'all', label: 'All Regions' },
+          { id: 'north', label: 'North India' },
+          { id: 'south', label: 'South India' },
+          { id: 'west', label: 'West India' },
+          { id: 'central', label: 'Central India' },
+          { id: 'northeast', label: 'Northeast India' },
+        ].map((r) => (
+          <button
+            key={r.id}
+            type="button"
+            onClick={() => setSelectedRegion(r.id)}
+            style={{
+              padding: '0.55rem 1.15rem',
+              borderRadius: '999px',
+              border: selectedRegion === r.id ? '1px solid var(--teal-deep)' : '1px solid var(--border-color)',
+              background: selectedRegion === r.id ? 'var(--teal-deep)' : '#FFFFFF',
+              color: selectedRegion === r.id ? '#FFFDF8' : 'var(--text-primary)',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+            }}
+          >
+            {r.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Map Explorer Interface */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
+        {/* Destination List Panel */}
+        <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', maxHeight: '520px', overflowY: 'auto' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '1rem' }}>
+            Select a Destination ({filtered.length} Locations)
+          </span>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {filtered.map((pin) => (
+              <div
+                key={pin.id}
+                onClick={() => setActivePin(pin)}
+                style={{
+                  padding: '0.85rem 1rem',
+                  borderRadius: 'var(--radius-md)',
+                  border: activePin.id === pin.id ? '2px solid var(--teal-primary)' : '1px solid var(--border-color)',
+                  background: activePin.id === pin.id ? 'var(--cream)' : '#FFFFFF',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <strong style={{ display: 'block', color: 'var(--teal-deep)', fontSize: '1.05rem' }}>{pin.name}</strong>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{pin.state} · {pin.tag}</span>
+                </div>
+                <span style={{ color: 'var(--gold-dark)', fontWeight: 700, fontSize: '0.85rem' }}>
+                  {activePin.id === pin.id ? '● Selected' : '○'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Selected Destination Geographic Card */}
+        <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ background: 'var(--teal-deep)', color: '#FFFDF8', fontWeight: 700, padding: '0.25rem 0.65rem', borderRadius: '999px', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                {activePin.region.toUpperCase()} INDIA
+              </span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Coordinates: {activePin.lat.toFixed(4)}° N, {activePin.lng.toFixed(4)}° E
+              </span>
+            </div>
+
+            <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.8rem', margin: '0 0 0.35rem 0' }}>
+              {activePin.name}
+            </h3>
+            <span style={{ fontSize: '1rem', color: 'var(--gold-dark)', fontWeight: 600, display: 'block', marginBottom: '1rem' }}>
+              {activePin.state} · {activePin.tag}
+            </span>
+
+            {/* Stylized Simulated Map Tile */}
+            <div
+              style={{
+                width: '100%',
+                height: '200px',
+                borderRadius: 'var(--radius-md)',
+                overflow: 'hidden',
+                position: 'relative',
+                background: '#E5E7EB',
+                border: '1px solid var(--border-color)',
+                marginBottom: '1.5rem',
+              }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80"
+                alt="Map topography background"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
+              />
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'var(--teal-deep)', color: '#FFFFFF', padding: '0.5rem 1rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.85rem', boxShadow: '0 4px 12px rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ color: 'var(--gold-muted)' }}>📍</span> {activePin.name}, {activePin.state}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <Link
+              href={activePin.id === 'jaipur' ? '/destinations/jaipur' : `/destinations/${activePin.slug}`}
+              className="btn-gold-pill"
+              style={{ textDecoration: 'none', fontSize: '0.9rem' }}
+            >
+              Explore {activePin.name} Guide →
+            </Link>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${activePin.lat},${activePin.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline-teal"
+              style={{ textDecoration: 'none', fontSize: '0.9rem' }}
+            >
+              Open in Google Maps ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

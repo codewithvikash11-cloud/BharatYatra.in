@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '../../../../lib/admin-auth.js';
 
 const MUTATIONS=new Set(['POST','PATCH','DELETE']);
-const CONTENT_TYPES = ['destinations','attractions','articles','states','districts','tehsils'];
+const CONTENT_TYPES = ['destinations','attractions','articles','itineraries','states','districts','tehsils'];
 const allowed=new Set(['session','overview','audit-logs','media',...CONTENT_TYPES]);
 async function forward(request,context){
   const {path=[]}=await context.params;
