@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
-
 :root {
   color-scheme: light;
 
@@ -61,16 +59,22 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
   background-color: var(--cream-main);
   background-image: 
     radial-gradient(circle at 85% 8%, rgba(36, 122, 114, 0.04), transparent 40%),
     radial-gradient(circle at 12% 88%, rgba(197, 139, 50, 0.04), transparent 40%);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -78,7 +82,7 @@ body {
 
 /* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6, .serif {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
   color: var(--teal-primary);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -310,23 +314,32 @@ p {
   display: none;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 5px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   background: transparent;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  padding: 8px;
-  transition: background 0.2s ease;
+  padding: 10px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  touch-action: manipulation;
 }
 
 .mobile-menu-btn:hover {
   background: var(--sand-bg);
 }
 
+.mobile-menu-btn:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: 2px;
+}
+
 .hamburger-bar {
-  width: 100%;
+  width: 22px;
   height: 2px;
   background: var(--teal-primary);
   border-radius: 2px;
@@ -378,17 +391,30 @@ p {
 }
 
 .mobile-close-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--sand-bg);
-  border: none;
+  border: 1px solid var(--border-color);
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: var(--teal-primary);
   cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.2s ease;
+}
+
+.mobile-close-btn:hover {
+  background: #E0D6C3;
+}
+
+.mobile-close-btn:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: 2px;
 }
 
 .mobile-nav-links {
@@ -522,11 +548,12 @@ p {
   flex-grow: 1;
   border: none;
   outline: none;
-  font-size: 0.98rem;
+  font-size: 1rem; /* Prevents auto-zoom in iOS Safari */
   color: var(--text-primary);
   background: transparent;
   font-family: inherit;
-  padding: 0.4rem 0;
+  padding: 0.5rem 0;
+  min-height: 44px;
 }
 
 .search-input-field::placeholder {
@@ -539,15 +566,22 @@ p {
   border: none;
   border-radius: var(--radius-sm);
   padding: 0.75rem 1.4rem;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
   white-space: nowrap;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .search-submit-btn:hover {
   background: var(--teal-secondary);
+}
+
+.search-submit-btn:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: 2px;
 }
 
 .search-submit-btn:active {
@@ -2347,7 +2381,7 @@ input:focus-visible {
 }
 
 .newsletter-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-heading, 'Playfair Display', serif);
   font-size: 1.35rem;
   font-weight: 600;
   color: #FFFDF8;
@@ -2366,8 +2400,14 @@ input:focus-visible {
   border-radius: 99px;
   padding: 0.75rem 1.25rem;
   color: #FFFDF8;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  min-height: 44px;
   outline: none;
+}
+
+.newsletter-input:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: 2px;
 }
 
 .newsletter-input::placeholder {
@@ -2381,14 +2421,21 @@ input:focus-visible {
   border-radius: 99px;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   cursor: pointer;
   white-space: nowrap;
+  min-height: 44px;
+  touch-action: manipulation;
   transition: all 0.2s ease;
 }
 
 .newsletter-btn:hover {
   background: #D49B3E;
+}
+
+.newsletter-btn:focus-visible {
+  outline: 2px solid #FFFDF8;
+  outline-offset: 2px;
 }
 
 .footer-bottom-nav {
@@ -2426,7 +2473,53 @@ input:focus-visible {
 }
 
 /* ==========================================================
-   RESPONSIVE MEDIA QUERIES
+   DYNAMIC LAYOUT UTILITIES
+   ========================================================== */
+.destination-overview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.attractions-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.destination-articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.article-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Accessible Global Focus States */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: 2px;
+}
+
+/* ==========================================================
+   RESPONSIVE MEDIA QUERIES (320px to 1440px+)
    ========================================================== */
 @media (max-width: 1080px) {
   .hero-grid {
@@ -2488,6 +2581,10 @@ input:focus-visible {
   .mobile-menu-btn {
     display: flex;
   }
+  .destination-overview-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2516,25 +2613,115 @@ input:focus-visible {
   .split-closing-copy {
     padding: 3rem 2rem;
   }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
   .footer-bottom-nav {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1rem;
+  }
+  .dest-tall-card {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-search-box {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+  .hero-search-box .search-submit-btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+  .newsletter-form-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .newsletter-form-row .newsletter-input,
+  .newsletter-form-row .newsletter-btn {
+    width: 100%;
+    min-height: 44px;
+    text-align: center;
+  }
+  .card-grid,
+  .attractions-cards-grid,
+  .destination-articles-grid,
+  .article-related-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
   .page-shell {
-    width: min(100% - 2rem, 1240px);
+    width: min(100% - 1.5rem, 1240px);
   }
   .hero-v0-title {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
+    line-height: 1.15;
+  }
+  .hero-v0-desc {
+    font-size: 1rem;
+    line-height: 1.55;
   }
   .btn-gold-pill {
     width: 100%;
+    text-align: center;
   }
   .hero-link-ghost {
     width: 100%;
     justify-content: center;
+  }
+  .hero-cta-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  .split-closing-copy {
+    padding: 2rem 1.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .page-shell {
+    width: calc(100% - 1rem);
+  }
+  .site-nav {
+    padding: 0.65rem 0.5rem;
+    gap: 0.5rem;
+  }
+  .brand-name {
+    font-size: 1.2rem;
+  }
+  .brand-sub {
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+  }
+  .hero-v0-title {
+    font-size: 1.85rem;
+  }
+  .hero-v0-desc {
+    font-size: 0.92rem;
+  }
+  .brand-mark-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Reduced Motion Preference for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

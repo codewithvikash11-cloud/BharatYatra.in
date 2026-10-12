@@ -159,7 +159,7 @@ async function renderDestinationView(item) {
           <div className="page-shell hero-fullbleed-content" style={{ maxWidth: '960px' }}>
             {/* Breadcrumb Navigation */}
             <nav className="breadcrumb-nav" aria-label="Breadcrumb" style={{ marginBottom: '1.25rem' }}>
-              <ol style={{ display: 'flex', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0, color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem' }}>
+              <ol style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', margin: 0, padding: 0, color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem' }}>
                 <li><Link href="/" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>Home</Link></li>
                 <li>/</li>
                 <li><Link href="/destinations" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>Destinations</Link></li>

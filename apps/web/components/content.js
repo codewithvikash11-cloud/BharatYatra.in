@@ -276,8 +276,14 @@ export async function ContentDetail({ item, kind }) {
       {locationPills}
 
       {coverUrl && (
-        <div style={{ width: '100%', height: '420px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '2.5rem', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
-          <img src={coverUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ width: '100%', aspectRatio: '16 / 9', maxHeight: '440px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '2.5rem', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
+          <img
+            src={coverUrl}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
         </div>
       )}
 
