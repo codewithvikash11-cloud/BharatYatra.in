@@ -13,8 +13,9 @@ const configs = {
       ['summary_hi', 'Summary · Hindi', 'textarea'],
       ['description_en', 'Description · English', 'textarea'],
       ['description_hi', 'Description · Hindi', 'textarea'],
-      ['state_name', 'State', 'text'],
-      ['district_name', 'District', 'text'],
+      ['state_id', 'State (Selection)', 'state_select'],
+      ['state_name', 'State Name (Display)', 'text'],
+      ['district_name', 'District Name (Display)', 'text'],
       ['latitude', 'Latitude', 'number'],
       ['longitude', 'Longitude', 'number'],
       ['best_time_en', 'Best time · English', 'text'],
@@ -24,7 +25,7 @@ const configs = {
   attractions: {
     label: 'Attractions',
     fields: [
-      ['destination_id', 'Destination ID', 'text', true],
+      ['destination_id', 'Destination (Selection)', 'destination_select', true],
       ['slug', 'URL slug', 'text', true],
       ['name_en', 'Name · English', 'text', true],
       ['name_hi', 'Name · Hindi', 'text'],
@@ -43,12 +44,19 @@ const configs = {
     label: 'Articles',
     fields: [
       ['title_en', 'Article Title (English)', 'text', true],
-      ['slug', 'URL slug (auto-generated)', 'text', true],
+      ['slug', 'URL slug (auto-generated or custom)', 'text', true],
+      ['category', 'Category (e.g. Travel Guide, Heritage, Culture, Food, Planning)', 'text', false],
+      ['tags', 'Tags (comma-separated, e.g. nawalgarh, shekhawati, demo)', 'text', false],
+      ['author_name', 'Author Name', 'text', false],
+      ['state_id', 'State / UT (Location Association)', 'state_select', false],
+      ['destination_id', 'Related Destination', 'destination_select', false],
+      ['cover_image_url', 'Cover Image URL', 'url', false],
+      ['cover_image_alt', 'Cover Image Alt Text', 'text', false],
       ['excerpt_en', 'Excerpt / Summary (English)', 'textarea', false],
       ['body_en', 'Article Body (Markdown supported)', 'textarea', false],
-      ['author_name', 'Author Name', 'text', false],
       ['seo_title_en', 'SEO Meta Title', 'text', false],
       ['seo_description_en', 'SEO Meta Description', 'textarea', false],
+      ['canonical_url', 'Canonical URL (optional override)', 'url', false],
     ],
   },
   states: {
@@ -65,7 +73,7 @@ const configs = {
   districts: {
     label: 'Districts',
     fields: [
-      ['state_id', 'State ID (UUID)', 'text', true],
+      ['state_id', 'State (Selection)', 'state_select', true],
       ['slug', 'URL slug', 'text', true],
       ['name_en', 'Name · English', 'text', true],
       ['name_hi', 'Name · Hindi', 'text'],
@@ -97,6 +105,40 @@ const slugify = (text) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 100);
 
+// Basic client-side safe Markdown to HTML preview renderer
+function renderMarkdownPreview(md) {
+  if (!md) return '<p>No content written yet.</p>';
+  let html = md
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Headings
+  html = html.replace(/^### (.*$)/gim, '<h3 style="font-size:1.2rem;margin:1.2rem 0 0.5rem;color:#153E3A;">$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2 style="font-size:1.5rem;margin:1.5rem 0 0.6rem;color:#153E3A;">$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1 style="font-size:1.8rem;margin:1.8rem 0 0.8rem;color:#153E3A;">$1</h1>');
+
+  // Blockquotes
+  html = html.replace(/^\> (.*$)/gim, '<blockquote style="border-left:4px solid #C58B32;padding:0.5rem 1rem;margin:1rem 0;background:#F7F3E8;color:#173633;font-style:italic;">$1</blockquote>');
+
+  // Images
+  html = html.replace(/!\[(.*?)\]\((.*?)\)/gim, '<div style="margin:1.5rem 0;text-align:center;"><img src="$2" alt="$1" style="max-width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);"/><p style="font-size:0.8rem;color:#64736F;margin-top:0.3rem;">$1</p></div>');
+
+  // Links
+  html = html.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#247A72;text-decoration:underline;">$1</a>');
+
+  // Bold / Italic
+  html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+  html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+
+  // Bullet Lists
+  html = html.replace(/^\- (.*$)/gim, '<li style="margin-left:1.5rem;list-style-type:disc;">$1</li>');
+
+  // Paragraphs
+  html = html.replace(/\n\n/g, '</p><p style="margin:1rem 0;line-height:1.7;">');
+  return `<div style="line-height:1.7;color:#173633;">${html}</div>`;
+}
+
 export default function ContentManager({ type, role }) {
   const config = configs[type];
   const [rows, setRows] = useState([]);
@@ -104,12 +146,41 @@ export default function ContentManager({ type, role }) {
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const textareaRef = useRef(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  // Reference lists for dropdown relations
+  const [statesList, setStatesList] = useState([]);
+  const [destinationsList, setDestinationsList] = useState([]);
+
+  // Load states and destinations for convenient selector dropdowns
+  useEffect(() => {
+    async function loadRelations() {
+      try {
+        const [sRes, dRes] = await Promise.all([
+          fetch('/api/admin/states?limit=100', { cache: 'no-store' }),
+          fetch('/api/admin/destinations?limit=100', { cache: 'no-store' }),
+        ]);
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          setStatesList(sData.data || []);
+        }
+        if (dRes.ok) {
+          const dData = await dRes.json();
+          setDestinationsList(dData.data || []);
+        }
+      } catch {
+        // Fallback silently if offline or restricted
+      }
+    }
+    void loadRelations();
+  }, []);
 
   const refresh = useCallback(async () => {
     setBusy(true);
@@ -124,8 +195,8 @@ export default function ContentManager({ type, role }) {
       const res = await fetch(`/api/admin/${type}?${params}`, { cache: 'no-store' });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.error || 'Could not load content');
-      setRows(payload.data);
-      setPagination(payload.pagination);
+      setRows(payload.data || []);
+      setPagination(payload.pagination || {});
     } catch (err) {
       setError(err.message || 'Could not load content');
     } finally {
@@ -142,6 +213,7 @@ export default function ContentManager({ type, role }) {
     setForm({});
     setError('');
     setNotice('');
+    setPreviewOpen(false);
   }
 
   function editRecord(row) {
@@ -149,13 +221,19 @@ export default function ContentManager({ type, role }) {
     setForm(Object.fromEntries(config.fields.map(([name]) => [name, row[name] ?? ''])));
     setError('');
     setNotice('');
+    setPreviewOpen(false);
   }
 
   function handleFieldChange(name, val) {
     const next = { ...form, [name]: val };
-    // Auto-generate slug when title/name changes on a new record or when slug is not manually locked
+    // Auto-generate slug when title/name changes on a new record or when slug is not manually entered
     if ((name === 'title_en' || name === 'name_en') && (!selected || !form.slug)) {
       next.slug = slugify(val);
+    }
+    // Auto-sync state_name if state_id is selected
+    if (name === 'state_id' && statesList.length > 0) {
+      const matched = statesList.find((s) => s.id === val);
+      if (matched) next.state_name = matched.name_en;
     }
     setForm(next);
   }
@@ -165,8 +243,48 @@ export default function ContentManager({ type, role }) {
     setForm({ ...form, body_en: current + `\n${prefix}text${suffix}\n` });
   }
 
+  function handleInsertImagePrompt() {
+    const url = window.prompt('Enter Image URL (e.g. from Media Library or Unsplash):');
+    if (!url) return;
+    const alt = window.prompt('Enter image descriptive alt text (optional):', 'Travel photo') || 'Travel photo';
+    const current = form.body_en || '';
+    setForm({ ...form, body_en: current + `\n![${alt}](${url})\n` });
+  }
+
+  // Cover Image direct file upload to Supabase Storage
+  async function handleCoverUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Cover image must be 5 MB or smaller.');
+      return;
+    }
+    setUploadingCover(true);
+    setError('');
+    setNotice('');
+    try {
+      const res = await fetch('/api/admin/media/upload', {
+        method: 'POST',
+        headers: { 'content-type': 'application/octet-stream' },
+        body: file,
+      });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || 'Upload failed');
+      const uploadedUrl = payload.data?.public_url;
+      if (uploadedUrl) {
+        setForm((prev) => ({ ...prev, cover_image_url: uploadedUrl }));
+        setNotice('Cover image uploaded and set successfully.');
+      }
+    } catch (err) {
+      setError(err.message || 'Image upload failed. Verify storage bucket permissions.');
+    } finally {
+      setUploadingCover(false);
+      event.target.value = '';
+    }
+  }
+
   async function save(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     setBusy(true);
     setError('');
     setNotice('');
@@ -184,19 +302,24 @@ export default function ContentManager({ type, role }) {
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Could not save changes');
-      setNotice(selected ? 'Changes saved.' : 'Draft created.');
+      setNotice(selected ? 'Changes saved successfully.' : 'Draft created successfully.');
       setSelected(result.data);
       setForm(Object.fromEntries(config.fields.map(([name]) => [name, result.data[name] ?? ''])));
       await refresh();
+      return result.data;
     } catch (err) {
       setError(err.message || 'Could not save changes');
+      return null;
     } finally {
       setBusy(false);
     }
   }
 
   async function changeStatus(next) {
-    if (!selected) return;
+    if (!selected) {
+      setError('Please save the draft first before changing status.');
+      return;
+    }
     const verb =
       next === 'PUBLISHED'
         ? 'publish'
@@ -205,7 +328,7 @@ export default function ContentManager({ type, role }) {
         : next === 'ARCHIVED'
         ? 'archive'
         : 'move';
-    if (!window.confirm(`Are you sure you want to ${verb} this ${type.slice(0, -1)}?`)) return;
+    if (!window.confirm(`Are you sure you want to ${verb} this ${config.label.slice(0, -1).toLowerCase()}?`)) return;
     setBusy(true);
     setError('');
     try {
@@ -217,7 +340,7 @@ export default function ContentManager({ type, role }) {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Status change failed');
       setSelected(result.data);
-      setNotice(`Status changed to ${next.toLowerCase()}.`);
+      setNotice(`Status successfully changed to ${next.toLowerCase()}.`);
       await refresh();
     } catch (err) {
       setError(err.message || 'Status change failed');
@@ -226,10 +349,39 @@ export default function ContentManager({ type, role }) {
     }
   }
 
+  async function deleteRecord() {
+    if (!selected) return;
+    if (!window.confirm(`Are you sure you want to delete/archive "${selected.title_en || selected.name_en || selected.slug}"? This action cannot be easily undone.`)) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/${type}/${selected.id}`, {
+        method: 'DELETE',
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Delete failed');
+      setNotice('Record archived / deleted.');
+      newRecord();
+      await refresh();
+    } catch (err) {
+      setError(err.message || 'Delete operation failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (!config) return <p className="error">Unknown content type.</p>;
+
+  // Filter rows locally if category filter is active
+  const displayedRows = categoryFilter
+    ? rows.filter((r) => r.category && r.category.toLowerCase().includes(categoryFilter.toLowerCase()))
+    : rows;
 
   return (
     <section className="manager-grid">
+      {/* ====================================================
+          LIST PANEL (LEFT COLUMN)
+          ==================================================== */}
       <div className="list-panel">
         <div className="list-toolbar">
           <label className="search-label">
@@ -240,10 +392,11 @@ export default function ContentManager({ type, role }) {
                 setPage(1);
                 setQ(e.target.value);
               }}
-              placeholder="Search records"
+              placeholder={`Search ${config.label.toLowerCase()}…`}
               maxLength={100}
             />
           </label>
+
           <label className="filter-label">
             Status
             <select
@@ -253,46 +406,79 @@ export default function ContentManager({ type, role }) {
                 setStatus(e.target.value);
               }}
             >
-              <option value="">All status</option>
+              <option value="">All statuses</option>
               {statuses.map((s) => (
                 <option key={s}>{s}</option>
               ))}
             </select>
           </label>
+
+          {type === 'articles' && (
+            <label className="filter-label" style={{ width: '130px' }}>
+              Category
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="">All categories</option>
+                <option value="Travel Guide">Travel Guide</option>
+                <option value="Heritage">Heritage</option>
+                <option value="Culture">Culture</option>
+                <option value="Food">Food</option>
+                <option value="Planning">Planning</option>
+              </select>
+            </label>
+          )}
+
           <button className="button primary" onClick={newRecord}>
-            New draft
+            + New {config.label.slice(0, -1)}
           </button>
         </div>
 
-        {error && !selected && <p className="error" role="alert">{error}</p>}
+        {error && !selected && <p className="error" role="alert" style={{ margin: '1rem' }}>{error}</p>}
         {busy && !rows.length ? (
           <p className="loading">Loading {config.label.toLowerCase()}…</p>
-        ) : rows.length === 0 ? (
+        ) : displayedRows.length === 0 ? (
           <div className="empty">
             <span>✦</span>
             <h2>No {config.label.toLowerCase()} found</h2>
-            <p>Try another search or create a new draft.</p>
+            <p>Try clearing search filters or create a new record.</p>
           </div>
         ) : (
           <div className="record-list">
-            {rows.map((row) => (
-              <button
-                key={row.id}
-                className={`record-row ${selected?.id === row.id ? 'active' : ''}`}
-                onClick={() => editRecord(row)}
-              >
-                <span>
-                  <b>{row.name_en || row.title_en || row.slug}</b>
-                  <small>{row.slug}</small>
-                </span>
-                <span className={`status status-${row.status?.toLowerCase()}`}>{row.status}</span>
-              </button>
-            ))}
+            {displayedRows.map((row) => {
+              const isDemo =
+                row.tags?.includes('demo') ||
+                row.title_en?.includes('Nawalgarh') ||
+                row.category === 'Demo Guide';
+              return (
+                <button
+                  key={row.id}
+                  className={`record-row ${selected?.id === row.id ? 'active' : ''}`}
+                  onClick={() => editRecord(row)}
+                >
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <b>{row.name_en || row.title_en || row.slug}</b>
+                      {isDemo && (
+                        <span style={{ fontSize: '0.62rem', background: '#e8eee4', color: '#153E3A', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                          DEMO
+                        </span>
+                      )}
+                    </div>
+                    <small style={{ color: '#73817a' }}>
+                      {row.category ? `${row.category} · ` : ''}{row.slug}
+                    </small>
+                  </span>
+                  <span className={`status status-${row.status?.toLowerCase()}`}>{row.status}</span>
+                </button>
+              );
+            })}
           </div>
         )}
 
         <div className="pagination">
-          <span>{pagination.total} records</span>
+          <span>{pagination.total || rows.length} records</span>
           <div>
             <button className="button subtle" disabled={page <= 1 || busy} onClick={() => setPage(page - 1)}>
               Previous
@@ -300,7 +486,7 @@ export default function ContentManager({ type, role }) {
             <span>Page {pagination.page || page} of {pagination.totalPages || 1}</span>
             <button
               className="button subtle"
-              disabled={page >= pagination.totalPages || busy}
+              disabled={page >= (pagination.totalPages || 1) || busy}
               onClick={() => setPage(page + 1)}
             >
               Next
@@ -309,46 +495,249 @@ export default function ContentManager({ type, role }) {
         </div>
       </div>
 
+      {/* ====================================================
+          EDITOR PANEL (RIGHT COLUMN)
+          ==================================================== */}
       <div className="editor-panel">
         <div className="editor-heading">
           <div>
-            <p className="eyebrow">{selected ? 'EDIT RECORD' : 'NEW CONTENT'}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <p className="eyebrow">{selected ? 'EDIT RECORD' : 'NEW RECORD'}</p>
+              {selected?.status === 'PUBLISHED' && (
+                <span style={{ fontSize: '0.65rem', background: '#e1f1e4', color: '#327243', padding: '2px 8px', borderRadius: '99px', fontWeight: 700 }}>
+                  LIVE ON SITE
+                </span>
+              )}
+            </div>
             <h2>
               {selected
                 ? selected.name_en || selected.title_en || selected.slug
                 : `Create ${config.label.slice(0, -1).toLowerCase()}`}
             </h2>
           </div>
-          {selected && <span className={`status status-${selected.status?.toLowerCase()}`}>{selected.status}</span>}
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {type === 'articles' && (
+              <button
+                type="button"
+                className="button subtle"
+                onClick={() => setPreviewOpen(!previewOpen)}
+                style={{ background: previewOpen ? '#153E3A' : '', color: previewOpen ? '#fff' : '' }}
+              >
+                {previewOpen ? 'Close Preview' : '👁 Preview'}
+              </button>
+            )}
+            {selected && (
+              <span className={`status status-${selected.status?.toLowerCase()}`}>{selected.status}</span>
+            )}
+          </div>
         </div>
 
-        {error && selected && <p className="error" role="alert">{error}</p>}
-        {notice && <p className="success" role="status">{notice}</p>}
+        {error && selected && <p className="error" role="alert" style={{ marginTop: '1rem' }}>{error}</p>}
+        {notice && <p className="success" role="status" style={{ marginTop: '1rem' }}>{notice}</p>}
 
+        {/* ====================================================
+            LIVE PREVIEW DRAWER (FOR ARTICLES)
+            ==================================================== */}
+        {previewOpen && type === 'articles' && (
+          <div style={{ margin: '1.5rem 0', padding: '1.5rem', background: '#F7F3E8', border: '1px solid #DCE4DC', borderRadius: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C58B32', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                LIVE PREVIEW: {form.category || 'Article'}
+              </span>
+              <button type="button" className="button subtle" onClick={() => setPreviewOpen(false)}>✕</button>
+            </div>
+            {form.cover_image_url && (
+              <div style={{ width: '100%', height: '220px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' }}>
+                <img src={form.cover_image_url} alt={form.cover_image_alt || 'Cover'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            )}
+            <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.8rem', color: '#153E3A', margin: '0 0 0.5rem 0' }}>
+              {form.title_en || 'Untitled Article'}
+            </h1>
+            <p style={{ fontSize: '0.82rem', color: '#64736F', margin: '0 0 1rem 0' }}>
+              By {form.author_name || 'BharatYatra Editorial'} · {Math.max(2, Math.ceil((form.body_en || '').split(/\s+/).length / 200))} min read
+            </p>
+            {form.excerpt_en && (
+              <p style={{ fontSize: '0.95rem', fontWeight: 500, color: '#173633', fontStyle: 'italic', borderLeft: '3px solid #C58B32', paddingLeft: '1rem', margin: '1rem 0' }}>
+                {form.excerpt_en}
+              </p>
+            )}
+            <div dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(form.body_en) }} />
+          </div>
+        )}
+
+        {/* ====================================================
+            MAIN FORM
+            ==================================================== */}
         <form className="editor-form" onSubmit={save}>
+          {/* Quick Actions Row */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            <button type="submit" className="button primary" disabled={busy}>
+              {busy ? 'Saving…' : selected ? 'Save Changes' : 'Create Draft'}
+            </button>
+
+            {role === 'admin' && selected && selected.status !== 'PUBLISHED' && (
+              <button
+                type="button"
+                className="button"
+                style={{ background: '#e1f1e4', color: '#276738', borderColor: '#c9e0cd' }}
+                disabled={busy}
+                onClick={() => changeStatus('PUBLISHED')}
+              >
+                ✓ Publish Now
+              </button>
+            )}
+
+            {role === 'admin' && selected && selected.status === 'PUBLISHED' && (
+              <button
+                type="button"
+                className="button"
+                disabled={busy}
+                onClick={() => changeStatus('DRAFT')}
+              >
+                ↩ Unpublish to Draft
+              </button>
+            )}
+
+            {selected && (
+              <button
+                type="button"
+                className="button danger"
+                disabled={busy}
+                onClick={deleteRecord}
+              >
+                🗑 Delete / Archive
+              </button>
+            )}
+
+            {selected?.status === 'PUBLISHED' && (
+              <a
+                href={type === 'articles' ? `http://localhost:3000/articles/${selected.slug}` : `http://localhost:3000/${type}/${selected.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="button subtle"
+                style={{ marginLeft: 'auto' }}
+              >
+                View Public URL ↗
+              </a>
+            )}
+          </div>
+
           <div className="field-grid">
-            {config.fields.map(([name, label, kind, required]) => (
-              <label key={name} className={kind === 'textarea' ? 'span-two' : ''}>
-                {label}
-                {name === 'body_en' && (
-                  <div style={{ display: 'flex', gap: '6px', margin: '6px 0', flexWrap: 'wrap' }}>
-                    <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('## ')}>H2</button>
-                    <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('### ')}>H3</button>
-                    <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('**', '**')}>Bold</button>
-                    <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('*', '*')}>Italic</button>
-                    <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('> ')}>Quote</button>
-                    <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('- ')}>Bullet List</button>
+            {config.fields.map(([name, label, kind, required]) => {
+              // Custom State Dropdown Selector
+              if (kind === 'state_select') {
+                return (
+                  <label key={name}>
+                    {label}
+                    <select
+                      value={form[name] || ''}
+                      required={required}
+                      onChange={(e) => handleFieldChange(name, e.target.value)}
+                    >
+                      <option value="">— Select State / UT —</option>
+                      {statesList.map((st) => (
+                        <option key={st.id} value={st.id}>
+                          {st.name_en} ({st.type})
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                );
+              }
+
+              // Custom Destination Dropdown Selector
+              if (kind === 'destination_select') {
+                return (
+                  <label key={name}>
+                    {label}
+                    <select
+                      value={form[name] || ''}
+                      required={required}
+                      onChange={(e) => handleFieldChange(name, e.target.value)}
+                    >
+                      <option value="">— Select Related Destination —</option>
+                      {destinationsList.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name_en} ({d.state_name || 'India'})
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                );
+              }
+
+              // Cover Image URL with Direct Upload Button & Preview
+              if (name === 'cover_image_url') {
+                return (
+                  <div key={name} className="span-two" style={{ background: '#f8f7f2', padding: '14px', borderRadius: '8px', border: '1px solid var(--line)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink)' }}>Cover Image</span>
+                      <label className="button subtle" style={{ cursor: 'pointer', margin: 0 }}>
+                        {uploadingCover ? 'Uploading to Supabase…' : '📁 Upload New File'}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/avif"
+                          onChange={handleCoverUpload}
+                          style={{ display: 'none' }}
+                          disabled={uploadingCover}
+                        />
+                      </label>
+                    </div>
+
+                    <input
+                      type="url"
+                      value={form.cover_image_url || ''}
+                      placeholder="https://... (or upload file above)"
+                      onChange={(e) => handleFieldChange('cover_image_url', e.target.value)}
+                      style={{ marginBottom: '8px' }}
+                    />
+
+                    {form.cover_image_url && (
+                      <div style={{ marginTop: '8px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{ width: '120px', height: '70px', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--line)' }}>
+                          <img src={form.cover_image_url} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <small style={{ color: '#73817a' }}>Cover image loaded. Alt text can be customized below.</small>
+                      </div>
+                    )}
                   </div>
-                )}
-                {kind === 'textarea' ? (
-                  <textarea
-                    rows={name === 'body_en' ? 12 : 3}
-                    value={form[name] || ''}
-                    required={required}
-                    maxLength={50000}
-                    onChange={(e) => handleFieldChange(name, e.target.value)}
-                  />
-                ) : (
+                );
+              }
+
+              // Textarea with Markdown Toolbar for body_en
+              if (kind === 'textarea') {
+                return (
+                  <label key={name} className="span-two">
+                    {label}
+                    {name === 'body_en' && (
+                      <div style={{ display: 'flex', gap: '6px', margin: '6px 0', flexWrap: 'wrap' }}>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('## ')}>H2</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('### ')}>H3</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('**', '**')}>Bold</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('*', '*')}>Italic</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('> ')}>Quote</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('- ')}>Bullet List</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={() => insertMarkdown('1. ')}>Numbered</button>
+                        <button type="button" className="button subtle" style={{ padding: '2px 8px', fontSize: '11px' }} onClick={handleInsertImagePrompt}>🖼 Insert Image</button>
+                      </div>
+                    )}
+                    <textarea
+                      rows={name === 'body_en' ? 14 : 3}
+                      value={form[name] || ''}
+                      required={required}
+                      maxLength={50000}
+                      onChange={(e) => handleFieldChange(name, e.target.value)}
+                    />
+                  </label>
+                );
+              }
+
+              // Standard Input
+              return (
+                <label key={name}>
+                  {label}
                   <input
                     type={kind}
                     value={form[name] || ''}
@@ -357,57 +746,21 @@ export default function ContentManager({ type, role }) {
                     step={kind === 'number' ? 'any' : undefined}
                     onChange={(e) => handleFieldChange(name, e.target.value)}
                   />
-                )}
-              </label>
-            ))}
+                </label>
+              );
+            })}
           </div>
-          <button className="button primary" disabled={busy}>
-            {busy ? 'Saving…' : selected ? 'Save changes' : 'Create draft'}
-          </button>
+
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '10px' }}>
+            <button className="button primary" disabled={busy}>
+              {busy ? 'Saving…' : selected ? 'Save Changes' : 'Create Draft'}
+            </button>
+          </div>
         </form>
 
-        {selected && (type === 'destinations' || type === 'attractions' || type === 'articles') && (
+        {/* Existing ContentImageManager fallback slot for backward compatibility */}
+        {selected && (type === 'destinations' || type === 'attractions' || (type === 'articles' && !form.cover_image_url)) && (
           <ContentImageManager type={type} slug={selected.slug} />
-        )}
-
-        {selected && (
-          <div className="workflow">
-            <h3>Editorial workflow</h3>
-            <p>Current status: <strong>{selected.status}</strong></p>
-            <div className="workflow-actions">
-              {selected.status === 'DRAFT' && (
-                <button className="button" disabled={busy} onClick={() => changeStatus('REVIEW')}>
-                  Submit for review
-                </button>
-              )}
-              {role === 'admin' && selected.status === 'REVIEW' && (
-                <>
-                  <button className="button" disabled={busy} onClick={() => changeStatus('DRAFT')}>
-                    Return to draft
-                  </button>
-                  <button className="button primary" disabled={busy} onClick={() => changeStatus('PUBLISHED')}>
-                    Publish
-                  </button>
-                </>
-              )}
-              {role === 'admin' && selected.status === 'PUBLISHED' && (
-                <button className="button" disabled={busy} onClick={() => changeStatus('DRAFT')}>
-                  Unpublish
-                </button>
-              )}
-              {role === 'admin' && selected.status !== 'ARCHIVED' && (
-                <button className="button danger" disabled={busy} onClick={() => changeStatus('ARCHIVED')}>
-                  Archive
-                </button>
-              )}
-              {role === 'admin' && selected.status === 'ARCHIVED' && (
-                <button className="button" disabled={busy} onClick={() => changeStatus('DRAFT')}>
-                  Restore to draft
-                </button>
-              )}
-            </div>
-            <small>Actions are recorded in the administrative audit history.</small>
-          </div>
         )}
       </div>
     </section>

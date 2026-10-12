@@ -13,8 +13,8 @@ const RESOURCES = {
     required: ['destination_id','slug','name_en'], publishRequired:['description_en','category'], searchable: ['slug','name_en','name_hi','category'],
   },
   articles: {
-    model: 'articles', fields: ['slug','title_en','title_hi','excerpt_en','excerpt_hi','body_en','body_hi','author_name','seo_title_en','seo_title_hi','seo_description_en','seo_description_hi'],
-    required: ['slug','title_en'], publishRequired:['excerpt_en','body_en','author_name'], searchable: ['slug','title_en','title_hi','author_name'],
+    model: 'articles', fields: ['slug','title_en','title_hi','excerpt_en','excerpt_hi','body_en','body_hi','author_name','category','tags','destination_id','state_id','cover_image_url','cover_image_alt','canonical_url','seo_title_en','seo_title_hi','seo_description_en','seo_description_hi'],
+    required: ['slug','title_en'], publishRequired:['excerpt_en','body_en','author_name'], searchable: ['slug','title_en','title_hi','author_name','category','tags'],
   },
   states: {
     model: 'states', fields: ['slug','name_en','name_hi','type','description_en','description_hi'],
@@ -153,7 +153,7 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
   });
 
   router.post('/media/upload', async (request, response) => {
-    const bucket=process.env.MEDIA_STORAGE_BUCKET;
+    const bucket = process.env.MEDIA_STORAGE_BUCKET || 'media';
     if (!bucket) return safeError(response,503,'Media storage is not configured');
     const contentType=request.get('content-type')||'';
     const body=request.body;

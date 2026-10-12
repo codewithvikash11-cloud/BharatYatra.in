@@ -46,6 +46,7 @@ app.use('/api/v1/admin', (request, response, next) => {
   window.count += 1;
   return next();
 });
+app.use('/admin/media/upload', express.raw({ type: 'application/octet-stream', limit: '5mb' }));
 app.use('/api/v1/admin/media/upload', express.raw({ type: 'application/octet-stream', limit: '5mb' }));
 app.use(express.json({ limit: '1mb' }));
 
@@ -67,7 +68,9 @@ app.get('/api/v1/health/database', async (_request, response) => {
   }
 });
 
+const adminRouter = createAdminRouter();
 app.use('/api/v1', publicContentRouter);
-app.use('/api/v1/admin', createAdminRouter());
+app.use('/api/v1/admin', adminRouter);
+app.use('/admin', adminRouter);
 
 export default app;

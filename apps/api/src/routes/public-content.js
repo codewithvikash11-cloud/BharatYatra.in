@@ -11,7 +11,7 @@ const publicFilter = { status: 'PUBLISHED' };
 const searchableFields = {
   destinations: ['name_en', 'name_hi', 'summary_en', 'summary_hi', 'description_en', 'description_hi', 'state_name', 'district_name'],
   attractions: ['name_en', 'name_hi', 'description_en', 'description_hi', 'category'],
-  articles: ['title_en', 'title_hi', 'excerpt_en', 'excerpt_hi', 'body_en', 'body_hi', 'author_name', 'seo_title_en', 'seo_title_hi', 'seo_description_en', 'seo_description_hi'],
+  articles: ['title_en', 'title_hi', 'excerpt_en', 'excerpt_hi', 'body_en', 'body_hi', 'author_name', 'category', 'tags', 'seo_title_en', 'seo_title_hi', 'seo_description_en', 'seo_description_hi'],
   states: ['name_en', 'name_hi'],
   districts: ['name_en', 'name_hi'],
   tehsils: ['name_en', 'name_hi'],
@@ -76,11 +76,18 @@ const articleFields = {
   body_en: true,
   body_hi: true,
   author_name: true,
+  category: true,
+  tags: true,
+  cover_image_url: true,
+  cover_image_alt: true,
+  canonical_url: true,
   seo_title_en: true,
   seo_title_hi: true,
   seo_description_en: true,
   seo_description_hi: true,
   published_at: true,
+  destinations: { select: { slug: true, name_en: true } },
+  states: { select: { slug: true, name_en: true } },
 };
 
 function parseListQuery(request, allowed = ['page', 'limit', 'q']) {
@@ -103,7 +110,17 @@ function parseListQuery(request, allowed = ['page', 'limit', 'q']) {
 
 function searchFilter(resource, query) {
   if (!query) return {};
-  return { OR: searchableFields[resource].map((field) => ({ [field]: { contains: query, mode: 'insensitive' } })) };
+  const cleaned = query.trim().replace(/\s+/g, ' ');
+  const tokens = cleaned.split(' ').filter(Boolean);
+  if (tokens.length === 0) return {};
+  if (tokens.length === 1) {
+    return { OR: searchableFields[resource].map((field) => ({ [field]: { contains: tokens[0], mode: 'insensitive' } })) };
+  }
+  return {
+    AND: tokens.map((token) => ({
+      OR: searchableFields[resource].map((field) => ({ [field]: { contains: token, mode: 'insensitive' } })),
+    })),
+  };
 }
 
 function validSlug(value) {
@@ -161,6 +178,47 @@ async function sendPage(response, model, where, select, pagination) {
   }
 }
 
+router.get('/search', async (request, response) => {
+  const rawQ = request.query.q;
+  if (rawQ === undefined || typeof rawQ !== 'string' || rawQ.trim().length === 0) {
+    return response.json({ data: { query: '', destinations: [], attractions: [], articles: [] } });
+  }
+  const query = rawQ.trim();
+  try {
+    const [destinations, attractions, articles] = await Promise.all([
+      prisma.destinations.findMany({
+        where: { ...publicFilter, ...searchFilter('destinations', query) },
+        select: destinationFields,
+        take: 10,
+        orderBy: [{ published_at: 'desc' }, { name_en: 'asc' }],
+      }),
+      prisma.attractions.findMany({
+        where: { ...publicFilter, destinations: { is: { ...publicFilter } }, ...searchFilter('attractions', query) },
+        select: attractionFields,
+        take: 10,
+        orderBy: [{ published_at: 'desc' }, { name_en: 'asc' }],
+      }),
+      prisma.articles.findMany({
+        where: { ...publicFilter, ...searchFilter('articles', query) },
+        select: articleFields,
+        take: 10,
+        orderBy: [{ published_at: 'desc' }, { title_en: 'asc' }],
+      }),
+    ]);
+    setPublicCache(response);
+    return response.json({
+      data: {
+        query,
+        destinations,
+        attractions,
+        articles,
+      },
+    });
+  } catch (error) {
+    return databaseFailure(response, error);
+  }
+});
+
 router.get('/destinations', (request, response) => {
   const pagination = parseListQuery(request, ['page', 'limit', 'q', 'state', 'district', 'tehsil']);
   if (!pagination) return invalidRequest(response);
@@ -179,7 +237,19 @@ router.get('/destinations/:slug', async (request, response) => {
   try {
     const data = await prisma.destinations.findFirst({
       where: { ...publicFilter, slug: request.params.slug },
-      select: destinationFields,
+      select: {
+        ...destinationFields,
+        attractions: {
+          where: publicFilter,
+          select: attractionFields,
+          orderBy: { name_en: 'asc' },
+        },
+        articles: {
+          where: publicFilter,
+          select: articleFields,
+          orderBy: { published_at: 'desc' },
+        },
+      },
     });
     if (!data) return notFound(response);
     setPublicCache(response);
