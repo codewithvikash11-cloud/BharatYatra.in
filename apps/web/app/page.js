@@ -94,13 +94,13 @@ export default async function HomePage() {
       >
         <div className="hero-fullbleed-overlay" aria-hidden="true" />
         <div className="page-shell hero-fullbleed-content">
-          <p className="hero-eyebrow-tag">DISCOVER UNSEEN INDIA</p>
+          <p className="hero-eyebrow-tag">DISCOVER INCREDIBLE INDIA</p>
           <h1 id="hero-title" className="hero-v0-title">
-            Find your way<br />
-            <span className="serif-italic-gold">to wonder.</span>
+            India, through<br />
+            <span className="serif-italic-gold">every journey.</span>
           </h1>
           <p className="hero-v0-desc">
-            Curated journeys, forgotten temples, and timeless landscapes across the subcontinent — thoughtfully crafted for mindful explorers.
+            Plan meaningful journeys with destinations, heritage guides, practical travel information, and stories from across India.
           </p>
           <form action="/search" method="get" role="search" className="hero-search-box" style={{ maxWidth: '620px', margin: '2rem 0 1.75rem 0' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#87938F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -113,7 +113,7 @@ export default async function HomePage() {
               type="search"
               name="q"
               maxLength={100}
-              placeholder="Search destinations (e.g., Nawalgarh Rajasthan, Jaipur)..."
+              placeholder="Where do you want to go? (e.g., Jaipur, Kerala, Varanasi)"
               aria-label="Search destinations across India"
             />
             <button className="search-submit-btn" type="submit">
@@ -128,6 +128,17 @@ export default async function HomePage() {
               Browse regions <span>→</span>
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="home-tool-strip" aria-label="Travel planning tools">
+        <div className="page-shell home-tool-grid">
+          <Link href="/destinations"><strong>Destinations</strong><span>Places to visit</span></Link>
+          <Link href="/articles?category=Planning"><strong>Plan a Trip</strong><span>Build your journey</span></Link>
+          <Link href="/attractions"><strong>Forts &amp; Palaces</strong><span>Heritage landmarks</span></Link>
+          <Link href="/articles?category=Food"><strong>Food &amp; Culture</strong><span>Local experiences</span></Link>
+          <Link href="/states"><strong>Explore Regions</strong><span>States &amp; UTs</span></Link>
+          <Link href="/search"><strong>Travel Guides</strong><span>Practical information</span></Link>
         </div>
       </section>
 
@@ -162,10 +173,10 @@ export default async function HomePage() {
       <section className="content-section page-shell" aria-labelledby="destinations-title">
         <div className="section-heading-row">
           <div className="section-title-group">
-            <p className="section-eyebrow">FEATURED DESTINATIONS</p>
+            <p className="section-eyebrow">POPULAR DESTINATIONS</p>
             <h2 id="destinations-title" className="section-main-title">
-              Places worth<br />
-              <span className="serif-italic-gold">getting lost in.</span>
+              Explore India&apos;s most loved<br />
+              <span className="serif-italic-gold">destinations.</span>
             </h2>
           </div>
           <Link href="/destinations" className="section-link-more">

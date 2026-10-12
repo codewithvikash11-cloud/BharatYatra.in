@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
   const title = item.seo_title_en || item.title_en;
   const description = item.seo_description_en || item.excerpt_en || item.title_en;
   const canonicalUrl = item.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${encodeURIComponent(slug)}`;
-  const coverUrl = item.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80';
+  const coverUrl = item.cover_image_url || '/hero.jpg';
 
   return {
     title: `${title} | BharatYatra Travel Journal`,
@@ -94,7 +94,7 @@ export default async function ArticleDetailPage({ params }) {
     });
   } catch {}
 
-  const coverUrl = item.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
+  const coverUrl = item.cover_image_url || '/hero.jpg';
   const wordCount = (item.body_en || item.excerpt_en || '').split(/\s+/).length;
   const readingTime = Math.max(3, Math.ceil(wordCount / 200));
   const publishDate = item.published_at
@@ -261,7 +261,7 @@ export default async function ArticleDetailPage({ params }) {
                   Planning a journey to {destination.name_en}?
                 </h3>
                 <p style={{ margin: '0.35rem 0 0 0', color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
-                  Explore verified attractions, fresco havelis, and logistical guides for {destination.name_en}.
+                  Explore the latest verified places, practical guidance, and editorial stories for {destination.name_en}.
                 </p>
               </div>
               <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none' }}>
@@ -295,7 +295,7 @@ export default async function ArticleDetailPage({ params }) {
                   <Link key={rel.slug} href={`/articles/${rel.slug}`} className="story-card-item" style={{ textDecoration: 'none' }}>
                     <div className="story-card-media" style={{ height: '180px' }}>
                       <img
-                        src={rel.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80'}
+                        src={rel.cover_image_url || '/hero.jpg'}
                         alt={rel.cover_image_alt || rel.title_en}
                         loading="lazy"
                         decoding="async"

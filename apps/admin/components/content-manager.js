@@ -14,6 +14,8 @@ const configs = {
       ['description_en', 'Description · English', 'textarea'],
       ['description_hi', 'Description · Hindi', 'textarea'],
       ['state_id', 'State (Selection)', 'state_select'],
+      ['district_id', 'District (Selection)', 'district_select'],
+      ['tehsil_id', 'Tehsil / Sub-district (Selection)', 'tehsil_select'],
       ['state_name', 'State Name (Display)', 'text'],
       ['district_name', 'District Name (Display)', 'text'],
       ['latitude', 'Latitude', 'number'],
@@ -84,7 +86,7 @@ const configs = {
   tehsils: {
     label: 'Local Areas (Tehsils)',
     fields: [
-      ['district_id', 'District ID (UUID)', 'text', true],
+      ['district_id', 'District (Selection)', 'district_select', true],
       ['slug', 'URL slug', 'text', true],
       ['name_en', 'Name · English', 'text', true],
       ['name_hi', 'Name · Hindi', 'text'],
@@ -157,15 +159,19 @@ export default function ContentManager({ type, role }) {
 
   // Reference lists for dropdown relations
   const [statesList, setStatesList] = useState([]);
+  const [districtsList, setDistrictsList] = useState([]);
+  const [tehsilsList, setTehsilsList] = useState([]);
   const [destinationsList, setDestinationsList] = useState([]);
 
   // Load states and destinations for convenient selector dropdowns
   useEffect(() => {
     async function loadRelations() {
       try {
-        const [sRes, dRes] = await Promise.all([
+        const [sRes, dRes, districtRes, tehsilRes] = await Promise.all([
           fetch('/api/admin/states?limit=100', { cache: 'no-store' }),
           fetch('/api/admin/destinations?limit=100', { cache: 'no-store' }),
+          fetch('/api/admin/districts?limit=100', { cache: 'no-store' }),
+          fetch('/api/admin/tehsils?limit=100', { cache: 'no-store' }),
         ]);
         if (sRes.ok) {
           const sData = await sRes.json();
@@ -174,6 +180,14 @@ export default function ContentManager({ type, role }) {
         if (dRes.ok) {
           const dData = await dRes.json();
           setDestinationsList(dData.data || []);
+        }
+        if (districtRes.ok) {
+          const districtData = await districtRes.json();
+          setDistrictsList(districtData.data || []);
+        }
+        if (tehsilRes.ok) {
+          const tehsilData = await tehsilRes.json();
+          setTehsilsList(tehsilData.data || []);
         }
       } catch {
         // Fallback silently if offline or restricted
@@ -233,7 +247,18 @@ export default function ContentManager({ type, role }) {
     // Auto-sync state_name if state_id is selected
     if (name === 'state_id' && statesList.length > 0) {
       const matched = statesList.find((s) => s.id === val);
-      if (matched) next.state_name = matched.name_en;
+      if (matched) {
+        next.state_name = matched.name_en;
+        next.district_id = '';
+        next.tehsil_id = '';
+      }
+    }
+    if (name === 'district_id') {
+      const matched = districtsList.find((district) => district.id === val);
+      if (matched) {
+        next.district_name = matched.name_en;
+        next.tehsil_id = '';
+      }
     }
     setForm(next);
   }
@@ -371,6 +396,10 @@ export default function ContentManager({ type, role }) {
   }
 
   if (!config) return <p className="error">Unknown content type.</p>;
+
+  const publicHref = selected?.status === 'PUBLISHED'
+    ? ({ articles: `/articles/${selected.slug}`, destinations: `/destinations/${selected.slug}`, states: `/states/${selected.slug}` }[type] || null)
+    : null;
 
   // Filter rows locally if category filter is active
   const displayedRows = categoryFilter
@@ -611,9 +640,9 @@ export default function ContentManager({ type, role }) {
               </button>
             )}
 
-            {selected?.status === 'PUBLISHED' && (
+            {publicHref && (
               <a
-                href={type === 'articles' ? `http://localhost:3000/articles/${selected.slug}` : `http://localhost:3000/${type}/${selected.slug}`}
+                href={`http://localhost:3000${publicHref}`}
                 target="_blank"
                 rel="noreferrer"
                 className="button subtle"
@@ -663,6 +692,32 @@ export default function ContentManager({ type, role }) {
                           {d.name_en} ({d.state_name || 'India'})
                         </option>
                       ))}
+                    </select>
+                  </label>
+                );
+              }
+
+              if (kind === 'district_select') {
+                const availableDistricts = districtsList.filter((district) => !form.state_id || district.state_id === form.state_id);
+                return (
+                  <label key={name}>
+                    {label}
+                    <select value={form[name] || ''} required={required} onChange={(e) => handleFieldChange(name, e.target.value)}>
+                      <option value="">— Select District —</option>
+                      {availableDistricts.map((district) => <option key={district.id} value={district.id}>{district.name_en}</option>)}
+                    </select>
+                  </label>
+                );
+              }
+
+              if (kind === 'tehsil_select') {
+                const availableTehsils = tehsilsList.filter((tehsil) => !form.district_id || tehsil.district_id === form.district_id);
+                return (
+                  <label key={name}>
+                    {label}
+                    <select value={form[name] || ''} required={required} onChange={(e) => handleFieldChange(name, e.target.value)}>
+                      <option value="">— Select Tehsil / Sub-district —</option>
+                      {availableTehsils.map((tehsil) => <option key={tehsil.id} value={tehsil.id}>{tehsil.name_en}{tehsil.local_label ? ` (${tehsil.local_label})` : ''}</option>)}
                     </select>
                   </label>
                 );

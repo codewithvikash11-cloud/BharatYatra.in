@@ -15,4 +15,4 @@ export async function proxy(request){
   return response;
 }
 
-export const config={matcher:['/','/dashboard/:path*','/content/:path*','/media/:path*','/audit/:path*']};
+export const config={matcher:['/','/dashboard/:path*','/content/:path*','/media/:path*','/appearance/:path*','/audit/:path*']};

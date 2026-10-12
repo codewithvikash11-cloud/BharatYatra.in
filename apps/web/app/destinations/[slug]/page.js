@@ -13,11 +13,9 @@ async function getDestinationCover(slug) {
     });
     if (asset?.public_url) return asset.public_url;
   } catch {}
-  // Default fallback for Nawalgarh / Shekhawati
-  if (slug.includes('nawalgarh')) {
-    return 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
-  }
-  return 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
+  // The locally managed fallback keeps the template honest until editors add
+  // destination-specific media in the CMS.
+  return '/hero.jpg';
 }
 
 export async function generateMetadata({ params }) {
@@ -44,10 +42,10 @@ export async function generateMetadata({ params }) {
       siteName: 'BharatYatra',
       images: [
         {
-          url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
+          url: 'https://bharat-yatra-in.vercel.app/hero.jpg',
           width: 1200,
           height: 630,
-          alt: `${item.name_en} Heritage Architecture`,
+          alt: `${item.name_en} on BharatYatra`,
         },
       ],
     },
@@ -84,9 +82,18 @@ export default async function DestinationDetailPage({ params }) {
 
 async function renderDestinationView(item) {
   const coverUrl = await getDestinationCover(item.slug);
-  const stateName = item.states?.name_en || item.state_name || 'Rajasthan';
-  const districtName = item.districts?.name_en || item.district_name || 'Jhunjhunu';
+  const stateName = item.states?.name_en || item.state_name || 'India';
+  const districtName = item.districts?.name_en || item.district_name || null;
+  const tehsilName = item.tehsils?.name_en || null;
   const mapUrl = getMapPinUrl(item.latitude, item.longitude);
+  const hasCoordinates = item.latitude != null && item.longitude != null;
+  const locationFacts = [
+    ['State', stateName],
+    ...(districtName ? [['District', districtName]] : []),
+    ...(tehsilName ? [['Tehsil / locality', tehsilName]] : []),
+    ...(item.best_time_en ? [['Best time to visit', item.best_time_en]] : []),
+    ...(hasCoordinates ? [['Location', `${Number(item.latitude).toFixed(4)}, ${Number(item.longitude).toFixed(4)}`]] : []),
+  ];
 
   // Load related attractions and articles if not included in payload
   let attractions = item.attractions || [];
@@ -136,7 +143,7 @@ async function renderDestinationView(item) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://bharat-yatra-in.vercel.app' },
       { '@type': 'ListItem', position: 2, name: 'Destinations', item: 'https://bharat-yatra-in.vercel.app/destinations' },
-      { '@type': 'ListItem', position: 3, name: stateName, item: `https://bharat-yatra-in.vercel.app/states/${item.states?.slug || 'rajasthan'}` },
+      ...(item.states?.slug ? [{ '@type': 'ListItem', position: 3, name: stateName, item: `https://bharat-yatra-in.vercel.app/states/${item.states.slug}` }] : []),
       { '@type': 'ListItem', position: 4, name: item.name_en, item: `https://bharat-yatra-in.vercel.app/destinations/${item.slug}` },
     ],
   };
@@ -164,7 +171,7 @@ async function renderDestinationView(item) {
                 <li>/</li>
                 <li><Link href="/destinations" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>Destinations</Link></li>
                 <li>/</li>
-                <li><Link href={`/states/${item.states?.slug || 'rajasthan'}`} style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>{stateName}</Link></li>
+                {item.states?.slug ? <li><Link href={`/states/${item.states.slug}`} style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>{stateName}</Link></li> : <li>{stateName}</li>}
                 <li>/</li>
                 <li style={{ color: 'var(--gold-muted)', fontWeight: 600 }}>{item.name_en}</li>
               </ol>
@@ -196,11 +203,7 @@ async function renderDestinationView(item) {
               </div>
               <div>
                 <span style={{ color: 'rgba(255,255,255,0.5)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>District</span>
-                <strong>{districtName}</strong>
-              </div>
-              <div>
-                <span style={{ color: 'rgba(255,255,255,0.5)', display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cultural Circuit</span>
-                <strong style={{ color: 'var(--gold-muted)' }}>Shekhawati Fresco Corridor</strong>
+                <strong>{districtName || 'Not yet specified'}</strong>
               </div>
               {item.best_time_en && (
                 <div>
@@ -224,17 +227,26 @@ async function renderDestinationView(item) {
           </div>
         </div>
 
+        <nav className="destination-section-nav" aria-label="Destination guide sections">
+          <div className="page-shell">
+            <a href="#overview">Overview</a>
+            <a href="#places">Places to visit</a>
+            <a href="#travel-info">Travel information</a>
+            <a href="#guides">Travel guides</a>
+          </div>
+        </nav>
+
         {/* ====================================================
             3. MAIN CONTENT: OVERVIEW & HERITAGE
             ==================================================== */}
-        <section className="page-shell" style={{ padding: '3.5rem 0' }}>
+        <section id="overview" className="page-shell" style={{ padding: '3.5rem 0', scrollMarginTop: '6rem' }}>
           <div className="destination-overview-layout">
             <div>
               <div className="section-title-group" style={{ marginBottom: '1.5rem' }}>
                 <p className="section-eyebrow">ABOUT THE TOWN</p>
                 <h2 className="section-main-title">
-                  The Golden City of<br />
-                  <span className="serif-italic-gold">Shekhawati.</span>
+                  Discover<br />
+                  <span className="serif-italic-gold">{item.name_en}.</span>
                 </h2>
               </div>
 
@@ -244,41 +256,31 @@ async function renderDestinationView(item) {
                 </div>
               )}
 
-              {/* Cultural Highlights Box */}
+              {/* CMS-backed destination facts */}
               <div style={{ marginTop: '2.5rem', padding: '1.75rem', borderRadius: 'var(--radius-lg)', background: 'var(--cream)', border: '1px solid var(--border-color)' }}>
                 <h3 style={{ fontSize: '1.15rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', marginTop: 0, marginBottom: '0.75rem' }}>
-                  Why Nawalgarh is Unique
+                  At a glance
                 </h3>
                 <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-primary)', lineHeight: 1.7, fontSize: '0.95rem' }}>
-                  <li><strong>Open-Air Art Gallery:</strong> Known for the highest concentration of preserved, ornate merchant havelis in Shekhawati.</li>
-                  <li><strong>The Poddar Heritage:</strong> Meticulously curated museums displaying rare dual-culture murals depicting Krishna Leela alongside 19th-century steam trains.</li>
-                  <li><strong>Living Bazaars:</strong> Ancient winding market streets filled with brass craftsmen, local sweetshops, and lacquer bangles.</li>
+                  {locationFacts.map(([label, value]) => <li key={label}><strong>{label}:</strong> {value}</li>)}
                 </ul>
               </div>
             </div>
 
             {/* Sidebar Quick Info */}
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ background: '#FFFDF8', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.75rem', boxShadow: 'var(--shadow-sm)' }}>
+              <div id="travel-info" style={{ background: '#FFFDF8', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.75rem', boxShadow: 'var(--shadow-sm)', scrollMarginTop: '6rem' }}>
                 <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--teal-primary)', marginTop: 0, marginBottom: '1rem' }}>
-                  Travel Logistics
+                  Travel information
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.92rem' }}>
                   <div>
-                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>From Jaipur:</strong>
-                    <span style={{ color: 'var(--text-muted)' }}>~140 km (3.5 hrs via NH52)</span>
+                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>Best time to visit:</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>{item.best_time_en || 'Being verified by BharatYatra editors.'}</span>
                   </div>
                   <div>
-                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>From Delhi:</strong>
-                    <span style={{ color: 'var(--text-muted)' }}>~275 km (6 hrs via Rewari / Jhunjhunu)</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>Nearest Airport:</strong>
-                    <span style={{ color: 'var(--text-muted)' }}>Jaipur International Airport (JAI)</span>
-                  </div>
-                  <div>
-                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>Local Transport:</strong>
-                    <span style={{ color: 'var(--text-muted)' }}>Heritage walking tours, electric auto-rickshaws</span>
+                    <strong style={{ color: 'var(--teal-deep)', display: 'block' }}>Travel planning:</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>Transport, stays, and local guidance will appear here after editorial verification.</span>
                   </div>
                 </div>
               </div>
@@ -290,7 +292,7 @@ async function renderDestinationView(item) {
                 </h4>
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem' }}>
                   <li>
-                    <Link href={`/states/${item.states?.slug || 'rajasthan'}`} style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
+                    <Link href={item.states?.slug ? `/states/${item.states.slug}` : '/states'} style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
                       Explore all of {stateName} →
                     </Link>
                   </li>
@@ -313,7 +315,7 @@ async function renderDestinationView(item) {
         {/* ====================================================
             4. AVAILABLE ATTRACTIONS (REAL DATABASE RECORDS)
             ==================================================== */}
-        <section className="content-section shaded" style={{ padding: '4rem 0' }}>
+        <section id="places" className="content-section shaded" style={{ padding: '4rem 0', scrollMarginTop: '6rem' }}>
           <div className="page-shell">
             <div className="section-heading-row">
               <div className="section-title-group">
@@ -392,7 +394,7 @@ async function renderDestinationView(item) {
         {/* ====================================================
             5. RELATED PUBLISHED TRAVEL ARTICLES (REAL RECORDS)
             ==================================================== */}
-        <section className="content-section" style={{ padding: '4rem 0' }}>
+        <section id="guides" className="content-section" style={{ padding: '4rem 0', scrollMarginTop: '6rem' }}>
           <div className="page-shell">
             <div className="section-heading-row">
               <div className="section-title-group">
