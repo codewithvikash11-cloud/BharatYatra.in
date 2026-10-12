@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import BrandLogo from './brand-logo.js';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
@@ -11,46 +12,9 @@ export default function SiteFooter() {
         <div className="footer-top-row">
           {/* Brand Left */}
           <div>
-            <Link className="brand" href="/" aria-label="BharatYatra — Home">
-              <div className="brand-mark-wrapper sm">
-                <svg
-                  className="brand-mark-svg"
-                  viewBox="0 0 96 96"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <circle cx="48" cy="48" r="43" fill="#153E3A" />
-                  <path
-                    d="M22 69V50c0-15 11-27 26-27s26 12 26 27v19"
-                    stroke="#F7F3E8"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M32 69V52c0-9 7-16 16-16s16 7 16 16v17"
-                    stroke="#6E9CA0"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M42 69V55a6 6 0 0 1 12 0v14"
-                    stroke="#C58B32"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-                  <circle cx="48" cy="18" r="5" fill="#C58B32" />
-                  <path d="M17 69h62" stroke="#C58B32" strokeWidth="3.5" strokeLinecap="round" />
-                  <circle cx="48" cy="78" r="2.5" fill="#F7F3E8" />
-                </svg>
-              </div>
-              <div className="brand-text">
-                <span className="brand-name" style={{ color: '#FFFDF8' }}>BharatYatra</span>
-                <span className="brand-sub">TRAVEL INDIA</span>
-              </div>
-            </Link>
+            <BrandLogo size="default" light={true} showSubtitle={true} />
             <p className="footer-v0-tagline">
-              Curated travel discovery across India's living heritage, sacred landscapes, and timeless cultures.
+              Curated travel discovery across India&apos;s living heritage, sacred landscapes, and timeless cultures.
             </p>
           </div>
 
@@ -78,20 +42,54 @@ export default function SiteFooter() {
           </div>
         </div>
 
+        {/* Directory columns */}
+        <div className="footer-columns-grid">
+          <div>
+            <h4>Discover</h4>
+            <ul>
+              <li><Link href="/destinations">All Destinations</Link></li>
+              <li><Link href="/states">36 States &amp; UTs</Link></li>
+              <li><Link href="/attractions">Historic Monuments</Link></li>
+              <li><Link href="/itineraries">Suggested Itineraries</Link></li>
+              <li><Link href="/events">Events &amp; Festivals</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Trip Planning Tools</h4>
+            <ul>
+              <li><Link href="/trip-planner">Interactive Trip Planner</Link></li>
+              <li><Link href="/routes">Route &amp; Transport Finder</Link></li>
+              <li><Link href="/budget-calculator">Trip Budget Calculator</Link></li>
+              <li><Link href="/checklist">Packing Checklist</Link></li>
+              <li><Link href="/weather">Season Weather Guide</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Travel Help &amp; Safety</h4>
+            <ul>
+              <li><Link href="/travel-help#visa">Visa &amp; Entry Rules</Link></li>
+              <li><Link href="/travel-help#emergency">Emergency Helplines (112 / 1363)</Link></li>
+              <li><Link href="/travel-help#tourism-portals">State Tourism Portals</Link></li>
+              <li><Link href="/travel-help#currency">Currency &amp; Payments</Link></li>
+              <li><Link href="/travel-help#safety">Safe Travel Advice</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4>About BharatYatra</h4>
+            <ul>
+              <li><Link href="/about">Our Editorial Mission</Link></li>
+              <li><Link href="/contact">Editorial Inquiries</Link></li>
+              <li><Link href="/privacy">Privacy Policy</Link></li>
+              <li><Link href="/terms">Terms of Service</Link></li>
+              <li><a href="http://localhost:3001" target="_blank" rel="noopener noreferrer">Content Studio (Admin) ↗</a></li>
+            </ul>
+          </div>
+        </div>
+
         {/* Bottom Nav Links & Copyright */}
         <div className="footer-bottom-nav">
-          <ul className="footer-links-inline">
-            <li><Link href="/destinations">Destinations</Link></li>
-            <li><Link href="/states">States & Regions</Link></li>
-            <li><Link href="/attractions">Attractions</Link></li>
-            <li><Link href="/articles">Travel Journal</Link></li>
-            <li><Link href="/about">About Us</Link></li>
-            <li><Link href="/privacy">Privacy</Link></li>
-            <li><Link href="/terms">Terms</Link></li>
-          </ul>
-
           <p className="footer-copy-text">
-            © {currentYear} BharatYatra. All rights reserved. Thoughtfully crafted for mindful travelers.
+            © {currentYear} BharatYatra. All rights reserved. Thoughtfully crafted for mindful travelers across India.
           </p>
         </div>
       </div>
