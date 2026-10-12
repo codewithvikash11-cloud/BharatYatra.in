@@ -82,7 +82,7 @@ export default async function HomePage() {
 
   const heroBg =
     siteMedia['hero'] ||
-    'https://images.unsplash.com/photo-1609137144820-22c76e273f55?q=80&w=1800&auto=format&fit=crop';
+    'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1800&auto=format&fit=crop';
 
   return (
     <main>
@@ -161,7 +161,7 @@ export default async function HomePage() {
           {/* Left Tall Card - Jaipur & Amber */}
           <Link href="/destinations" className="dest-tall-card">
             <img
-              src="https://images.unsplash.com/photo-1609137144820-22c76e273f55?q=80&w=1200&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop"
               alt="Hawa Mahal in Jaipur Rajasthan"
             />
             <div className="dest-card-gradient-overlay" aria-hidden="true" />
@@ -478,7 +478,7 @@ export default async function HomePage() {
             {/* Itinerary 1 */}
             <Link href="/destinations" className="itinerary-photo-card">
               <img
-                src="https://images.unsplash.com/photo-1609137144820-22c76e273f55?q=80&w=1200&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=1200&auto=format&fit=crop"
                 alt="The Golden Triangle tour"
               />
               <span className="itinerary-badge-pill">7 DAYS</span>

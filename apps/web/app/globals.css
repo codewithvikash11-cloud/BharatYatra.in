@@ -1619,6 +1619,7 @@ input:focus-visible {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
 /* ==========================================================
    V0 EDITORIAL HOMEPAGE DESIGN STYLES
    ========================================================== */
