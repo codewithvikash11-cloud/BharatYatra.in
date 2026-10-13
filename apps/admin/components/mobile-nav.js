@@ -17,7 +17,7 @@ export default function MobileNav() {
   ];
 
   const contentMenu = [
-    { label: 'Articles', href: '/content/articles' },
+    { label: 'Articles', href: '/articles' },
     { label: 'Destinations', href: '/content/destinations' },
     { label: 'Attractions', href: '/content/attractions' },
     { label: 'Itineraries', href: '/content/itineraries' },

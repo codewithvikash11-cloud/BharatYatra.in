@@ -9,8 +9,9 @@
     "dev:web": "npm run dev --workspace=@bharatyatra/web",
     "dev:admin": "npm run dev --workspace=@bharatyatra/admin",
     "dev:api": "npm run dev --workspace=@bharatyatra/api",
-    "dev:mobile": "npm run android --workspace=@bharatyatra/mobile",
     "build": "npx prisma generate && npm run build --workspace=@bharatyatra/web && npm run build --workspace=@bharatyatra/admin",
+    "build:web": "npx prisma generate && npm run build --workspace=@bharatyatra/web",
+    "build:admin": "npx prisma generate && npm run build --workspace=@bharatyatra/admin",
     "check": "npm run check --workspaces --if-present"
   },
   "devDependencies": {
