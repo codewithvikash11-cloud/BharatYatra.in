@@ -407,10 +407,37 @@ export default function ContentManager({ type, role }) {
     }
   }
 
+  async function openPrivatePreview() {
+    const slug = form.slug || selected?.slug;
+    if (!slug) {
+      setError('Please enter or save a URL slug first before previewing.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/preview-token?type=${type}&slug=${encodeURIComponent(slug)}`);
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || 'Failed to generate preview token');
+      if (payload.previewUrl) {
+        window.open(payload.previewUrl, '_blank', 'noopener,noreferrer');
+      }
+    } catch (err) {
+      setError(err.message || 'Could not open preview');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (!config) return <p className="error">Unknown content type.</p>;
 
   const publicHref = selected?.status === 'PUBLISHED'
-    ? ({ articles: `/articles/${selected.slug}`, destinations: `/destinations/${selected.slug}`, states: `/states/${selected.slug}` }[type] || null)
+    ? ({
+        articles: `/articles/${selected.slug}`,
+        destinations: `/destinations/${selected.slug}`,
+        itineraries: `/itineraries/${selected.slug}`,
+        states: `/states/${selected.slug}`
+      }[type] || null)
     : null;
 
   // Filter rows locally if category filter is active
@@ -558,16 +585,14 @@ export default function ContentManager({ type, role }) {
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {type === 'articles' && (
-              <button
-                type="button"
-                className="button subtle"
-                onClick={() => setPreviewOpen(!previewOpen)}
-                style={{ background: previewOpen ? '#153E3A' : '', color: previewOpen ? '#fff' : '' }}
-              >
-                {previewOpen ? 'Close Preview' : '👁 Preview'}
-              </button>
-            )}
+            <button
+              type="button"
+              className="button subtle"
+              onClick={() => setPreviewOpen(!previewOpen)}
+              style={{ background: previewOpen ? '#153E3A' : '', color: previewOpen ? '#fff' : '' }}
+            >
+              {previewOpen ? 'Close In-Studio Preview' : '👁 In-Studio Preview'}
+            </button>
             {selected && (
               <span className={`status status-${selected.status?.toLowerCase()}`}>{selected.status}</span>
             )}
@@ -578,33 +603,78 @@ export default function ContentManager({ type, role }) {
         {notice && <p className="success" role="status" style={{ marginTop: '1rem' }}>{notice}</p>}
 
         {/* ====================================================
-            LIVE PREVIEW DRAWER (FOR ARTICLES)
+            LIVE IN-STUDIO PREVIEW DRAWER (FOR ALL CONTENT TYPES)
             ==================================================== */}
-        {previewOpen && type === 'articles' && (
+        {previewOpen && (
           <div style={{ margin: '1.5rem 0', padding: '1.5rem', background: '#F7F3E8', border: '1px solid #DCE4DC', borderRadius: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C58B32', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                LIVE PREVIEW: {form.category || 'Article'}
+                LIVE PREVIEW: {type.toUpperCase()} · {form.category || form.slug || 'DRAFT'}
               </span>
               <button type="button" className="button subtle" onClick={() => setPreviewOpen(false)}>✕</button>
             </div>
-            {form.cover_image_url && (
-              <div style={{ width: '100%', height: '220px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' }}>
-                <img src={form.cover_image_url} alt={form.cover_image_alt || 'Cover'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+
+            {type === 'articles' && (
+              <div>
+                {form.cover_image_url && (
+                  <div style={{ width: '100%', height: '220px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem' }}>
+                    <img src={form.cover_image_url} alt={form.cover_image_alt || 'Cover'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+                <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.8rem', color: '#153E3A', margin: '0 0 0.5rem 0' }}>
+                  {form.title_en || 'Untitled Article'}
+                </h1>
+                <p style={{ fontSize: '0.82rem', color: '#64736F', margin: '0 0 1rem 0' }}>
+                  By {form.author_name || 'BharatYatra Editorial'} · {Math.max(2, Math.ceil((form.body_en || '').split(/\s+/).length / 200))} min read
+                </p>
+                {form.excerpt_en && (
+                  <p style={{ fontSize: '0.95rem', fontWeight: 500, color: '#173633', fontStyle: 'italic', borderLeft: '3px solid #C58B32', paddingLeft: '1rem', margin: '1rem 0' }}>
+                    {form.excerpt_en}
+                  </p>
+                )}
+                <div dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(form.body_en) }} />
               </div>
             )}
-            <h1 style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.8rem', color: '#153E3A', margin: '0 0 0.5rem 0' }}>
-              {form.title_en || 'Untitled Article'}
-            </h1>
-            <p style={{ fontSize: '0.82rem', color: '#64736F', margin: '0 0 1rem 0' }}>
-              By {form.author_name || 'BharatYatra Editorial'} · {Math.max(2, Math.ceil((form.body_en || '').split(/\s+/).length / 200))} min read
-            </p>
-            {form.excerpt_en && (
-              <p style={{ fontSize: '0.95rem', fontWeight: 500, color: '#173633', fontStyle: 'italic', borderLeft: '3px solid #C58B32', paddingLeft: '1rem', margin: '1rem 0' }}>
-                {form.excerpt_en}
-              </p>
+
+            {type === 'destinations' && (
+              <div>
+                <span style={{ fontSize: '0.75rem', background: '#153E3A', color: '#FFFDF8', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  {form.state_name || 'Destination'}
+                </span>
+                <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2rem', color: '#153E3A', margin: '0.5rem 0' }}>
+                  {form.name_en || 'Untitled Destination'}
+                </h1>
+                {form.best_time_en && <p style={{ fontSize: '0.85rem', color: '#C58B32', fontWeight: 600 }}>Best Time: {form.best_time_en}</p>}
+                {form.summary_en && <p style={{ fontSize: '0.95rem', color: '#173633', lineHeight: 1.6 }}>{form.summary_en}</p>}
+                <div dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(form.description_en) }} />
+              </div>
             )}
-            <div dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(form.body_en) }} />
+
+            {type === 'attractions' && (
+              <div>
+                <span style={{ fontSize: '0.75rem', background: '#247A72', color: '#FFFDF8', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  {form.category || 'Attraction'}
+                </span>
+                <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.8rem', color: '#153E3A', margin: '0.5rem 0' }}>
+                  {form.name_en || 'Untitled Attraction'}
+                </h1>
+                {form.visiting_hours && <p style={{ fontSize: '0.82rem', color: '#64736F' }}>Hours: {form.visiting_hours}</p>}
+                {form.entry_fee_note && <p style={{ fontSize: '0.82rem', color: '#64736F' }}>Entry: {form.entry_fee_note}</p>}
+                <div dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(form.description_en) }} />
+              </div>
+            )}
+
+            {type === 'itineraries' && (
+              <div>
+                <span style={{ fontSize: '0.75rem', background: '#C58B32', color: '#FFFDF8', padding: '3px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                  ⏱ {form.duration_days || 3} Days Itinerary
+                </span>
+                <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.8rem', color: '#153E3A', margin: '0.5rem 0' }}>
+                  {form.title_en || 'Untitled Itinerary'}
+                </h1>
+                <div dangerouslySetInnerHTML={{ __html: renderMarkdownPreview(form.description_en) }} />
+              </div>
+            )}
           </div>
         )}
 
@@ -649,6 +719,19 @@ export default function ContentManager({ type, role }) {
                 onClick={deleteRecord}
               >
                 🗑 Delete / Archive
+              </button>
+            )}
+
+            {selected && (
+              <button
+                type="button"
+                className="button subtle"
+                disabled={busy}
+                onClick={openPrivatePreview}
+                style={{ background: '#F7F3E8', color: '#153E3A', borderColor: '#DCE4DC' }}
+                title="Open secure private administrator draft preview in a new tab"
+              >
+                👁 Preview Draft Privately ↗
               </button>
             )}
 
@@ -797,6 +880,39 @@ export default function ContentManager({ type, role }) {
                       maxLength={50000}
                       onChange={(e) => handleFieldChange(name, e.target.value)}
                     />
+                  </label>
+                );
+              }
+
+              // Specialized Category Selector for Articles
+              if (type === 'articles' && name === 'category') {
+                const standardCategories = [
+                  'Destination Guide',
+                  'Tourist Attraction Guide',
+                  'History & Heritage',
+                  'Travel Planning',
+                  'Food & Culture',
+                  'Nearby Places',
+                  'Travel Updates',
+                  'Travel Tips',
+                  'Sightseeing',
+                ];
+                return (
+                  <label key={name}>
+                    {label}
+                    <select
+                      value={form[name] || ''}
+                      required={required}
+                      onChange={(e) => handleFieldChange(name, e.target.value)}
+                    >
+                      <option value="">— Select Category Template —</option>
+                      {standardCategories.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                      {form[name] && !standardCategories.includes(form[name]) && (
+                        <option value={form[name]}>{form[name]} (Custom)</option>
+                      )}
+                    </select>
                   </label>
                 );
               }

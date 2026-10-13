@@ -12,9 +12,21 @@ const searchableFields = {
   destinations: ['name_en', 'name_hi', 'summary_en', 'summary_hi', 'description_en', 'description_hi', 'state_name', 'district_name'],
   attractions: ['name_en', 'name_hi', 'description_en', 'description_hi', 'category'],
   articles: ['title_en', 'title_hi', 'excerpt_en', 'excerpt_hi', 'body_en', 'body_hi', 'author_name', 'category', 'tags', 'seo_title_en', 'seo_title_hi', 'seo_description_en', 'seo_description_hi'],
+  itineraries: ['title_en', 'title_hi', 'description_en', 'description_hi'],
   states: ['name_en', 'name_hi'],
   districts: ['name_en', 'name_hi'],
   tehsils: ['name_en', 'name_hi'],
+};
+
+const itineraryFields = {
+  slug: true,
+  title_en: true,
+  title_hi: true,
+  description_en: true,
+  description_hi: true,
+  duration_days: true,
+  published_at: true,
+  destinations: { select: { slug: true, name_en: true, state_name: true } },
 };
 
 const destinationFields = {
@@ -181,11 +193,11 @@ async function sendPage(response, model, where, select, pagination) {
 router.get('/search', async (request, response) => {
   const rawQ = request.query.q;
   if (rawQ === undefined || typeof rawQ !== 'string' || rawQ.trim().length === 0) {
-    return response.json({ data: { query: '', destinations: [], attractions: [], articles: [] } });
+    return response.json({ data: { query: '', destinations: [], attractions: [], articles: [], itineraries: [] } });
   }
   const query = rawQ.trim();
   try {
-    const [destinations, attractions, articles] = await Promise.all([
+    const [destinations, attractions, articles, itineraries] = await Promise.all([
       prisma.destinations.findMany({
         where: { ...publicFilter, ...searchFilter('destinations', query) },
         select: destinationFields,
@@ -204,6 +216,12 @@ router.get('/search', async (request, response) => {
         take: 10,
         orderBy: [{ published_at: 'desc' }, { title_en: 'asc' }],
       }),
+      prisma.itineraries.findMany({
+        where: { ...publicFilter, ...searchFilter('itineraries', query) },
+        select: itineraryFields,
+        take: 10,
+        orderBy: [{ published_at: 'desc' }, { title_en: 'asc' }],
+      }),
     ]);
     setPublicCache(response);
     return response.json({
@@ -212,6 +230,7 @@ router.get('/search', async (request, response) => {
         destinations,
         attractions,
         articles,
+        itineraries,
       },
     });
   } catch (error) {
@@ -306,6 +325,32 @@ router.get('/articles/:slug', async (request, response) => {
     const data = await prisma.articles.findFirst({
       where: { ...publicFilter, slug: request.params.slug },
       select: articleFields,
+    });
+    if (!data) return notFound(response);
+    setPublicCache(response);
+    return response.json({ data });
+  } catch (error) {
+    return databaseFailure(response, error);
+  }
+});
+
+router.get('/itineraries', (request, response) => {
+  const pagination = parseListQuery(request, ['page', 'limit', 'q', 'destination']);
+  if (!pagination) return invalidRequest(response);
+  const where = {
+    ...publicFilter,
+    ...searchFilter('itineraries', pagination.q),
+    ...(request.query.destination ? { destinations: { is: { ...publicFilter, slug: request.query.destination } } } : {}),
+  };
+  return sendPage(response, prisma.itineraries, where, itineraryFields, pagination);
+});
+
+router.get('/itineraries/:slug', async (request, response) => {
+  if (!validSlug(request.params.slug)) return invalidRequest(response);
+  try {
+    const data = await prisma.itineraries.findFirst({
+      where: { ...publicFilter, slug: request.params.slug },
+      select: itineraryFields,
     });
     if (!data) return notFound(response);
     setPublicCache(response);

@@ -5,11 +5,12 @@ import path from 'node:path';
 // database credentials and Supabase server keys are never read by the browser bundle.
 dotenv.config({ path: path.resolve(process.cwd(), '..', '..', '.env') });
 
-const apiBase = (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://bharat-yatra-in-bc-api.vercel.app/api/v1').replace(/\/+$/, '');
+const apiBase = (process.env.INTERNAL_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:4000/api/v1' : process.env.NEXT_PUBLIC_API_BASE_URL) || 'https://bharat-yatra-in-bc-api.vercel.app/api/v1').replace(/\/+$/, '');
 const collectionPaths = {
   destinations: '/destinations',
   attractions: '/attractions',
   articles: '/articles',
+  itineraries: '/itineraries',
   states: '/states',
   districts: '/districts',
   tehsils: '/tehsils',

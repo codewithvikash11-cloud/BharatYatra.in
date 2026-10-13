@@ -91,7 +91,7 @@ function statusTransitionAllowed(role, current, next) {
   if (current === next) return false;
   if (role === 'editor') return current === 'DRAFT' && next === 'REVIEW';
   return ({
-    DRAFT: ['REVIEW','ARCHIVED'],
+    DRAFT: ['REVIEW','PUBLISHED','ARCHIVED'],
     REVIEW: ['DRAFT','PUBLISHED','ARCHIVED'],
     PUBLISHED: ['DRAFT','ARCHIVED'],
     ARCHIVED: ['DRAFT'],
@@ -252,7 +252,7 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
           return row;
         });
         return response.status(201).set('Cache-Control','no-store').json({data:created});
-      } catch (error) { if (error?.code === 'P2002') return safeError(response,409,'A record with this slug already exists'); return safeError(response,503,'Content could not be saved; verify the audit migration is applied'); }
+      } catch (error) { console.error('Admin create error:', error); if (error?.code === 'P2002') return safeError(response,409,'A record with this slug already exists'); return safeError(response,503,'Content could not be saved; verify the audit migration is applied'); }
     });
     router.patch(`/${type}/:id`, async (request, response) => {
       if (!UUID.test(request.params.id)) return safeError(response,400,'Invalid record id');
