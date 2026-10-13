@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createHmac } from 'node:crypto';
-import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '../../../lib/admin-auth.js';
+import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '../../../../lib/admin-auth.js';
 
 export async function GET(request) {
   try {

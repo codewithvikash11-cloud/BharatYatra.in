@@ -9,28 +9,59 @@ export async function generateMetadata({ searchParams }) {
   if (!query) {
     return {
       title: 'Search Destinations & Travel Guides | BharatYatra',
-      description: 'Search destinations, attractions, and cultural travel guides across India.',
+      description: 'Search destinations, attractions, itineraries, and cultural travel guides across India.',
     };
   }
   return {
     title: `Search: "${query}" | BharatYatra`,
-    description: `Discover destinations, monuments, and travel guides for "${query}" on BharatYatra.`,
+    description: `Discover destinations, monuments, itineraries, and travel guides for "${query}" on BharatYatra.`,
     alternates: {
       canonical: `https://bharat-yatra-in.vercel.app/search?q=${encodeURIComponent(query)}`,
     },
   };
 }
 
+const curatedItineraries = [
+  {
+    slug: '2-days-in-jaipur',
+    title_en: '2 Days in Jaipur: Royal Heritage & Bazaars',
+    duration_days: 2,
+    description_en: 'A fast-paced weekend soaking up the grandest forts, mirrored palaces, observatories, and vibrant spice bazaars of the Pink City.',
+    keywords: ['jaipur', 'rajasthan', '2 days', 'pink city', 'amer', 'amber', 'fort'],
+  },
+  {
+    slug: '3-days-in-kerala',
+    title_en: '3 Days in Kerala: Backwaters, Ports & Spices',
+    duration_days: 3,
+    description_en: 'Cruise tranquil backwaters in a traditional kettuvallam houseboat, wander spice plantations, and watch Chinese fishing nets in historic Fort Kochi.',
+    keywords: ['kerala', 'kochi', 'cochin', 'alleppey', 'backwaters', 'houseboat', '3 days'],
+  },
+  {
+    slug: '4-days-in-uttarakhand',
+    title_en: '4 Days in Uttarakhand: Sacred Rivers & Mountain Vistas',
+    duration_days: 4,
+    description_en: 'Combine yoga retreats and evening Parmarth Niketan Ganga Aarti in Rishikesh with mountain vistas in Mussoorie.',
+    keywords: ['uttarakhand', 'rishikesh', 'haridwar', 'mussoorie', 'ganga', 'aarti', 'yoga', '4 days'],
+  },
+  {
+    slug: '1-week-in-rajasthan',
+    title_en: '1 Week in Royal Rajasthan: The Grand Circuit',
+    duration_days: 7,
+    description_en: 'The classic royal expedition connecting Jaipur (the Pink City), Jodhpur (the Blue Citadel under Mehrangarh), and romantic lakeside Udaipur.',
+    keywords: ['rajasthan', 'jaipur', 'jodhpur', 'udaipur', '1 week', '7 days', 'forts', 'palaces'],
+  },
+];
+
 async function performSearch(query) {
   if (!query) {
-    return { destinations: [], attractions: [], articles: [] };
+    return { destinations: [], attractions: [], articles: [], itineraries: [] };
   }
 
   const cleaned = query.trim().replace(/\s+/g, ' ');
   const tokens = cleaned.split(' ').filter(Boolean);
 
   if (tokens.length === 0) {
-    return { destinations: [], attractions: [], articles: [] };
+    return { destinations: [], attractions: [], articles: [], itineraries: [] };
   }
 
   try {
@@ -45,7 +76,7 @@ async function performSearch(query) {
       ],
     }));
 
-    // Multi-token filter for attractions (matches attraction fields or destination/state)
+    // Multi-token filter for attractions
     const attrTokenFilter = tokens.map((token) => ({
       OR: [
         { name_en: { contains: token, mode: 'insensitive' } },
@@ -56,7 +87,7 @@ async function performSearch(query) {
       ],
     }));
 
-    // Multi-token filter for articles (matches article fields or destination/state)
+    // Multi-token filter for articles
     const articleTokenFilter = tokens.map((token) => ({
       OR: [
         { title_en: { contains: token, mode: 'insensitive' } },
@@ -69,7 +100,16 @@ async function performSearch(query) {
       ],
     }));
 
-    const [destinations, attractions, articles] = await Promise.all([
+    // Multi-token filter for itineraries
+    const itineraryTokenFilter = tokens.map((token) => ({
+      OR: [
+        { title_en: { contains: token, mode: 'insensitive' } },
+        { description_en: { contains: token, mode: 'insensitive' } },
+        { destinations: { is: { name_en: { contains: token, mode: 'insensitive' } } } },
+      ],
+    }));
+
+    const [destinations, attractions, articles, dbItineraries] = await Promise.all([
       prisma.destinations.findMany({
         where: {
           status: 'PUBLISHED',
@@ -98,29 +138,52 @@ async function performSearch(query) {
         take: 12,
         orderBy: [{ published_at: 'desc' }, { title_en: 'asc' }],
       }),
+      prisma.itineraries.findMany({
+        where: {
+          status: 'PUBLISHED',
+          AND: itineraryTokenFilter,
+        },
+        include: { destinations: true },
+        take: 8,
+        orderBy: [{ published_at: 'desc' }, { title_en: 'asc' }],
+      }),
     ]);
+
+    // Curated itineraries search matching
+    const qLower = cleaned.toLowerCase();
+    const matchingCurated = curatedItineraries.filter((it) => {
+      return (
+        it.title_en.toLowerCase().includes(qLower) ||
+        it.description_en.toLowerCase().includes(qLower) ||
+        it.keywords.some((kw) => qLower.includes(kw) || kw.includes(qLower))
+      );
+    });
+
+    const mergedItineraries = [
+      ...matchingCurated,
+      ...dbItineraries.filter((dbi) => !matchingCurated.some((m) => m.slug === dbi.slug)),
+    ];
 
     // Prioritize exact matching destination if name matches primary query
     const sortedDestinations = [...destinations].sort((a, b) => {
-      const qLower = cleaned.toLowerCase();
       const aExact = a.name_en.toLowerCase().includes(qLower) ? -1 : 1;
       const bExact = b.name_en.toLowerCase().includes(qLower) ? -1 : 1;
       return aExact - bExact;
     });
 
-    return { destinations: sortedDestinations, attractions, articles };
+    return { destinations: sortedDestinations, attractions, articles, itineraries: mergedItineraries };
   } catch (err) {
     console.error('Search query failed:', err);
-    return { destinations: [], attractions: [], articles: [] };
+    return { destinations: [], attractions: [], articles: [], itineraries: [] };
   }
 }
 
 export default async function SearchPage({ searchParams }) {
   const { q } = (await searchParams) || {};
   const query = typeof q === 'string' ? q.trim() : '';
-  const { destinations, attractions, articles } = await performSearch(query);
+  const { destinations, attractions, articles, itineraries } = await performSearch(query);
 
-  const totalResults = destinations.length + attractions.length + articles.length;
+  const totalResults = destinations.length + attractions.length + articles.length + itineraries.length;
 
   return (
     <main className="search-page-root" style={{ minHeight: '80vh', padding: '3rem 0 5rem 0' }}>
@@ -144,8 +207,8 @@ export default async function SearchPage({ searchParams }) {
               name="q"
               defaultValue={query}
               maxLength={100}
-              placeholder="Search Nawalgarh Rajasthan, Jaipur, Havelis..."
-              aria-label="Search destinations, attractions, and articles"
+              placeholder="Search Jaipur, Amer Fort, 2 Days Itinerary..."
+              aria-label="Search destinations, attractions, itineraries, and articles"
               autoFocus={!query}
             />
             <button className="search-submit-btn" type="submit">
@@ -156,7 +219,7 @@ export default async function SearchPage({ searchParams }) {
           {/* Quick Filter Suggestions */}
           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', alignSelf: 'center' }}>Popular:</span>
-            {['Nawalgarh Rajasthan', 'Jaipur Rajasthan', 'Shekhawati', 'Havelis', 'Kerala'].map((term) => (
+            {['Jaipur', 'Nawalgarh Rajasthan', 'Kerala Itinerary', 'Amer Fort', 'Havelis'].map((term) => (
               <Link
                 key={term}
                 href={`/search?q=${encodeURIComponent(term)}`}
@@ -189,9 +252,7 @@ export default async function SearchPage({ searchParams }) {
           </div>
         )}
 
-        {/* ====================================================
-            NO RESULTS STATE
-            ==================================================== */}
+        {/* NO RESULTS STATE */}
         {query && totalResults === 0 && (
           <div className="empty-editorial-card" style={{ maxWidth: '680px', margin: '2rem auto', textAlign: 'center', padding: '3.5rem 2rem' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto', fontSize: '1.75rem' }}>
@@ -201,25 +262,23 @@ export default async function SearchPage({ searchParams }) {
               No exact matches found for &ldquo;{query}&rdquo;
             </h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6, margin: '0 0 1.5rem 0' }}>
-              We could not find any destinations, monuments, or published articles matching your search query. Try checking spelling or using a broader term.
+              We could not find any destinations, monuments, or published travel guides matching your search query. Try checking spelling or using broader search terms.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/search?q=Nawalgarh+Rajasthan" className="btn-gold-pill" style={{ fontSize: '0.85rem' }}>
-                Search &ldquo;Nawalgarh Rajasthan&rdquo;
+              <Link href="/search?q=Jaipur" className="btn-gold-pill" style={{ fontSize: '0.85rem' }}>
+                Search &ldquo;Jaipur&rdquo;
               </Link>
               <Link href="/destinations" className="button-link-secondary" style={{ fontSize: '0.85rem' }}>
                 All Destinations
               </Link>
-              <Link href="/articles" className="button-link-secondary" style={{ fontSize: '0.85rem' }}>
-                All Travel Guides
+              <Link href="/itineraries" className="button-link-secondary" style={{ fontSize: '0.85rem' }}>
+                Suggested Itineraries
               </Link>
             </div>
           </div>
         )}
 
-        {/* ====================================================
-            1. MATCHING DESTINATIONS
-            ==================================================== */}
+        {/* 1. MATCHING DESTINATIONS */}
         {destinations.length > 0 && (
           <section style={{ marginBottom: '3.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
@@ -266,9 +325,61 @@ export default async function SearchPage({ searchParams }) {
           </section>
         )}
 
-        {/* ====================================================
-            2. MATCHING ARTICLES
-            ==================================================== */}
+        {/* 2. MATCHING ITINERARIES */}
+        {itineraries.length > 0 && (
+          <section style={{ marginBottom: '3.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#FFFDF8', background: 'var(--terracotta)', padding: '0.25rem 0.65rem', borderRadius: '4px' }}>
+                DAY-BY-DAY ITINERARIES ({itineraries.length})
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.75rem' }}>
+              {itineraries.map((it) => (
+                <article
+                  key={it.slug}
+                  style={{
+                    background: '#FFFFFF',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.5rem',
+                    boxShadow: 'var(--shadow-sm)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-dark)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      ⏱ {it.duration_days} Days Circuit
+                    </span>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem', margin: '0.35rem 0 0.5rem 0' }}>
+                      <Link href={`/itineraries/${it.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                        {it.title_en}
+                      </Link>
+                    </h3>
+                    {it.description_en && (
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
+                        {it.description_en.slice(0, 140)}...
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+                    <Link
+                      href={`/itineraries/${it.slug}`}
+                      className="btn-gold-pill"
+                      style={{ fontSize: '0.82rem', textDecoration: 'none', display: 'inline-block' }}
+                    >
+                      View Day-by-Day Plan →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 3. MATCHING ARTICLES */}
         {articles.length > 0 && (
           <section style={{ marginBottom: '3.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
@@ -306,9 +417,7 @@ export default async function SearchPage({ searchParams }) {
           </section>
         )}
 
-        {/* ====================================================
-            3. MATCHING ATTRACTIONS & MONUMENTS
-            ==================================================== */}
+        {/* 4. MATCHING ATTRACTIONS & MONUMENTS */}
         {attractions.length > 0 && (
           <section style={{ marginBottom: '3.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>

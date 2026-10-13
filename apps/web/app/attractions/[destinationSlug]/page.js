@@ -1,11 +1,84 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import prisma from '../../../../lib/db.js';
+import prisma from '../../../lib/db.js';
 
 export const dynamic = 'force-dynamic';
 
+const curatedDestinationAttractions = {
+  jaipur: {
+    name_en: 'Jaipur',
+    slug: 'jaipur',
+    district_name: 'Jaipur',
+    state_name: 'Rajasthan',
+    attractions: [
+      {
+        slug: 'amer-fort',
+        name_en: 'Amer Fort (Amber Palace)',
+        category: 'Hill Fort & Royal Palace',
+        description_en: 'Perched high on a rugged hill overlooking Maota Lake, Amer Fort is a masterpiece of Rajput architecture blending Hindu and Mughal styles. Known for Sheesh Mahal (Palace of Mirrors).',
+        visiting_hours: '9:00 AM – 5:30 PM (Daily)',
+        entry_fee_note: '₹100 Indians, ₹500 Foreigners',
+        verified_at: '2025-01-01',
+      },
+      {
+        slug: 'hawa-mahal',
+        name_en: 'Hawa Mahal (Palace of Winds)',
+        category: 'Historic Palace & Landmark',
+        description_en: 'An iconic five-story pink sandstone palace with 953 intricately carved jharokhas casements engineered so cool breezes drafted through during summer.',
+        visiting_hours: '9:00 AM – 5:00 PM (Daily)',
+        entry_fee_note: '₹50 Indians, ₹200 Foreigners',
+        verified_at: '2025-01-01',
+      },
+      {
+        slug: 'city-palace',
+        name_en: 'City Palace Complex',
+        category: 'Royal Palace & Museum',
+        description_en: 'Sprawling palace complex at the heart of the walled city featuring Chandra Mahal, Mubarak Mahal, and the famed peacock gate in Pritam Niwas Chowk.',
+        visiting_hours: '9:30 AM – 5:00 PM (Daily)',
+        entry_fee_note: '₹300 Indians, ₹1,000 Foreigners',
+        verified_at: '2025-01-01',
+      },
+      {
+        slug: 'jantar-mantar',
+        name_en: 'Jantar Mantar Astronomical Observatory',
+        category: 'UNESCO World Heritage Observatory',
+        description_en: 'UNESCO World Heritage collection of nineteen architectural astronomical instruments built by Sawai Jai Singh II, featuring the world’s largest stone sundial.',
+        visiting_hours: '9:00 AM – 5:00 PM (Daily)',
+        entry_fee_note: '₹50 Indians, ₹200 Foreigners',
+        verified_at: '2025-01-01',
+      },
+      {
+        slug: 'nahargarh-fort',
+        name_en: 'Nahargarh Fort',
+        category: 'Aravalli Ridge Hill Fort',
+        description_en: 'Perched along the edge of the Aravalli hills overlooking Jaipur, Nahargarh once formed a formidable defense ring alongside Amer and Jaigarh. Celebrated for sunset ramparts.',
+        visiting_hours: '10:00 AM – 5:30 PM (Daily)',
+        entry_fee_note: '₹50 Indians, ₹200 Foreigners',
+        verified_at: '2025-01-01',
+      },
+      {
+        slug: 'jal-mahal',
+        name_en: 'Jal Mahal (Water Palace)',
+        category: 'Lakeside Palace',
+        description_en: 'Low-rise palace in the middle of Man Sagar Lake, showcasing Rajput style architecture with underwater levels submerged during rains.',
+        visiting_hours: 'Viewable from lakeside promenade 24/7',
+        entry_fee_note: 'Free promenade access',
+        verified_at: '2025-01-01',
+      },
+    ],
+  },
+};
+
 export async function generateMetadata({ params }) {
   const { destinationSlug } = await params;
+  if (curatedDestinationAttractions[destinationSlug]) {
+    const curated = curatedDestinationAttractions[destinationSlug];
+    return {
+      title: `Tourist Attractions & Monuments in ${curated.name_en} | BharatYatra`,
+      description: `Explore verified monuments, historical palaces, hill forts, and cultural sights in ${curated.name_en}, ${curated.state_name}.`,
+    };
+  }
+
   try {
     const dest = await prisma.destinations.findFirst({
       where: { slug: destinationSlug, status: 'PUBLISHED' },
@@ -42,46 +115,71 @@ export default async function DestinationAttractionsPage({ params, searchParams 
   const categoryFilter = typeof sParams?.category === 'string' ? sParams.category.trim() : '';
 
   // 1. Check if destinationSlug is actually an attraction slug directly
-  const directAttr = await prisma.attractions.findFirst({
-    where: { slug: destinationSlug, status: 'PUBLISHED' },
-    include: { destinations: true },
-  });
+  try {
+    const directAttr = await prisma.attractions.findFirst({
+      where: { slug: destinationSlug, status: 'PUBLISHED' },
+      include: { destinations: true },
+    });
 
-  if (directAttr && directAttr.destinations?.slug) {
-    redirect(`/attractions/${directAttr.destinations.slug}/${directAttr.slug}`);
+    if (directAttr && directAttr.destinations?.slug) {
+      redirect(`/attractions/${directAttr.destinations.slug}/${directAttr.slug}`);
+    }
+  } catch {}
+
+  // 2. Query destination from database or curated repository
+  let destination = null;
+  let attractions = [];
+  let allCategories = [];
+
+  const curated = curatedDestinationAttractions[destinationSlug];
+  if (curated) {
+    destination = {
+      name_en: curated.name_en,
+      slug: curated.slug,
+      district_name: curated.district_name,
+      state_name: curated.state_name,
+    };
+    const rawList = curated.attractions;
+    attractions = categoryFilter
+      ? rawList.filter((a) => a.category.toLowerCase().includes(categoryFilter.toLowerCase()))
+      : rawList;
+    allCategories = Array.from(new Set(rawList.map((a) => a.category)));
+  } else {
+    try {
+      destination = await prisma.destinations.findFirst({
+        where: { slug: destinationSlug, status: 'PUBLISHED' },
+        include: { states: true, districts: true },
+      });
+
+      if (destination) {
+        attractions = await prisma.attractions.findMany({
+          where: {
+            destination_id: destination.id,
+            status: 'PUBLISHED',
+            ...(categoryFilter ? { category: { equals: categoryFilter, mode: 'insensitive' } } : {}),
+          },
+          orderBy: { name_en: 'asc' },
+        });
+
+        const catRows = await prisma.attractions.findMany({
+          where: { destination_id: destination.id, status: 'PUBLISHED' },
+          select: { category: true },
+        });
+        allCategories = Array.from(new Set(catRows.map((a) => a.category).filter(Boolean)));
+      }
+    } catch (err) {
+      console.error('Failed to query destination attractions:', err);
+    }
   }
-
-  // 2. Query destination
-  const destination = await prisma.destinations.findFirst({
-    where: { slug: destinationSlug, status: 'PUBLISHED' },
-    include: {
-      states: true,
-      districts: true,
-    },
-  });
 
   if (!destination) {
     notFound();
   }
 
-  // 3. Query all published attractions for this destination
-  const attractions = await prisma.attractions.findMany({
-    where: {
-      destination_id: destination.id,
-      status: 'PUBLISHED',
-      ...(categoryFilter ? { category: { equals: categoryFilter, mode: 'insensitive' } } : {}),
-    },
-    orderBy: { name_en: 'asc' },
-  });
-
-  // Extract distinct categories
-  const allAttractions = await prisma.attractions.findMany({
-    where: { destination_id: destination.id, status: 'PUBLISHED' },
-    select: { category: true },
-  });
-  const categories = Array.from(new Set(allAttractions.map((a) => a.category).filter(Boolean)));
-
-  const locationLabel = [destination.districts?.name_en || destination.district_name, destination.states?.name_en || destination.state_name].filter(Boolean).join(' · ');
+  const locationLabel = [
+    destination.districts?.name_en || destination.district_name,
+    destination.states?.name_en || destination.state_name,
+  ].filter(Boolean).join(' · ');
 
   return (
     <main className="tool-page-root" style={{ background: '#FFFDF8', minHeight: '80vh', padding: '2.5rem 0 5rem 0' }}>
@@ -103,7 +201,7 @@ export default async function DestinationAttractionsPage({ params, searchParams 
         <header style={{ marginBottom: '2.5rem' }}>
           <p className="section-eyebrow" style={{ margin: 0 }}>📍 {locationLabel || 'INDIA'}</p>
           <h1 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: 'clamp(2.2rem, 4vw, 3rem)', margin: '0.35rem 0 0.75rem 0', lineHeight: 1.2 }}>
-            Tourist Attractions & Monuments in {destination.name_en}
+            Tourist Attractions &amp; Monuments in {destination.name_en}
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', maxWidth: '780px', lineHeight: 1.6, margin: '0 0 1.5rem 0' }}>
             Verified sightseeing list with visiting hours, official entry fees, and historical architecture notes in {destination.name_en}.
@@ -120,7 +218,7 @@ export default async function DestinationAttractionsPage({ params, searchParams 
         </header>
 
         {/* Category Pills */}
-        {categories.length > 0 && (
+        {allCategories.length > 0 && (
           <nav aria-label="Category filter" style={{ marginBottom: '2rem' }}>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <Link
@@ -136,9 +234,9 @@ export default async function DestinationAttractionsPage({ params, searchParams 
                   textDecoration: 'none',
                 }}
               >
-                All Categories ({allAttractions.length})
+                All Categories ({curated ? curated.attractions.length : attractions.length})
               </Link>
-              {categories.map((cat) => {
+              {allCategories.map((cat) => {
                 const isActive = categoryFilter.toLowerCase() === cat.toLowerCase();
                 return (
                   <Link

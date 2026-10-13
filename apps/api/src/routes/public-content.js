@@ -29,33 +29,6 @@ const itineraryFields = {
   destinations: { select: { slug: true, name_en: true, state_name: true } },
 };
 
-const itineraryDetailFields = {
-  ...itineraryFields,
-  itinerary_days: {
-    orderBy: { day_number: 'asc' },
-    select: {
-      id: true,
-      day_number: true,
-      title_en: true,
-      title_hi: true,
-      notes_en: true,
-      notes_hi: true,
-      itinerary_stops: {
-        orderBy: { sort_order: 'asc' },
-        select: {
-          id: true,
-          sort_order: true,
-          custom_name_en: true,
-          custom_name_hi: true,
-          notes_en: true,
-          notes_hi: true,
-          attractions: { select: attractionFields },
-        },
-      },
-    },
-  },
-};
-
 const destinationFields = {
   slug: true,
   name_en: true,
@@ -104,6 +77,33 @@ const attractionFields = {
   verified_at: true,
   published_at: true,
   destinations: { select: { slug: true, name_en: true, name_hi: true } },
+};
+
+const itineraryDetailFields = {
+  ...itineraryFields,
+  itinerary_days: {
+    orderBy: { day_number: 'asc' },
+    select: {
+      id: true,
+      day_number: true,
+      title_en: true,
+      title_hi: true,
+      notes_en: true,
+      notes_hi: true,
+      itinerary_stops: {
+        orderBy: { sort_order: 'asc' },
+        select: {
+          id: true,
+          sort_order: true,
+          custom_name_en: true,
+          custom_name_hi: true,
+          notes_en: true,
+          notes_hi: true,
+          attractions: { select: attractionFields },
+        },
+      },
+    },
+  },
 };
 
 const articleFields = {

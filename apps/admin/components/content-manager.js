@@ -856,6 +856,70 @@ export default function ContentManager({ type, role }) {
                 );
               }
 
+              // SEO Meta Title with Google SERP Snippet Preview
+              if (name === 'seo_title_en') {
+                const serpTitle = form.seo_title_en || form.title_en || 'Article Title · BharatYatra';
+                const serpUrl = `https://bharat-yatra-in.vercel.app/articles/${form.slug || 'slug'}`;
+                const serpSnippet = form.seo_description_en || form.excerpt_en || 'Comprehensive travel guide and cultural discovery on BharatYatra.';
+                const titleLen = (form.seo_title_en || '').length;
+
+                return (
+                  <div key="seo-preview-wrapper" className="span-two" style={{ marginTop: '8px' }}>
+                    <div style={{ background: '#f8f9fa', border: '1px solid #dadce0', borderRadius: '8px', padding: '14px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#5f6368', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          🔍 Google Search Snippet Preview
+                        </span>
+                        <span style={{ fontSize: '11px', color: titleLen > 60 ? '#d93025' : '#188038', fontWeight: 600 }}>
+                          {titleLen}/60 chars {titleLen > 60 ? '(Truncated by Google)' : '(Optimal)'}
+                        </span>
+                      </div>
+                      <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '6px', border: '1px solid #e8eaed', maxWidth: '580px' }}>
+                        <div style={{ fontSize: '12px', color: '#202124', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                          <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#247a72', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '9px', fontWeight: 700 }}>B</span>
+                          <span>BharatYatra</span>
+                          <span style={{ color: '#5f6368' }}>› {form.slug || 'article'}</span>
+                        </div>
+                        <div style={{ fontSize: '17px', color: '#1a0dab', fontFamily: 'arial, sans-serif', lineHeight: 1.3, marginBottom: '3px', fontWeight: 500 }}>
+                          {serpTitle}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#4d5156', fontFamily: 'arial, sans-serif', lineHeight: 1.4 }}>
+                          {serpSnippet.slice(0, 160)}{serpSnippet.length > 160 ? '…' : ''}
+                        </div>
+                      </div>
+                    </div>
+
+                    <label style={{ display: 'block', width: '100%' }}>
+                      {label} <small style={{ color: '#73817a' }}>({titleLen}/60 chars)</small>
+                      <input
+                        type="text"
+                        value={form.seo_title_en || ''}
+                        maxLength={80}
+                        placeholder="Custom SEO meta title (defaults to article title if left blank)"
+                        onChange={(e) => handleFieldChange('seo_title_en', e.target.value)}
+                      />
+                    </label>
+                  </div>
+                );
+              }
+
+              // SEO Meta Description with Character Counter
+              if (name === 'seo_description_en') {
+                const descLen = (form.seo_description_en || '').length;
+                return (
+                  <label key={name} className="span-two">
+                    {label} <small style={{ color: descLen > 160 ? '#d93025' : '#73817a' }}>({descLen}/160 chars recommended)</small>
+                    <textarea
+                      rows={3}
+                      value={form.seo_description_en || ''}
+                      maxLength={300}
+                      placeholder="Concise, compelling meta description for search engines and social shares (120–160 chars)"
+                      onChange={(e) => handleFieldChange('seo_description_en', e.target.value)}
+                    />
+                  </label>
+                );
+              }
+
               // Textarea with Markdown Toolbar for body_en
               if (kind === 'textarea') {
                 return (
