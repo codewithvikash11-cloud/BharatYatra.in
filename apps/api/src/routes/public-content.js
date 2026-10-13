@@ -29,6 +29,33 @@ const itineraryFields = {
   destinations: { select: { slug: true, name_en: true, state_name: true } },
 };
 
+const itineraryDetailFields = {
+  ...itineraryFields,
+  itinerary_days: {
+    orderBy: { day_number: 'asc' },
+    select: {
+      id: true,
+      day_number: true,
+      title_en: true,
+      title_hi: true,
+      notes_en: true,
+      notes_hi: true,
+      itinerary_stops: {
+        orderBy: { sort_order: 'asc' },
+        select: {
+          id: true,
+          sort_order: true,
+          custom_name_en: true,
+          custom_name_hi: true,
+          notes_en: true,
+          notes_hi: true,
+          attractions: { select: attractionFields },
+        },
+      },
+    },
+  },
+};
+
 const destinationFields = {
   slug: true,
   name_en: true,
@@ -238,15 +265,34 @@ router.get('/search', async (request, response) => {
   }
 });
 
+const regionStateKeywords = {
+  north: ['Rajasthan', 'Uttar Pradesh', 'Himachal Pradesh', 'Uttarakhand', 'Punjab', 'Haryana', 'Delhi', 'Jammu', 'Ladakh'],
+  south: ['Kerala', 'Tamil Nadu', 'Karnataka', 'Andhra Pradesh', 'Telangana', 'Goa', 'Puducherry'],
+  east: ['West Bengal', 'Odisha', 'Bihar', 'Jharkhand'],
+  west: ['Rajasthan', 'Gujarat', 'Maharashtra', 'Goa'],
+  central: ['Madhya Pradesh', 'Chhattisgarh'],
+  northeast: ['Assam', 'Meghalaya', 'Arunachal Pradesh', 'Nagaland', 'Manipur', 'Mizoram', 'Tripura', 'Sikkim'],
+};
+
 router.get('/destinations', (request, response) => {
-  const pagination = parseListQuery(request, ['page', 'limit', 'q', 'state', 'district', 'tehsil']);
+  const pagination = parseListQuery(request, ['page', 'limit', 'q', 'state', 'district', 'tehsil', 'region']);
   if (!pagination) return invalidRequest(response);
+  const regionKey = typeof request.query.region === 'string' ? request.query.region.toLowerCase() : null;
+  const regionKeywords = regionKey ? regionStateKeywords[regionKey] : null;
+
   const where = {
     ...publicFilter,
     ...searchFilter('destinations', pagination.q),
     ...(request.query.state ? { states: { is: { ...publicFilter, slug: request.query.state } } } : {}),
     ...(request.query.district ? { districts: { is: { ...publicFilter, slug: request.query.district } } } : {}),
     ...(request.query.tehsil ? { tehsils: { is: { ...publicFilter, slug: request.query.tehsil } } } : {}),
+    ...(regionKeywords ? {
+      OR: regionKeywords.flatMap((kw) => [
+        { state_name: { contains: kw, mode: 'insensitive' } },
+        { states: { is: { name_en: { contains: kw, mode: 'insensitive' } } } },
+        { states: { is: { slug: { contains: kw.toLowerCase().replace(/\s+/g, '-'), mode: 'insensitive' } } } },
+      ]),
+    } : {}),
   };
   return sendPage(response, prisma.destinations, where, destinationFields, pagination);
 });
@@ -350,7 +396,7 @@ router.get('/itineraries/:slug', async (request, response) => {
   try {
     const data = await prisma.itineraries.findFirst({
       where: { ...publicFilter, slug: request.params.slug },
-      select: itineraryFields,
+      select: itineraryDetailFields,
     });
     if (!data) return notFound(response);
     setPublicCache(response);

@@ -7,6 +7,7 @@ export const metadata = {
 
 const itinerariesList = [
   {
+    slug: '2-days-in-jaipur',
     title: '2 Days in Jaipur',
     subtitle: 'Royal Heritage Experience',
     days: '2 Days',
@@ -19,6 +20,7 @@ const itinerariesList = [
     destSlug: 'jaipur',
   },
   {
+    slug: '3-days-in-kerala',
     title: '3 Days in Kerala',
     subtitle: 'Backwaters & Coastal Palms',
     days: '3 Days',
@@ -28,9 +30,10 @@ const itinerariesList = [
     cover: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
     summary: 'Cruise tranquil backwaters in a traditional kettuvallam houseboat, wander spice plantations, and watch Chinese fishing nets in historic Fort Kochi.',
     highlights: ['Alleppey Houseboat Cruise', 'Fort Kochi Heritage Walk', 'Kumarakom Bird Sanctuary', 'Traditional Kathakali Dance'],
-    destSlug: null,
+    destSlug: 'kerala',
   },
   {
+    slug: '4-days-in-uttarakhand',
     title: '4 Days in Uttarakhand',
     subtitle: 'Spiritual River & Himalayan Foothills',
     days: '4 Days',
@@ -40,9 +43,10 @@ const itinerariesList = [
     cover: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80',
     summary: 'Combine yoga retreats and the evening Parmarth Niketan Ganga Aarti in Rishikesh with mountain vistas in Mussoorie or Lansdowne.',
     highlights: ['Triveni Ghat Evening Aarti', 'Beatles Ashram (Chaurasi Kutia)', 'Neer Garh Waterfall', 'White water rafting'],
-    destSlug: null,
+    destSlug: 'uttarakhand',
   },
   {
+    slug: '1-week-in-rajasthan',
     title: '1 Week in Royal Rajasthan',
     subtitle: 'Forts, Palaces & Desert Twilight',
     days: '7 Days',
@@ -162,7 +166,7 @@ export default function ItinerariesPage() {
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <Link
-                    href={item.destSlug ? `/destinations/${item.destSlug}#itinerary` : '/trip-planner'}
+                    href={`/itineraries/${item.slug}`}
                     className="btn-gold-pill"
                     style={{ textDecoration: 'none', fontSize: '0.85rem' }}
                   >

@@ -1,25 +1,152 @@
+import Link from 'next/link';
 import { ApiState, ContentSearch, DestinationCard, PageHeading, Pagination } from '../../components/content.js';
 import { getCollection, parsePage, parseSearchTerm } from '../../lib/content-api.mjs';
 import { getDictionary, getLanguage } from '../../lib/i18n.js';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Destinations', description: 'Browse published destination guides across India.' };
+export const metadata = {
+  title: 'Destinations in India | Browse by Region | BharatYatra',
+  description: 'Explore verified travel guides across India by region: North India, South India, East India, West India, Central India, and Northeast India.',
+};
+
+const regionsList = [
+  { id: 'all', label: 'All Regions', icon: '🇮🇳' },
+  { id: 'north', label: 'North India', icon: '🏔️' },
+  { id: 'south', label: 'South India', icon: '🌴' },
+  { id: 'east', label: 'East India', icon: '🛕' },
+  { id: 'west', label: 'West India', icon: '🏰' },
+  { id: 'central', label: 'Central India', icon: '🐅' },
+  { id: 'northeast', label: 'Northeast India', icon: '🌿' },
+];
 
 export default async function DestinationsPage({ searchParams }) {
   const dict = await getDictionary();
   const lang = await getLanguage();
   const showHi = lang === 'hi';
-  
+
   const params = await searchParams;
   const page = parsePage(params?.page);
   const search = parseSearchTerm(params?.q);
-  if (page === null || !search.valid) return <main className="page-shell"><PageHeading eyebrow={dict.content.destinations} title={dict.common.searchLabel}/><ApiState state="invalid"/></main>;
-  const result = await getCollection('destinations', { page, limit: 12, q: search.value });
-  return <main className="page-shell list-page">
-    <PageHeading eyebrow={dict.content.destinations} title={showHi ? 'स्थान खोजें' : 'Search Destinations'} description={showHi ? 'सिर्फ प्रकाशित स्थान मार्गदर्शिकाएँ यहाँ दिखाई जाती हैं।' : 'Only published destination guides are shown here.'}/>
-    <ContentSearch pathname="/destinations" value={search.value}/>
-    {result.state !== 'success' ? <ApiState state={result.state} label={dict.nav.destinations}/> : result.data.length === 0 ? <ApiState state="empty" label={dict.nav.destinations}/> : <div className="card-grid">{result.data.map((item) => <DestinationCard key={item.slug} item={item}/>)}</div>}
-    {result.state === 'success' ? <Pagination pagination={result.pagination} pathname="/destinations" extra={search.value ? { q: search.value } : {}}/> : null}
-  </main>;
+  const region = typeof params?.region === 'string' ? params.region.toLowerCase().trim() : '';
+
+  if (page === null || !search.valid) {
+    return (
+      <main className="page-shell">
+        <PageHeading eyebrow={dict.content.destinations} title={dict.common.searchLabel} />
+        <ApiState state="invalid" />
+      </main>
+    );
+  }
+
+  const result = await getCollection('destinations', {
+    page,
+    limit: 12,
+    q: search.value,
+    region: region && region !== 'all' ? region : undefined,
+  });
+
+  const selectedRegion = regionsList.find((r) => r.id === (region || 'all')) || regionsList[0];
+
+  return (
+    <main className="page-shell list-page" style={{ paddingBottom: '5rem' }}>
+      <PageHeading
+        eyebrow={dict.content.destinations}
+        title={showHi ? 'स्थान खोजें' : 'Explore India’s Destinations'}
+        description={
+          showHi
+            ? 'सिर्फ प्रकाशित स्थान मार्गदर्शिकाएँ यहाँ दिखाई जाती हैं।'
+            : 'Comprehensive, verified guides for India’s most historic and cultural travel hubs.'
+        }
+      />
+
+      {/* Region Selector Pills */}
+      <nav aria-label="Region filters" style={{ marginBottom: '1.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+          {regionsList.map((r) => {
+            const isActive = (region || 'all') === r.id;
+            const href = r.id === 'all'
+              ? (search.value ? `/destinations?q=${encodeURIComponent(search.value)}` : '/destinations')
+              : `/destinations?region=${r.id}${search.value ? `&q=${encodeURIComponent(search.value)}` : ''}`;
+
+            return (
+              <Link
+                key={r.id}
+                href={href}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.55rem 1.15rem',
+                  borderRadius: '999px',
+                  border: isActive ? '1px solid var(--teal-deep)' : '1px solid var(--border-color)',
+                  background: isActive ? 'var(--teal-deep)' : '#FFFFFF',
+                  color: isActive ? '#FFFDF8' : 'var(--text-primary)',
+                  fontWeight: isActive ? 700 : 500,
+                  fontSize: '0.85rem',
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                  boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <span>{r.icon}</span>
+                <span>{r.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* Active Filter Note */}
+      {region && region !== 'all' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+          <span>Filtering by: <strong>{selectedRegion.label}</strong></span>
+          <Link href={`/destinations${search.value ? `?q=${encodeURIComponent(search.value)}` : ''}`} style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
+            ✕ Clear region filter
+          </Link>
+        </div>
+      )}
+
+      {/* Search Bar */}
+      <ContentSearch pathname="/destinations" value={search.value} />
+
+      {/* Results Rendering */}
+      {result.state !== 'success' ? (
+        <ApiState state={result.state} label={dict.nav.destinations} />
+      ) : result.data.length === 0 ? (
+        <div className="empty-editorial-card" style={{ maxWidth: '640px', margin: '2.5rem auto', textAlign: 'center', padding: '3rem 1.5rem' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📍</div>
+          <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem', margin: '0 0 0.5rem 0' }}>
+            No destinations found {region && region !== 'all' ? `in ${selectedRegion.label}` : ''}
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6, margin: '0 0 1.5rem 0' }}>
+            We haven&apos;t published destination guides for this specific filter yet. Check back soon or browse all published destinations.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <Link href="/destinations" className="btn-gold-pill" style={{ fontSize: '0.85rem' }}>
+              View All Destinations
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="card-grid">
+          {result.data.map((item) => (
+            <DestinationCard key={item.slug} item={item} />
+          ))}
+        </div>
+      )}
+
+      {result.state === 'success' && result.data.length > 0 ? (
+        <Pagination
+          pagination={result.pagination}
+          pathname="/destinations"
+          extra={{
+            ...(region && region !== 'all' ? { region } : {}),
+            ...(search.value ? { q: search.value } : {}),
+          }}
+        />
+      ) : null}
+    </main>
+  );
 }

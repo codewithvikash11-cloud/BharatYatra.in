@@ -39,14 +39,14 @@ function queryString(values) {
   return result ? `?${result}` : '';
 }
 
-export async function getCollection(resource, { page = 1, limit = 12, destination, state, district, tehsil, q } = {}) {
+export async function getCollection(resource, { page = 1, limit = 12, destination, state, district, tehsil, region, q } = {}) {
   const resourcePath = collectionPaths[resource];
   if (!resourcePath || !Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100 || (q !== undefined && (typeof q !== 'string' || q.trim().length > 100))) {
     return { state: 'error' };
   }
 
   const search = q?.trim();
-  const result = await request(`${resourcePath}${queryString({ page, limit, ...(destination ? { destination } : {}), ...(state ? { state } : {}), ...(district ? { district } : {}), ...(tehsil ? { tehsil } : {}), ...(search ? { q: search } : {}) })}`);
+  const result = await request(`${resourcePath}${queryString({ page, limit, ...(destination ? { destination } : {}), ...(state ? { state } : {}), ...(district ? { district } : {}), ...(tehsil ? { tehsil } : {}), ...(region ? { region } : {}), ...(search ? { q: search } : {}) })}`);
   if (result.state !== 'success') return result;
   if (!Array.isArray(result.payload?.data) || !result.payload?.pagination) return { state: 'error' };
   return { state: 'success', data: result.payload.data, pagination: result.payload.pagination };
