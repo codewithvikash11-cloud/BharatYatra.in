@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import ContentImageManager from './content-image-manager.js';
+import ArticleEditor from './article-editor.js';
 
 const configs = {
   destinations: {
@@ -168,6 +169,8 @@ export default function ContentManager({ type, role }) {
   const [notice, setNotice] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [isEditingArticle, setIsEditingArticle] = useState(false);
+  const [selectedRowIds, setSelectedRowIds] = useState(new Set());
 
   // Reference lists for dropdown relations
   const [statesList, setStatesList] = useState([]);
@@ -240,14 +243,91 @@ export default function ContentManager({ type, role }) {
     setError('');
     setNotice('');
     setPreviewOpen(false);
+    if (type === 'articles') {
+      setIsEditingArticle(true);
+    }
   }
 
   function editRecord(row) {
     setSelected(row);
+    if (type === 'articles') {
+      setIsEditingArticle(true);
+      return;
+    }
     setForm(Object.fromEntries(config.fields.map(([name]) => [name, row[name] ?? ''])));
     setError('');
     setNotice('');
     setPreviewOpen(false);
+  }
+
+  async function duplicateRecord(row) {
+    if (!row) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/${type}/${row.id}/duplicate`, { method: 'POST' });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || 'Duplicate failed');
+      setNotice(`"${row.title_en || row.name_en || row.slug}" duplicated as new draft.`);
+      await refresh();
+    } catch (err) {
+      setError(err.message || 'Duplicate failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function permanentDeleteRecord(row) {
+    if (!row) return;
+    if (!window.confirm(`Permanently delete "${row.title_en || row.name_en || row.slug}" from the database? This action cannot be undone.`)) return;
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/${type}/${row.id}?permanent=true`, { method: 'DELETE' });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || 'Permanent delete failed');
+      setNotice('Record permanently deleted.');
+      if (selected?.id === row.id) newRecord();
+      await refresh();
+    } catch (err) {
+      setError(err.message || 'Permanent delete failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleBulkAction(action) {
+    if (!selectedRowIds.size) return;
+    const ids = Array.from(selectedRowIds);
+    if (!window.confirm(`Apply ${action} to ${ids.length} selected items?`)) return;
+    setBusy(true);
+    setError('');
+    try {
+      for (const id of ids) {
+        if (action === 'trash') {
+          await fetch(`/api/admin/${type}/${id}`, { method: 'DELETE' });
+        } else if (action === 'publish') {
+          await fetch(`/api/admin/${type}/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ status: 'PUBLISHED' }),
+          });
+        } else if (action === 'restore') {
+          await fetch(`/api/admin/${type}/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ status: 'DRAFT' }),
+          });
+        }
+      }
+      setSelectedRowIds(new Set());
+      setNotice(`Bulk ${action} completed.`);
+      await refresh();
+    } catch (err) {
+      setError(err.message || 'Bulk action failed');
+    } finally {
+      setBusy(false);
+    }
   }
 
   function handleFieldChange(name, val) {
@@ -407,8 +487,8 @@ export default function ContentManager({ type, role }) {
     }
   }
 
-  async function openPrivatePreview() {
-    const slug = form.slug || selected?.slug;
+  async function openPrivatePreview(slugOverride) {
+    const slug = slugOverride || form.slug || selected?.slug;
     if (!slug) {
       setError('Please enter or save a URL slug first before previewing.');
       return;
@@ -430,6 +510,551 @@ export default function ContentManager({ type, role }) {
   }
 
   if (!config) return <p className="error">Unknown content type.</p>;
+
+  // Dedicated WordPress-Style Full Screen Article Editor
+  if (type === 'articles' && isEditingArticle) {
+    return (
+      <ArticleEditor
+        article={selected}
+        role={role}
+        onBack={() => {
+          setIsEditingArticle(false);
+          setSelected(null);
+          void refresh();
+        }}
+        onSaved={() => {
+          void refresh();
+        }}
+      />
+    );
+  }
+
+  // Dedicated WordPress-Style Full Width Articles Management Screen
+  if (type === 'articles') {
+    const allCount = rows.length;
+    const publishedCount = rows.filter((r) => r.status === 'PUBLISHED').length;
+    const draftCount = rows.filter((r) => r.status === 'DRAFT').length;
+    const reviewCount = rows.filter((r) => r.status === 'REVIEW').length;
+    const trashCount = rows.filter((r) => r.status === 'ARCHIVED').length;
+
+    const filteredRows = categoryFilter
+      ? rows.filter((r) => r.category && r.category.toLowerCase().includes(categoryFilter.toLowerCase()))
+      : rows;
+
+    return (
+      <div className="articles-manager-full">
+        {/* Top Header & Metrics Bar */}
+        <div className="articles-header-bar">
+          <div className="status-tabs-row">
+            <button
+              type="button"
+              className={`status-tab ${!status ? 'active' : ''}`}
+              onClick={() => { setStatus(''); setPage(1); }}
+            >
+              All ({allCount})
+            </button>
+            <button
+              type="button"
+              className={`status-tab ${status === 'PUBLISHED' ? 'active' : ''}`}
+              onClick={() => { setStatus('PUBLISHED'); setPage(1); }}
+            >
+              Published ({publishedCount})
+            </button>
+            <button
+              type="button"
+              className={`status-tab ${status === 'DRAFT' ? 'active' : ''}`}
+              onClick={() => { setStatus('DRAFT'); setPage(1); }}
+            >
+              Drafts ({draftCount})
+            </button>
+            <button
+              type="button"
+              className={`status-tab ${status === 'REVIEW' ? 'active' : ''}`}
+              onClick={() => { setStatus('REVIEW'); setPage(1); }}
+            >
+              In Review ({reviewCount})
+            </button>
+            <button
+              type="button"
+              className={`status-tab ${status === 'ARCHIVED' ? 'active' : ''}`}
+              onClick={() => { setStatus('ARCHIVED'); setPage(1); }}
+            >
+              Trash ({trashCount})
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="button primary new-article-cta"
+            onClick={newRecord}
+          >
+            + New Article
+          </button>
+        </div>
+
+        {/* Toolbar: Search, Filters & Bulk Actions */}
+        <div className="articles-toolbar-row">
+          <div className="search-box">
+            <input
+              type="text"
+              value={q}
+              onChange={(e) => { setPage(1); setQ(e.target.value); }}
+              placeholder="Search articles by title, slug, author, keyword..."
+            />
+            {q && (
+              <button type="button" className="clear-q-btn" onClick={() => setQ('')}>✕</button>
+            )}
+          </div>
+
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="category-filter-select"
+          >
+            <option value="">All Content Types</option>
+            <option value="Destination Guide">Destination Guide</option>
+            <option value="Tourist Attraction Guide">Tourist Attraction Guide</option>
+            <option value="History & Heritage">History & Heritage</option>
+            <option value="Travel Planning">Travel Planning</option>
+            <option value="Food & Culture">Food & Culture</option>
+            <option value="Itinerary">Itinerary</option>
+            <option value="Nearby Places">Nearby Places</option>
+            <option value="Travel Updates">Travel Updates</option>
+            <option value="Events & Festivals">Events & Festivals</option>
+          </select>
+
+          {/* Bulk Actions Bar */}
+          {selectedRowIds.size > 0 && (
+            <div className="bulk-actions-pill">
+              <span>{selectedRowIds.size} selected</span>
+              <button
+                type="button"
+                className="bulk-btn"
+                onClick={() => handleBulkAction('trash')}
+              >
+                🗑 Trash
+              </button>
+              <button
+                type="button"
+                className="bulk-btn"
+                onClick={() => handleBulkAction('publish')}
+              >
+                🚀 Publish
+              </button>
+              <button
+                type="button"
+                className="bulk-btn"
+                onClick={() => handleBulkAction('restore')}
+              >
+                ♻ Restore
+              </button>
+              <button
+                type="button"
+                className="bulk-btn subtle"
+                onClick={() => setSelectedRowIds(new Set())}
+              >
+                ✕ Clear
+              </button>
+            </div>
+          )}
+        </div>
+
+        {notice && <p className="success" style={{ margin: '12px 0' }}>{notice}</p>}
+        {error && <p className="error" style={{ margin: '12px 0' }}>{error}</p>}
+
+        {/* Articles Table */}
+        <div className="articles-table-wrap">
+          {busy && !rows.length ? (
+            <p className="loading">Loading articles…</p>
+          ) : filteredRows.length === 0 ? (
+            <div className="empty">
+              <span>✦</span>
+              <h2>No articles found</h2>
+              <p>Try clearing filters or create your first WordPress-style article.</p>
+              <button type="button" className="button primary" onClick={newRecord} style={{ marginTop: '12px' }}>
+                + Write New Article
+              </button>
+            </div>
+          ) : (
+            <table className="articles-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '40px', textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedRowIds.size === filteredRows.length && filteredRows.length > 0}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedRowIds(new Set(filteredRows.map((r) => r.id)));
+                        } else {
+                          setSelectedRowIds(new Set());
+                        }
+                      }}
+                    />
+                  </th>
+                  <th>Title & Slug</th>
+                  <th>Content Type</th>
+                  <th>Author</th>
+                  <th>Status</th>
+                  <th>Last Updated</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.map((row) => {
+                  const isChecked = selectedRowIds.has(row.id);
+                  const isPublished = row.status === 'PUBLISHED';
+                  const isArchived = row.status === 'ARCHIVED';
+                  return (
+                    <tr key={row.id} className={isChecked ? 'row-selected' : ''}>
+                      <td style={{ textAlign: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const next = new Set(selectedRowIds);
+                            if (e.target.checked) next.add(row.id);
+                            else next.delete(row.id);
+                            setSelectedRowIds(next);
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <div className="article-title-col">
+                          <button
+                            type="button"
+                            className="article-title-link"
+                            onClick={() => editRecord(row)}
+                          >
+                            {row.title_en || 'Untitled Article'}
+                          </button>
+                          <small className="article-slug-sub">/articles/{row.slug}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="type-badge">{row.category || 'General'}</span>
+                      </td>
+                      <td>
+                        <span className="author-name">{row.author_name || 'BharatYatra Editorial'}</span>
+                      </td>
+                      <td>
+                        <span className={`status status-${row.status?.toLowerCase()}`}>
+                          {isArchived ? 'TRASH' : row.status}
+                        </span>
+                      </td>
+                      <td>
+                        <small style={{ color: '#73817a' }}>
+                          {row.updated_at ? new Date(row.updated_at).toLocaleDateString() : 'Recent'}
+                        </small>
+                      </td>
+                      <td>
+                        <div className="row-actions-group">
+                          <button
+                            type="button"
+                            className="row-action-btn edit"
+                            onClick={() => editRecord(row)}
+                            title="Edit in Studio"
+                          >
+                            ✍️ Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="row-action-btn"
+                            onClick={() => openPrivatePreview(row.slug)}
+                            title="Preview Draft Privately"
+                          >
+                            👁 Preview
+                          </button>
+                          <button
+                            type="button"
+                            className="row-action-btn"
+                            onClick={() => duplicateRecord(row)}
+                            title="Duplicate as new draft"
+                          >
+                            📋 Copy
+                          </button>
+                          {!isArchived ? (
+                            <button
+                              type="button"
+                              className="row-action-btn danger"
+                              onClick={async () => {
+                                if (window.confirm(`Move "${row.title_en}" to Trash?`)) {
+                                  await fetch(`/api/admin/articles/${row.id}`, { method: 'DELETE' });
+                                  setNotice('Moved to Trash.');
+                                  await refresh();
+                                }
+                              }}
+                              title="Move to Trash"
+                            >
+                              🗑 Trash
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="row-action-btn success"
+                              onClick={async () => {
+                                await fetch(`/api/admin/articles/${row.id}/status`, {
+                                  method: 'PATCH',
+                                  headers: { 'content-type': 'application/json' },
+                                  body: JSON.stringify({ status: 'DRAFT' }),
+                                });
+                                setNotice('Restored to Draft.');
+                                await refresh();
+                              }}
+                              title="Restore to Draft"
+                            >
+                              ♻ Restore
+                            </button>
+                          )}
+                          {isArchived && role === 'admin' && (
+                            <button
+                              type="button"
+                              className="row-action-btn danger"
+                              onClick={() => permanentDeleteRecord(row)}
+                              title="Delete permanently"
+                            >
+                              ❌ Delete
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Pagination Bar */}
+        <div className="pagination" style={{ marginTop: '16px' }}>
+          <span>{pagination.total || rows.length} records</span>
+          <div>
+            <button className="button subtle" disabled={page <= 1 || busy} onClick={() => setPage(page - 1)}>
+              Previous
+            </button>
+            <span>Page {pagination.page || page} of {pagination.totalPages || 1}</span>
+            <button
+              className="button subtle"
+              disabled={page >= (pagination.totalPages || 1) || busy}
+              onClick={() => setPage(page + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+        {/* Scoped CSS for full-width Articles Management screen */}
+        <style jsx>{`
+          .articles-manager-full {
+            background: #ffffff;
+            border: 1px solid #e5e8e1;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+          }
+          .articles-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eef1ea;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+          }
+          .status-tabs-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+          }
+          .status-tab {
+            background: none;
+            border: 1px solid transparent;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #65756c;
+            border-radius: 6px;
+            cursor: pointer;
+          }
+          .status-tab:hover {
+            background: #f1f4ed;
+            color: var(--ink);
+          }
+          .status-tab.active {
+            background: var(--ink);
+            color: #ffffff;
+          }
+          .articles-toolbar-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+          }
+          .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+          }
+          .search-box input {
+            width: 100%;
+            padding: 9px 32px 9px 12px;
+            border: 1px solid #d5dbd3;
+            border-radius: 7px;
+            font-size: 0.8rem;
+          }
+          .clear-q-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #7b8a82;
+            cursor: pointer;
+            font-size: 0.8rem;
+          }
+          .category-filter-select {
+            padding: 9px 12px;
+            border: 1px solid #d5dbd3;
+            border-radius: 7px;
+            font-size: 0.8rem;
+            color: var(--ink);
+          }
+          .bulk-actions-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f6f1;
+            border: 1px solid #c9e0cd;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: #245932;
+          }
+          .bulk-btn {
+            background: #ffffff;
+            border: 1px solid #c9e0cd;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #173633;
+          }
+          .bulk-btn:hover {
+            background: #e1f1e4;
+          }
+          .articles-table-wrap {
+            overflow-x: auto;
+          }
+          .articles-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+          }
+          .articles-table th {
+            text-align: left;
+            padding: 11px 12px;
+            background: #f9faf7;
+            border-bottom: 2px solid #e5e8e1;
+            color: #495d52;
+            font-weight: 700;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+          }
+          .articles-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #edf0ea;
+            vertical-align: middle;
+          }
+          .articles-table tr:hover {
+            background: #fbfcf9;
+          }
+          .articles-table tr.row-selected {
+            background: #f0f7f1;
+          }
+          .article-title-col {
+            display: grid;
+            gap: 2px;
+          }
+          .article-title-link {
+            background: none;
+            border: none;
+            padding: 0;
+            text-align: left;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--ink);
+            cursor: pointer;
+          }
+          .article-title-link:hover {
+            color: #247a72;
+            text-decoration: underline;
+          }
+          .article-slug-sub {
+            color: #7b8a82;
+            font-size: 0.7rem;
+          }
+          .type-badge {
+            background: #eef2eb;
+            color: #27493e;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+          }
+          .author-name {
+            color: #495d52;
+            font-size: 0.76rem;
+          }
+          .row-actions-group {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+          }
+          .row-action-btn {
+            background: #ffffff;
+            border: 1px solid #d5dbd3;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #3b5046;
+            cursor: pointer;
+            transition: 0.1s;
+          }
+          .row-action-btn:hover {
+            background: #f1f4ed;
+            color: var(--ink);
+          }
+          .row-action-btn.edit {
+            background: #173d36;
+            color: #ffffff;
+            border-color: #173d36;
+          }
+          .row-action-btn.edit:hover {
+            background: #25584e;
+          }
+          .row-action-btn.danger {
+            color: #963a2c;
+            border-color: #ebc8bf;
+          }
+          .row-action-btn.danger:hover {
+            background: #fff5f1;
+          }
+          .row-action-btn.success {
+            color: #276738;
+            border-color: #c9e0cd;
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   const publicHref = selected?.status === 'PUBLISHED'
     ? ({
@@ -714,11 +1339,47 @@ export default function ContentManager({ type, role }) {
             {selected && (
               <button
                 type="button"
+                className="button subtle"
+                disabled={busy}
+                onClick={() => duplicateRecord(selected)}
+                title="Duplicate this record as a new draft"
+              >
+                📋 Duplicate
+              </button>
+            )}
+
+            {selected && selected.status !== 'ARCHIVED' && (
+              <button
+                type="button"
                 className="button danger"
                 disabled={busy}
                 onClick={deleteRecord}
               >
-                🗑 Delete / Archive
+                🗑 Move to Trash
+              </button>
+            )}
+
+            {selected && selected.status === 'ARCHIVED' && (
+              <button
+                type="button"
+                className="button"
+                style={{ background: '#e1f1e4', color: '#276738' }}
+                disabled={busy}
+                onClick={() => changeStatus('DRAFT')}
+              >
+                ♻ Restore to Draft
+              </button>
+            )}
+
+            {selected && selected.status === 'ARCHIVED' && role === 'admin' && (
+              <button
+                type="button"
+                className="button danger"
+                disabled={busy}
+                onClick={() => permanentDeleteRecord(selected)}
+                title="Permanently remove from database"
+              >
+                ❌ Delete Permanently
               </button>
             )}
 
@@ -727,7 +1388,7 @@ export default function ContentManager({ type, role }) {
                 type="button"
                 className="button subtle"
                 disabled={busy}
-                onClick={openPrivatePreview}
+                onClick={() => openPrivatePreview()}
                 style={{ background: '#F7F3E8', color: '#153E3A', borderColor: '#DCE4DC' }}
                 title="Open secure private administrator draft preview in a new tab"
               >

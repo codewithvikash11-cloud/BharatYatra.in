@@ -5,24 +5,33 @@ export function ContentTypeBadge({ category }) {
   let label = 'TRAVEL GUIDE';
   let icon = '📖';
 
-  if (cat.includes('heritage') || cat.includes('history')) {
-    label = 'HISTORY & HERITAGE';
+  if (cat.includes('destination')) {
+    label = 'DESTINATION GUIDE';
+    icon = '🗺️';
+  } else if (cat.includes('attraction')) {
+    label = 'TOURIST ATTRACTION GUIDE';
     icon = '🏛️';
-  } else if (cat.includes('food') || cat.includes('culture')) {
-    label = 'FOOD & CULTURE';
-    icon = '🍲';
+  } else if (cat.includes('heritage') || cat.includes('history')) {
+    label = 'HISTORY & HERITAGE';
+    icon = '📜';
   } else if (cat.includes('tip') || cat.includes('plan')) {
     label = 'TRAVEL PLANNING';
     icon = '🧭';
-  } else if (cat.includes('sight') || cat.includes('near')) {
-    label = 'NEARBY PLACES & SIGHTSEEING';
-    icon = '📍';
+  } else if (cat.includes('food') || cat.includes('culture')) {
+    label = 'FOOD & CULTURE';
+    icon = '🍲';
   } else if (cat.includes('itinerar')) {
     label = 'CURATED ITINERARY';
     icon = '🗓️';
-  } else if (cat.includes('event') || cat.includes('update')) {
-    label = 'TRAVEL UPDATE & EVENT';
+  } else if (cat.includes('near') || cat.includes('sight')) {
+    label = 'NEARBY PLACES';
+    icon = '📍';
+  } else if (cat.includes('update')) {
+    label = 'TRAVEL UPDATE';
     icon = '📢';
+  } else if (cat.includes('event') || cat.includes('festival')) {
+    label = 'EVENTS & FESTIVALS';
+    icon = '🎉';
   }
 
   return (
@@ -49,7 +58,103 @@ export function ContentTypeBadge({ category }) {
 export function ContentTypeTemplateExtras({ category, destination, state, title }) {
   const cat = (category || '').toLowerCase();
 
-  // 1. HISTORY & HERITAGE TEMPLATE
+  // 1. DESTINATION GUIDE TEMPLATE
+  if (cat.includes('destination')) {
+    return (
+      <div style={{ margin: '3rem 0 2rem 0' }}>
+        <div
+          style={{
+            background: 'var(--cream)',
+            border: '1px solid var(--border-color)',
+            borderLeft: '4px solid var(--gold-muted)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '2rem',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+            <span style={{ fontSize: '1.4rem' }}>🗺️</span>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
+              Destination Overview & Practical Essentials
+            </h3>
+          </div>
+          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.96rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            This comprehensive destination guide compiles verified geographical, cultural, and logistics information.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+            <div style={{ background: '#FFFFFF', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Best Season to Visit</span>
+              <strong style={{ color: 'var(--teal-deep)', fontSize: '0.92rem' }}>October to March (Pleasant)</strong>
+            </div>
+            <div style={{ background: '#FFFFFF', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Local Transport</span>
+              <strong style={{ color: 'var(--teal-deep)', fontSize: '0.92rem' }}>E-Rickshaws, Auto, Cabs</strong>
+            </div>
+            <div style={{ background: '#FFFFFF', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>Recommended Stay</span>
+              <strong style={{ color: 'var(--teal-deep)', fontSize: '0.92rem' }}>2 to 4 Days</strong>
+            </div>
+          </div>
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {destination && (
+              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.88rem' }}>
+                Full {destination.name_en} Hub →
+              </Link>
+            )}
+            <Link href="/trip-planner" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.88rem' }}>
+              Add to Trip Planner →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. TOURIST ATTRACTION GUIDE TEMPLATE
+  if (cat.includes('attraction')) {
+    return (
+      <div style={{ margin: '3rem 0 2rem 0' }}>
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '2rem',
+            boxShadow: 'var(--shadow-sm)',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+            <span style={{ fontSize: '1.4rem' }}>🏛️</span>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
+              Visitor Guidance & Verified Details
+            </h3>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+            <div style={{ background: 'var(--cream)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.4rem' }}>🕒 Typical Visiting Hours</strong>
+              <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>9:00 AM – 5:30 PM daily (Check seasonal sunset timings for fort ramparts).</p>
+            </div>
+            <div style={{ background: 'var(--cream)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.4rem' }}>🎟 Entry & Ticket Guidance</strong>
+              <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Standard ASI / State Museum fees apply. Concessions available for Indian citizens & students.</p>
+            </div>
+            <div style={{ background: 'var(--cream)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.4rem' }}>📷 Photography & Etiquette</strong>
+              <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Mobile photography permitted; professional tripods or drones require ASI permission.</p>
+            </div>
+          </div>
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Link href="/attractions" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.88rem' }}>
+              Explore Attractions Directory →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. HISTORY & HERITAGE TEMPLATE
   if (cat.includes('heritage') || cat.includes('history')) {
     return (
       <div style={{ margin: '3rem 0 2rem 0' }}>
@@ -64,13 +169,13 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>🏛️</span>
+            <span style={{ fontSize: '1.2rem' }}>📜</span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.15rem' }}>
               Heritage & Architectural Context
             </h3>
           </div>
           <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-            This heritage document is curated with historical accuracy. Monument preservation in this region is overseen by respective archaeological departments and private heritage trusts. Travelers are requested to respect sacred frescoes, fragile stone carvings, and photography restrictions.
+            This heritage document is curated with historical accuracy. Monument preservation in this region is overseen by archaeological departments and heritage trusts. Travelers are requested to respect sacred frescoes, fragile stone carvings, and photography restrictions.
           </p>
         </div>
 
@@ -102,7 +207,7 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
     );
   }
 
-  // 2. TRAVEL PLANNING / TIPS TEMPLATE
+  // 4. TRAVEL PLANNING / TIPS TEMPLATE
   if (cat.includes('tip') || cat.includes('plan')) {
     return (
       <div style={{ margin: '3rem 0 2rem 0' }}>
@@ -155,7 +260,7 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
     );
   }
 
-  // 3. FOOD & CULTURE TEMPLATE
+  // 5. FOOD & CULTURE TEMPLATE
   if (cat.includes('food') || cat.includes('culture')) {
     return (
       <div style={{ margin: '3rem 0 2rem 0' }}>
@@ -188,7 +293,40 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
     );
   }
 
-  // 4. SIGHTSEEING & NEARBY PLACES TEMPLATE
+  // 6. ITINERARY TEMPLATE
+  if (cat.includes('itinerar')) {
+    return (
+      <div style={{ margin: '3rem 0 2rem 0' }}>
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '2rem',
+            boxShadow: 'var(--shadow-sm)',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>🗓️</span>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
+              Itinerary Highlights & Route Pacing
+            </h3>
+          </div>
+          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Follow the curated day-by-day stops outlined in this guide. Allow buffer time between transit legs to accommodate local rail/road rhythms.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Link href="/itineraries" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
+              Browse Curated Itineraries →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 7. SIGHTSEEING & NEARBY PLACES TEMPLATE
   if (cat.includes('sight') || cat.includes('near')) {
     return (
       <div style={{ margin: '3rem 0 2rem 0' }}>
@@ -225,6 +363,66 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
     );
   }
 
-  // Default Editorial Extra
+  // 8. TRAVEL UPDATES TEMPLATE
+  if (cat.includes('update')) {
+    return (
+      <div style={{ margin: '3rem 0 2rem 0' }}>
+        <div
+          style={{
+            background: '#FFF8F4',
+            border: '1px solid #EBC8BF',
+            borderRadius: 'var(--radius-lg)',
+            padding: '1.75rem',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>📢</span>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: '#963A2C', fontSize: '1.2rem' }}>
+              Editorial Travel Advisory & Transit Notice
+            </h3>
+          </div>
+          <p style={{ margin: 0, fontSize: '0.95rem', color: '#68453F', lineHeight: 1.6 }}>
+            Travel updates reflect current field reports and official transportation notifications. Please confirm seasonal permit requirements, pass validity, and highway conditions with local authorities before departure.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 9. EVENTS & FESTIVALS TEMPLATE
+  if (cat.includes('event') || cat.includes('festival')) {
+    return (
+      <div style={{ margin: '3rem 0 2rem 0' }}>
+        <div
+          style={{
+            background: 'var(--cream)',
+            border: '1px solid var(--border-color)',
+            borderLeft: '4px solid #C58B32',
+            borderRadius: 'var(--radius-lg)',
+            padding: '2rem',
+            marginBottom: '2rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>🎉</span>
+            <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
+              Festival Calendar & Cultural Participation
+            </h3>
+          </div>
+          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Indian fairs and festivals are vibrant living celebrations rooted in lunar calendars and regional traditions. Spectators are encouraged to observe sacred rituals reverently and secure heritage hotel bookings well in advance.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Link href="/events" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
+              Explore All India Festivals →
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default Fallback
   return null;
 }

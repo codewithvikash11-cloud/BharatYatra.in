@@ -231,6 +231,49 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
         return data ? response.set('Cache-Control','no-store').json({data}) : safeError(response,404,'Record not found');
       } catch { return safeError(response,503,'Content record unavailable'); }
     });
+async function validateLocationHierarchy(tx, type, data, old = {}) {
+  const merged = { ...old, ...data };
+  if (type === 'districts') {
+    if (merged.state_id) {
+      const state = await tx.states.findUnique({ where: { id: merged.state_id }, select: { id: true, status: true } });
+      if (!state) return 'Selected State does not exist.';
+    }
+  } else if (type === 'tehsils') {
+    if (merged.district_id) {
+      const district = await tx.districts.findUnique({ where: { id: merged.district_id }, select: { id: true, state_id: true, status: true } });
+      if (!district) return 'Selected District does not exist.';
+    }
+  } else if (type === 'destinations') {
+    if (merged.tehsil_id) {
+      const tehsil = await tx.tehsils.findUnique({ where: { id: merged.tehsil_id }, select: { id: true, district_id: true } });
+      if (!tehsil) return 'Selected Tehsil does not exist.';
+      if (merged.district_id && tehsil.district_id !== merged.district_id) {
+        return 'Selected Tehsil does not belong to the selected District.';
+      }
+    }
+    if (merged.district_id) {
+      const district = await tx.districts.findUnique({ where: { id: merged.district_id }, select: { id: true, state_id: true } });
+      if (!district) return 'Selected District does not exist.';
+      if (merged.state_id && district.state_id !== merged.state_id) {
+        return 'Selected District does not belong to the selected State.';
+      }
+    }
+  } else if (type === 'attractions') {
+    if (merged.destination_id) {
+      const dest = await tx.destinations.findUnique({ where: { id: merged.destination_id }, select: { id: true, status: true } });
+      if (!dest) return 'Selected Destination does not exist.';
+    }
+  } else if (type === 'articles') {
+    if (merged.destination_id && merged.state_id) {
+      const dest = await tx.destinations.findUnique({ where: { id: merged.destination_id }, select: { id: true, state_id: true } });
+      if (dest && dest.state_id && dest.state_id !== merged.state_id) {
+        return 'Selected Destination does not belong to the selected State.';
+      }
+    }
+  }
+  return null;
+}
+
     router.post(`/${type}`, async (request, response) => {
       if (request.body && Object.hasOwn(request.body,'status')) return safeError(response,400,'Create content as DRAFT, then use the review workflow');
       const parsed = parseFields(resource,request.body,{partial:false});
@@ -246,6 +289,9 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
           const parent = await prisma[parentType].findUnique({where:{id:data[parentIdField]},select:{id:true,status:true}});
           if (!parent || (data.status === 'PUBLISHED' && parent.status !== 'PUBLISHED')) return safeError(response,400,`${parentType.slice(0, -1)} must exist and be published before publication`);
         }
+        const hierarchyError = await validateLocationHierarchy(prisma, type, data);
+        if (hierarchyError) return safeError(response, 400, hierarchyError);
+
         const created = await prisma.$transaction(async (tx) => {
           const row = await tx[resource.model].create({data:{...data,published_at:data.status === 'PUBLISHED' ? new Date() : null}});
           await createAudit(tx,request.adminPrincipal,{action:'content_created',entity_type:type,entity_id:row.id,next_status:row.status,changed_fields:Object.keys(data)});
@@ -254,12 +300,60 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
         return response.status(201).set('Cache-Control','no-store').json({data:created});
       } catch (error) { console.error('Admin create error:', error); if (error?.code === 'P2002') return safeError(response,409,'A record with this slug already exists'); return safeError(response,503,'Content could not be saved; verify the audit migration is applied'); }
     });
+    router.post(`/${type}/:id/duplicate`, async (request, response) => {
+      if (!UUID.test(request.params.id)) return safeError(response, 400, 'Invalid record id');
+      try {
+        const original = await prisma[resource.model].findUnique({ where: { id: request.params.id } });
+        if (!original) return safeError(response, 404, 'Record not found');
+
+        const baseSlug = `${original.slug}-copy`.slice(0, 80);
+        let uniqueSlug = baseSlug;
+        let counter = 1;
+        while (await prisma[resource.model].findFirst({ where: { slug: uniqueSlug } })) {
+          uniqueSlug = `${baseSlug}-${counter++}`.slice(0, 100);
+        }
+
+        const cloneData = {};
+        for (const field of resource.fields) {
+          if (field === 'slug') {
+            cloneData.slug = uniqueSlug;
+          } else if (field === 'title_en' && original.title_en) {
+            cloneData.title_en = `${original.title_en} (Copy)`;
+          } else if (field === 'name_en' && original.name_en) {
+            cloneData.name_en = `${original.name_en} (Copy)`;
+          } else if (original[field] !== undefined) {
+            cloneData[field] = original[field];
+          }
+        }
+        cloneData.status = 'DRAFT';
+        cloneData.published_at = null;
+
+        const duplicated = await prisma.$transaction(async (tx) => {
+          const row = await tx[resource.model].create({ data: cloneData });
+          await createAudit(tx, request.adminPrincipal, {
+            action: 'content_duplicated',
+            entity_type: type,
+            entity_id: row.id,
+            next_status: 'DRAFT',
+            changed_fields: Object.keys(cloneData),
+          });
+          return row;
+        });
+        return response.status(201).set('Cache-Control', 'no-store').json({ data: duplicated });
+      } catch (err) {
+        console.error('Duplicate error:', err);
+        return safeError(response, 500, 'Could not duplicate record');
+      }
+    });
     router.patch(`/${type}/:id`, async (request, response) => {
       if (!UUID.test(request.params.id)) return safeError(response,400,'Invalid record id');
       const parsed = parseFields(resource,request.body,{partial:true});
       if (parsed.error || !Object.keys(parsed.data || {}).length) return safeError(response,400,parsed.error || 'At least one editable field is required');
       if (request.adminPrincipal.role === 'editor' && (parsed.data.status || parsed.data.published_at)) return safeError(response,403,'Editors cannot change workflow status directly');
       try {
+        const hierarchyError = await validateLocationHierarchy(prisma, type, parsed.data);
+        if (hierarchyError) return safeError(response, 400, hierarchyError);
+
         const updated = await prisma.$transaction(async (tx) => {
           const old = await tx[resource.model].findUnique({where:{id:request.params.id}});
           if (!old) return null;
@@ -300,17 +394,28 @@ export function createAdminRouter({ prisma = defaultPrisma, resolveUser } = {}) 
       } catch { return safeError(response,503,'Status could not be changed; verify the audit migration is applied'); }
     });
     router.delete(`/${type}/:id`,async(request,response)=>{
-      if(request.adminPrincipal.role!=='admin')return safeError(response,403,'Admin role required to archive content');
+      if(request.adminPrincipal.role!=='admin')return safeError(response,403,'Admin role required to archive or delete content');
       if(!UUID.test(request.params.id))return safeError(response,400,'Invalid record id');
+      const isPermanent = request.query.permanent === 'true';
       try{
-        const archived=await prisma.$transaction(async(tx)=>{
-          const old=await tx[resource.model].findUnique({where:{id:request.params.id}});if(!old)return null;
+        const result=await prisma.$transaction(async(tx)=>{
+          const old=await tx[resource.model].findUnique({where:{id:request.params.id}});
+          if(!old)return null;
+          if (isPermanent) {
+            await tx[resource.model].delete({where:{id:old.id}});
+            await createAudit(tx,request.adminPrincipal,{action:'content_deleted',entity_type:type,entity_id:old.id,previous_status:old.status,next_status:'DELETED',changed_fields:['deleted']});
+            return { id: old.id, permanently_deleted: true };
+          }
           if(old.status==='ARCHIVED')return old;
           const row=await tx[resource.model].update({where:{id:old.id},data:{status:'ARCHIVED',published_at:null,updated_at:new Date()}});
-          await createAudit(tx,request.adminPrincipal,{action:'status_changed',entity_type:type,entity_id:row.id,previous_status:old.status,next_status:'ARCHIVED',changed_fields:['status']});return row;
+          await createAudit(tx,request.adminPrincipal,{action:'status_changed',entity_type:type,entity_id:row.id,previous_status:old.status,next_status:'ARCHIVED',changed_fields:['status']});
+          return row;
         });
-        return archived?response.set('Cache-Control','no-store').json({data:archived}):safeError(response,404,'Record not found');
-      }catch{return safeError(response,503,'Content could not be archived; verify the audit migration is applied');}
+        return result?response.set('Cache-Control','no-store').json({data:result}):safeError(response,404,'Record not found');
+      }catch(err){
+        console.error('Delete/archive error:', err);
+        return safeError(response,503,'Content could not be deleted; check database constraints or audit migration');
+      }
     });
   }
   return router;
