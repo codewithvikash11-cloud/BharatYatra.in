@@ -7,84 +7,12 @@ import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components
 
 export const dynamic = 'force-dynamic';
 
-const curatedEditorialArticles = {
-  'best-time-to-visit-rajasthan': {
-    slug: 'best-time-to-visit-rajasthan',
-    title_en: 'Best Time to Visit Rajasthan: A Complete Seasonal Guide',
-    excerpt_en: 'From cool winter mornings wandering Amer Fort to festive autumn dusks and monsoon palace reflections across Udaipur lakes.',
-    category: 'Travel Tips',
-    cover_image_url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
-    cover_image_alt: 'Sunset over Hawa Mahal in Jaipur Rajasthan',
-    author_name: 'BharatYatra Editorial',
-    published_at: '2024-11-15T10:00:00.000Z',
-    body_en: `## Exploring the Desert State in Every Season\n\nRajasthan's climate is characterized by significant seasonal variations. To experience royal fort ramparts, colourful street bazaars, and Thar Desert dunes in total comfort, timing your journey is paramount.\n\n### Winter (October to March) — The Golden Window\nWinter brings crisp morning chills followed by pleasant, sun-drenched afternoons hovering between 10°C and 25°C. This is the prime window for exploring monumental hillside citadels like Amer Fort, Mehrangarh, and Chittorgarh without sweltering heat.\n\nMajor cultural highlights during this window include the **Pushkar Camel Fair** in November, the **Jaipur Literature Festival** in January, and the **Desert Festival** in Jaisalmer in February.\n\n### Monsoon (July to September) — Lakes & Green Aravallis\nThe arrival of the southwest monsoon transforms southern Rajasthan into an emerald haven. The Aravalli Hills turn vibrant green, and the historic lake basins of Udaipur—Lake Pichola and Fateh Sagar—fill to capacity.\n\n### Summer (April to June) — Desert Extremes\nSummer temperatures regularly exceed 42°C across Bikaner, Jodhpur, and Jaisalmer. If traveling during these months, restrict sightseeing to early morning hours (6:00 AM – 9:30 AM).`,
-  },
-  'complete-guide-to-char-dham-yatra': {
-    slug: 'complete-guide-to-char-dham-yatra',
-    title_en: 'Complete Guide to the Sacred Char Dham Yatra in Uttarakhand',
-    excerpt_en: 'Everything you need to know about preparing for the sacred Himalayan pilgrimage to Yamunotri, Gangotri, Kedarnath, and Badrinath.',
-    category: 'Heritage & Culture',
-    cover_image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80',
-    cover_image_alt: 'Kedarnath temple nestled amidst Himalayan peaks',
-    author_name: 'Pooja Bhattacharya',
-    published_at: '2024-10-20T10:00:00.000Z',
-    body_en: `## The Holy Himalayan Circuit of Uttarakhand\n\nThe Char Dham Yatra is one of the most revered spiritual journeys in the Hindu tradition, nestled high in the Garhwal Himalayas. The four sacred shrines open each year around Akshaya Tritiya in May and close shortly after Diwali in November.\n\n### Order of the Sacred Circuit\n1. **Yamunotri:** Dedicated to Goddess Yamuna.\n2. **Gangotri:** The seat of Goddess Ganga along the Bhagirathi River.\n3. **Kedarnath:** One of the twelve sacred Jyotirlingas, located at 3,583 meters.\n4. **Badrinath:** The abode of Lord Vishnu along the Alaknanda River.\n\n### Essential Preparation\nMandatory biometric registration is required via the Uttarakhand Tourism portal. Kedarnath involves a demanding 16–18 km trek from Gaurikund; allow acclimatization days in Rishikesh.`,
-  },
-  'top-10-hill-stations-in-india': {
-    slug: 'top-10-hill-stations-in-india',
-    title_en: 'Top 10 Hill Stations in India: Majestic Mountain Retreats',
-    excerpt_en: 'From the pine-scented ridges of Himachal Pradesh to the tea-carpeted slopes of the Western Ghats.',
-    category: 'Sightseeing',
-    cover_image_url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80',
-    cover_image_alt: 'Snow-capped peaks overlooking Himalayan mountain valley',
-    author_name: 'Arjun Sen',
-    published_at: '2024-09-12T10:00:00.000Z',
-    body_en: `## Discover India's Cool Mountain Havens\n\nFrom colonial summer retreats in the north to mist-wrapped Nilgiris in the south, India's hill stations offer respite, hiking trails, and magnificent biodiversity.\n\n### 1. Manali, Himachal Pradesh\nGateway to Solang Valley, Rohtang Pass, and high-altitude trans-Himalayan desert routes.\n\n### 2. Shimla, Himachal Pradesh\nFormer summer capital known for the UNESCO toy train, Mall Road, and Christ Church.\n\n### 3. Munnar, Kerala\nEndless rolling green tea plantations and mist-covered Western Ghat peaks.\n\n### 4. Darjeeling, West Bengal\nFamed black tea gardens, Kanchenjunga sunrise vistas, and the Himalayan Railway.`,
-  },
-  'india-travel-tips-for-first-timers': {
-    slug: 'india-travel-tips-for-first-timers',
-    title_en: 'India Travel Tips for First-Timers: The Essential Primer',
-    excerpt_en: 'Practical, respectful, and proven guidance to help you navigate transport, digital payments, cultural etiquette, and daily travel smoothly.',
-    category: 'Travel Tips',
-    cover_image_url: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=1200&q=80',
-    cover_image_alt: 'Courtyard of royal Indian palace with arches',
-    author_name: 'BharatYatra Editorial',
-    published_at: '2024-08-01T10:00:00.000Z',
-    body_en: `## Welcome to Incredible India\n\nTraveling in India is an exhilarating sensory journey. A few practical guidelines ensure your travel is comfortable, respectful, and memorable.\n\n### 1. Embrace Digital Payments (UPI)\nQR codes are accepted everywhere from local tea stalls to luxury hotels. Tourists can configure UPI One World at international airport arrival terminals.\n\n### 2. Water & Dining Wisdom\nAlways drink sealed mineral water or carry a filter bottle. Choose bustling family-frequented eateries for hot, freshly prepared cuisine.\n\n### 3. Sacred Spaces Etiquette\nAlways remove footwear outside temple gates. Dress modestly with shoulders and knees covered, and carry a light cotton scarf.`,
-  },
-  'famous-food-dishes-from-different-states': {
-    slug: 'famous-food-dishes-from-different-states',
-    title_en: 'Famous Food Dishes from Different States: An Indian Culinary Tour',
-    excerpt_en: 'A mouthwatering culinary expedition through the regional flavours, heritage spices, and iconic recipes of India.',
-    category: 'Food & Culture',
-    cover_image_url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1200&q=80',
-    cover_image_alt: 'Spread of authentic Indian regional food in brass bowls',
-    author_name: 'Chef Rajesh Mehra',
-    published_at: '2024-07-15T10:00:00.000Z',
-    body_en: `## A Journey Across India's Regional Kitchens\n\nIndian cuisine is as diverse as its geography. Each state features distinct cooking techniques, spices, and grains.\n\n### Rajasthan: Dal Baati Churma & Laal Maas\nBaked wheat dough balls in spiced lentil curry with sweetened churma, alongside fiery mutton curry cooked with Mathania chillies.\n\n### Punjab: Makki di Roti & Sarson da Saag\nSlow-cooked winter mustard greens with rustic maize flatbread and churned white butter.\n\n### Kerala: Appam & Malabar Fish Curry\nLacy fermented rice pancakes paired with creamy coconut milk stew or kokum fish curry.\n\n### West Bengal: Shorshe Ilish & Sandesh\nHilsa fish in pungent mustard gravy followed by artisanal cottage cheese confections.`,
-  },
-  'hidden-gems-in-north-east-india': {
-    slug: 'hidden-gems-in-north-east-india',
-    title_en: 'Hidden Gems in North East India: Unspoiled Natural Wonders',
-    excerpt_en: 'From the bio-engineered living root bridges of Meghalaya to the serene monasteries of Tawang and the floating islands of Loktak Lake.',
-    category: 'Heritage & Culture',
-    cover_image_url: 'https://images.unsplash.com/photo-1605649487212-47bdab064df8?auto=format&fit=crop&w=1200&q=80',
-    cover_image_alt: 'Crystal clear river flowing through lush hills in Northeast India',
-    author_name: 'Denzil Nongrum',
-    published_at: '2024-06-10T10:00:00.000Z',
-    body_en: `## Untouched Frontiers of the Seven Sisters\n\nNortheast India remains one of the world's most pristine bio-diverse landscapes.\n\n### 1. Living Root Bridges of Nongriat, Meghalaya\nCenturies-old bio-engineering by Khasi tribes guiding rubber tree roots across fast-flowing mountain rivers.\n\n### 2. Loktak Lake & Keibul Lamjao, Manipur\nThe world's only floating national park, home to the endangered Sangai dancing deer.\n\n### 3. Tawang Monastery, Arunachal Pradesh\nPerched at 3,048 meters, the monumental 17th-century Himalayan Buddhist monastery.\n\n### 4. Majuli Island, Assam\nThe world's largest river island on the Brahmaputra, famed for Vaishnavite monastic culture and traditional bamboo mask artisans.`,
-  },
-};
-
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   let item = null;
   const result = await getContent('articles', [slug]);
   if (result.state === 'success' && result.payload?.data) {
     item = result.payload.data;
-  }
-  if (!item && curatedEditorialArticles[slug]) {
-    item = curatedEditorialArticles[slug];
   }
   if (!item) {
     try {
@@ -132,7 +60,7 @@ export default async function ArticleDetailPage({ params }) {
     item = result.payload.data;
   }
 
-  // 2. Direct database query fallback
+  // 2. Direct database query fallback for published records
   if (!item) {
     try {
       const dbArticle = await prisma.articles.findFirst({
@@ -144,11 +72,6 @@ export default async function ArticleDetailPage({ params }) {
       });
       if (dbArticle) item = dbArticle;
     } catch {}
-  }
-
-  // 3. Curated editorial articles dictionary fallback
-  if (!item && curatedEditorialArticles[slug]) {
-    item = curatedEditorialArticles[slug];
   }
 
   if (!item) {

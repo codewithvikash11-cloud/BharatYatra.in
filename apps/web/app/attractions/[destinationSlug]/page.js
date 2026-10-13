@@ -4,70 +4,7 @@ import prisma from '../../../lib/db.js';
 
 export const dynamic = 'force-dynamic';
 
-const curatedDestinationAttractions = {
-  jaipur: {
-    name_en: 'Jaipur',
-    slug: 'jaipur',
-    district_name: 'Jaipur',
-    state_name: 'Rajasthan',
-    attractions: [
-      {
-        slug: 'amer-fort',
-        name_en: 'Amer Fort (Amber Palace)',
-        category: 'Hill Fort & Royal Palace',
-        description_en: 'Perched high on a rugged hill overlooking Maota Lake, Amer Fort is a masterpiece of Rajput architecture blending Hindu and Mughal styles. Known for Sheesh Mahal (Palace of Mirrors).',
-        visiting_hours: '9:00 AM – 5:30 PM (Daily)',
-        entry_fee_note: '₹100 Indians, ₹500 Foreigners',
-        verified_at: '2025-01-01',
-      },
-      {
-        slug: 'hawa-mahal',
-        name_en: 'Hawa Mahal (Palace of Winds)',
-        category: 'Historic Palace & Landmark',
-        description_en: 'An iconic five-story pink sandstone palace with 953 intricately carved jharokhas casements engineered so cool breezes drafted through during summer.',
-        visiting_hours: '9:00 AM – 5:00 PM (Daily)',
-        entry_fee_note: '₹50 Indians, ₹200 Foreigners',
-        verified_at: '2025-01-01',
-      },
-      {
-        slug: 'city-palace',
-        name_en: 'City Palace Complex',
-        category: 'Royal Palace & Museum',
-        description_en: 'Sprawling palace complex at the heart of the walled city featuring Chandra Mahal, Mubarak Mahal, and the famed peacock gate in Pritam Niwas Chowk.',
-        visiting_hours: '9:30 AM – 5:00 PM (Daily)',
-        entry_fee_note: '₹300 Indians, ₹1,000 Foreigners',
-        verified_at: '2025-01-01',
-      },
-      {
-        slug: 'jantar-mantar',
-        name_en: 'Jantar Mantar Astronomical Observatory',
-        category: 'UNESCO World Heritage Observatory',
-        description_en: 'UNESCO World Heritage collection of nineteen architectural astronomical instruments built by Sawai Jai Singh II, featuring the world’s largest stone sundial.',
-        visiting_hours: '9:00 AM – 5:00 PM (Daily)',
-        entry_fee_note: '₹50 Indians, ₹200 Foreigners',
-        verified_at: '2025-01-01',
-      },
-      {
-        slug: 'nahargarh-fort',
-        name_en: 'Nahargarh Fort',
-        category: 'Aravalli Ridge Hill Fort',
-        description_en: 'Perched along the edge of the Aravalli hills overlooking Jaipur, Nahargarh once formed a formidable defense ring alongside Amer and Jaigarh. Celebrated for sunset ramparts.',
-        visiting_hours: '10:00 AM – 5:30 PM (Daily)',
-        entry_fee_note: '₹50 Indians, ₹200 Foreigners',
-        verified_at: '2025-01-01',
-      },
-      {
-        slug: 'jal-mahal',
-        name_en: 'Jal Mahal (Water Palace)',
-        category: 'Lakeside Palace',
-        description_en: 'Low-rise palace in the middle of Man Sagar Lake, showcasing Rajput style architecture with underwater levels submerged during rains.',
-        visiting_hours: 'Viewable from lakeside promenade 24/7',
-        entry_fee_note: 'Free promenade access',
-        verified_at: '2025-01-01',
-      },
-    ],
-  },
-};
+const curatedDestinationAttractions = {};
 
 export async function generateMetadata({ params }) {
   const { destinationSlug } = await params;

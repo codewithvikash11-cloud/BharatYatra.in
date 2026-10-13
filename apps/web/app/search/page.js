@@ -21,36 +21,7 @@ export async function generateMetadata({ searchParams }) {
   };
 }
 
-const curatedItineraries = [
-  {
-    slug: '2-days-in-jaipur',
-    title_en: '2 Days in Jaipur: Royal Heritage & Bazaars',
-    duration_days: 2,
-    description_en: 'A fast-paced weekend soaking up the grandest forts, mirrored palaces, observatories, and vibrant spice bazaars of the Pink City.',
-    keywords: ['jaipur', 'rajasthan', '2 days', 'pink city', 'amer', 'amber', 'fort'],
-  },
-  {
-    slug: '3-days-in-kerala',
-    title_en: '3 Days in Kerala: Backwaters, Ports & Spices',
-    duration_days: 3,
-    description_en: 'Cruise tranquil backwaters in a traditional kettuvallam houseboat, wander spice plantations, and watch Chinese fishing nets in historic Fort Kochi.',
-    keywords: ['kerala', 'kochi', 'cochin', 'alleppey', 'backwaters', 'houseboat', '3 days'],
-  },
-  {
-    slug: '4-days-in-uttarakhand',
-    title_en: '4 Days in Uttarakhand: Sacred Rivers & Mountain Vistas',
-    duration_days: 4,
-    description_en: 'Combine yoga retreats and evening Parmarth Niketan Ganga Aarti in Rishikesh with mountain vistas in Mussoorie.',
-    keywords: ['uttarakhand', 'rishikesh', 'haridwar', 'mussoorie', 'ganga', 'aarti', 'yoga', '4 days'],
-  },
-  {
-    slug: '1-week-in-rajasthan',
-    title_en: '1 Week in Royal Rajasthan: The Grand Circuit',
-    duration_days: 7,
-    description_en: 'The classic royal expedition connecting Jaipur (the Pink City), Jodhpur (the Blue Citadel under Mehrangarh), and romantic lakeside Udaipur.',
-    keywords: ['rajasthan', 'jaipur', 'jodhpur', 'udaipur', '1 week', '7 days', 'forts', 'palaces'],
-  },
-];
+
 
 async function performSearch(query) {
   if (!query) {
@@ -149,20 +120,7 @@ async function performSearch(query) {
       }),
     ]);
 
-    // Curated itineraries search matching
     const qLower = cleaned.toLowerCase();
-    const matchingCurated = curatedItineraries.filter((it) => {
-      return (
-        it.title_en.toLowerCase().includes(qLower) ||
-        it.description_en.toLowerCase().includes(qLower) ||
-        it.keywords.some((kw) => qLower.includes(kw) || kw.includes(qLower))
-      );
-    });
-
-    const mergedItineraries = [
-      ...matchingCurated,
-      ...dbItineraries.filter((dbi) => !matchingCurated.some((m) => m.slug === dbi.slug)),
-    ];
 
     // Prioritize exact matching destination if name matches primary query
     const sortedDestinations = [...destinations].sort((a, b) => {
@@ -171,7 +129,7 @@ async function performSearch(query) {
       return aExact - bExact;
     });
 
-    return { destinations: sortedDestinations, attractions, articles, itineraries: mergedItineraries };
+    return { destinations: sortedDestinations, attractions, articles, itineraries: dbItineraries };
   } catch (err) {
     console.error('Search query failed:', err);
     return { destinations: [], attractions: [], articles: [], itineraries: [] };

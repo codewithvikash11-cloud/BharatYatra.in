@@ -9,51 +9,6 @@ export const metadata = {
   description: 'Your complete travel companion for destinations, itineraries, transport, stays, food, events and practical travel information across India.',
 };
 
-const curatedDestinations = [
-  {
-    slug: 'jaipur',
-    name: 'Jaipur',
-    state: 'Rajasthan',
-    tags: 'Forts · Palaces · Culture',
-    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    slug: 'varanasi',
-    name: 'Varanasi',
-    state: 'Uttar Pradesh',
-    tags: 'Spiritual · Ganga Aarti · Heritage',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    slug: 'manali',
-    name: 'Manali',
-    state: 'Himachal Pradesh',
-    tags: 'Mountains · Adventure · Nature',
-    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    slug: 'goa',
-    name: 'Goa',
-    state: 'Goa',
-    tags: 'Beaches · Nightlife · Relaxation',
-    image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    slug: 'udaipur',
-    name: 'Udaipur',
-    state: 'Rajasthan',
-    tags: 'Lakes · Palaces · Romance',
-    image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    slug: 'rishikesh',
-    name: 'Rishikesh',
-    state: 'Uttarakhand',
-    tags: 'Yoga · Adventure · Spirituality',
-    image: 'https://images.unsplash.com/photo-1607963496350-f84f09d84c17?auto=format&fit=crop&w=900&q=80',
-  },
-];
-
 const travelTools = [
   {
     icon: '📍',
@@ -211,84 +166,6 @@ const regions = [
   },
 ];
 
-const suggestedItineraries = [
-  {
-    title: '2 Days in Jaipur',
-    subtitle: 'Royal Heritage Experience',
-    duration: '2 Days',
-    places: '6+ Places',
-    tag: 'Heritage',
-    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80',
-    href: '/destinations/jaipur#itinerary',
-  },
-  {
-    title: '3 Days in Kerala',
-    subtitle: 'Backwaters & Beaches',
-    duration: '3 Days',
-    places: '8+ Places',
-    tag: 'Nature',
-    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',
-    href: '/search?q=Kerala',
-  },
-  {
-    title: '4 Days in Uttarakhand',
-    subtitle: 'Spiritual & Adventure',
-    duration: '4 Days',
-    places: '7+ Places',
-    tag: 'Spiritual',
-    image: 'https://images.unsplash.com/photo-1607963496350-f84f09d84c17?auto=format&fit=crop&w=700&q=80',
-    href: '/search?q=Uttarakhand',
-  },
-  {
-    title: '1 Week in Rajasthan',
-    subtitle: 'Forts, Palaces & Culture',
-    duration: '7 Days',
-    places: '12+ Places',
-    tag: 'Culture',
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=700&q=80',
-    href: '/search?q=Rajasthan',
-  },
-];
-
-const blogArticles = [
-  {
-    title: 'Best Time to Visit Rajasthan',
-    readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80',
-    href: '/articles/nawalgarh-rajasthan-travel-guide',
-  },
-  {
-    title: 'Complete Guide to Char Dham Yatra',
-    readTime: '7 min read',
-    image: 'https://images.unsplash.com/photo-1607963496350-f84f09d84c17?auto=format&fit=crop&w=700&q=80',
-    href: '/articles',
-  },
-  {
-    title: 'Top 10 Hill Stations in India',
-    readTime: '6 min read',
-    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80',
-    href: '/articles',
-  },
-  {
-    title: 'India Travel Tips for First Timers',
-    readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=700&q=80',
-    href: '/checklist',
-  },
-  {
-    title: 'Famous Food Dishes from Different States',
-    readTime: '6 min read',
-    image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=700&q=80',
-    href: '/articles',
-  },
-  {
-    title: 'Hidden Gems in North East India',
-    readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?auto=format&fit=crop&w=700&q=80',
-    href: '/articles',
-  },
-];
-
 const essentialInfoCards = [
   {
     icon: '🛂',
@@ -341,14 +218,16 @@ const essentialInfoCards = [
 ];
 
 export default async function HomePage() {
-  // Fetch real articles and destinations from DB/API
-  const [destRes, articleRes] = await Promise.all([
+  // Fetch real articles, destinations, and itineraries from DB/API
+  const [destRes, articleRes, itinRes] = await Promise.all([
     getCollection('destinations', { limit: 6 }),
     getCollection('articles', { limit: 6 }),
+    getCollection('itineraries', { limit: 4 }),
   ]);
 
   const dbDestinations = destRes.state === 'success' && destRes.data?.length ? destRes.data : [];
   const dbArticles = articleRes.state === 'success' && articleRes.data?.length ? articleRes.data : [];
+  const dbItineraries = itinRes.state === 'success' && itinRes.data?.length ? itinRes.data : [];
 
   return (
     <main className="by-home-root">
@@ -427,38 +306,8 @@ export default async function HomePage() {
           </div>
 
           <div className="by-destinations-grid">
-            {/* Render curated list with active link to Jaipur detail page */}
-            {curatedDestinations.map((dest) => (
-              <Link
-                key={dest.slug}
-                href={`/destinations/${dest.slug}`}
-                className="by-dest-card"
-              >
-                <div className="by-dest-img-wrap">
-                  <img
-                    src={dest.image}
-                    alt={dest.name}
-                    width="600"
-                    height="400"
-                    loading="lazy"
-                  />
-                  <div className="by-dest-gradient" />
-                </div>
-                <div className="by-dest-overlay-info">
-                  <h3 className="by-dest-name">{dest.name}</h3>
-                  <p className="by-dest-state">{dest.state}</p>
-                  <span className="by-dest-tags">{dest.tags}</span>
-                </div>
-                <div className="by-dest-circle-arrow" aria-hidden="true">
-                  →
-                </div>
-              </Link>
-            ))}
-
-            {/* Seamlessly include published database destinations if any additional exist */}
-            {dbDestinations
-              .filter((d) => !curatedDestinations.some((c) => c.slug === d.slug))
-              .map((dest) => (
+            {dbDestinations.length > 0 ? (
+              dbDestinations.map((dest) => (
                 <Link
                   key={dest.slug}
                   href={`/destinations/${dest.slug}`}
@@ -483,7 +332,13 @@ export default async function HomePage() {
                     →
                   </div>
                 </Link>
-              ))}
+              ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', padding: '2.5rem', textAlign: 'center', background: '#F8FAF9', borderRadius: '12px', border: '1px dashed #CBD5E1', color: '#475569' }}>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', color: 'var(--teal-deep)' }}>No published destinations yet.</p>
+                <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', color: '#64748B' }}>Verified destinations published through the BharatYatra Studio will appear here automatically.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -576,37 +431,47 @@ export default async function HomePage() {
           </div>
 
           <div className="by-itineraries-grid">
-            {suggestedItineraries.map((itin) => (
-              <Link key={itin.title} href={itin.href} className="by-itin-card">
-                <div className="by-itin-img-wrap">
-                  <img
-                    src={itin.image}
-                    alt={itin.title}
-                    width="600"
-                    height="360"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="by-itin-body">
-                  <h3 className="by-itin-title">{itin.title}</h3>
-                  <p className="by-itin-sub">{itin.subtitle}</p>
-                  <div className="by-itin-meta">
-                    <span className="by-itin-meta-item">⏱ {itin.duration}</span>
-                    <span className="by-itin-meta-item">📍 {itin.places}</span>
+            {dbItineraries.length > 0 ? (
+              dbItineraries.map((itin) => (
+                <Link key={itin.title_en || itin.slug} href={`/itineraries/${itin.slug}`} className="by-itin-card">
+                  <div className="by-itin-img-wrap">
+                    <img
+                      src={itin.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80'}
+                      alt={itin.title_en}
+                      width="600"
+                      height="360"
+                      loading="lazy"
+                    />
                   </div>
-                  <div className="by-itin-footer">
-                    <span className="by-itin-badge">{itin.tag}</span>
-                    <span className="by-itin-arrow">→</span>
+                  <div className="by-itin-body">
+                    <h3 className="by-itin-title">{itin.title_en}</h3>
+                    <p className="by-itin-sub">{itin.summary_en}</p>
+                    <div className="by-itin-meta">
+                      <span className="by-itin-meta-item">⏱ {itin.duration_days ? `${itin.duration_days} Days` : 'Multi-day'}</span>
+                      <span className="by-itin-meta-item">📍 Verified Route</span>
+                    </div>
+                    <div className="by-itin-footer">
+                      <span className="by-itin-badge">{itin.category || 'Route'}</span>
+                      <span className="by-itin-arrow">→</span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', padding: '2.5rem 1.5rem', textAlign: 'center', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #E2E8F0', color: '#475569' }}>
+                <p style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--teal-deep)' }}>Curated Itineraries in Preparation</p>
+                <p style={{ margin: '0.5rem 0 1.25rem', fontSize: '0.95rem', color: '#64748B' }}>Our editorial team is crafting verified day-by-day itineraries. In the meantime, use our Trip Planner to create your custom route.</p>
+                <Link href="/trip-planner" style={{ display: 'inline-block', padding: '0.6rem 1.25rem', borderRadius: '8px', background: 'var(--teal-primary)', color: '#fff', textDecoration: 'none', fontWeight: 500 }}>
+                  Open Trip Planner →
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          7. LATEST FROM OUR BLOG (6 ARTICLES)
+          7. LATEST FROM OUR BLOG
           ======================================================== */}
       <section className="by-section">
         <div className="by-container">
@@ -621,49 +486,33 @@ export default async function HomePage() {
           </div>
 
           <div className="by-articles-grid">
-            {/* If DB articles exist, merge them at the start */}
-            {dbArticles.slice(0, 3).map((art) => (
-              <Link key={art.slug} href={`/articles/${art.slug}`} className="by-article-card">
-                <div className="by-article-img-wrap">
-                  <img
-                    src={art.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80'}
-                    alt={art.title_en}
-                    width="600"
-                    height="360"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="by-article-body">
-                  <h3 className="by-article-title">{art.title_en}</h3>
-                  <div className="by-article-footer">
-                    <span className="by-article-read-time">📖 5 min read</span>
-                    <span className="by-article-arrow">→</span>
+            {dbArticles.length > 0 ? (
+              dbArticles.slice(0, 6).map((art) => (
+                <Link key={art.slug} href={`/articles/${art.slug}`} className="by-article-card">
+                  <div className="by-article-img-wrap">
+                    <img
+                      src={art.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80'}
+                      alt={art.title_en}
+                      width="600"
+                      height="360"
+                      loading="lazy"
+                    />
                   </div>
-                </div>
-              </Link>
-            ))}
-
-            {/* Curated reference articles */}
-            {blogArticles.slice(0, 6 - Math.min(dbArticles.length, 3)).map((art) => (
-              <Link key={art.title} href={art.href} className="by-article-card">
-                <div className="by-article-img-wrap">
-                  <img
-                    src={art.image}
-                    alt={art.title}
-                    width="600"
-                    height="360"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="by-article-body">
-                  <h3 className="by-article-title">{art.title}</h3>
-                  <div className="by-article-footer">
-                    <span className="by-article-read-time">📖 {art.readTime}</span>
-                    <span className="by-article-arrow">→</span>
+                  <div className="by-article-body">
+                    <h3 className="by-article-title">{art.title_en}</h3>
+                    <div className="by-article-footer">
+                      <span className="by-article-read-time">📖 {art.category || 'Travel Guide'}</span>
+                      <span className="by-article-arrow">→</span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <div style={{ gridColumn: '1 / -1', padding: '2.5rem', textAlign: 'center', background: '#F8FAF9', borderRadius: '12px', border: '1px dashed #CBD5E1', color: '#475569' }}>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', color: 'var(--teal-deep)' }}>No published stories yet.</p>
+                <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', color: '#64748B' }}>Travel guides, regional tips, and cultural stories will appear here once published.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

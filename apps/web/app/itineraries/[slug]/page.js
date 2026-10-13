@@ -5,7 +5,9 @@ import ItineraryInteractiveClient from '../../../components/itinerary-interactiv
 
 export const dynamic = 'force-dynamic';
 
-const curatedItinerariesData = {
+const curatedItinerariesData = {};
+/*
+const oldCurated = {
   '2-days-in-jaipur': {
     slug: '2-days-in-jaipur',
     title: '2 Days in Jaipur: Royal Heritage & Bazaars',
@@ -389,20 +391,10 @@ const curatedItinerariesData = {
     ],
   },
 };
+*/
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const curated = curatedItinerariesData[slug];
-  if (curated) {
-    return {
-      title: `${curated.title} | BharatYatra`,
-      description: curated.summary,
-      alternates: {
-        canonical: `https://bharat-yatra-in.vercel.app/itineraries/${slug}`,
-      },
-    };
-  }
-
   try {
     const dbItem = await prisma.itineraries.findFirst({
       where: { slug, status: 'PUBLISHED' },
@@ -420,7 +412,7 @@ export async function generateMetadata({ params }) {
   } catch {}
 
   return {
-    title: 'Itinerary | BharatYatra',
+    title: 'Itinerary Not Found | BharatYatra',
     description: 'Day-by-day travel itinerary on BharatYatra.',
   };
 }
@@ -428,10 +420,9 @@ export async function generateMetadata({ params }) {
 export default async function ItineraryDetailPage({ params }) {
   const { slug } = await params;
 
-  let itinerary = curatedItinerariesData[slug];
+  let itinerary = null;
 
-  if (!itinerary) {
-    try {
+  try {
       const dbItem = await prisma.itineraries.findFirst({
         where: { slug, status: 'PUBLISHED' },
         include: {
@@ -482,7 +473,6 @@ export default async function ItineraryDetailPage({ params }) {
     } catch (err) {
       console.error('Failed to query DB itinerary:', err);
     }
-  }
 
   if (!itinerary) {
     notFound();

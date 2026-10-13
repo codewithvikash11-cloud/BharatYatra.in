@@ -66,6 +66,9 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
     structured_data_type: 'Article',
     robots_index: 'index, follow',
     status: article?.status || 'DRAFT',
+    attraction_id: article?.attraction_id || '',
+    image_credits: article?.image_credits || '',
+    og_image_url: article?.og_image_url || '',
     sources: '',
     editorial_notes: '',
     is_location_independent: false,
@@ -87,6 +90,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
   const [districtsList, setDistrictsList] = useState([]);
   const [tehsilsList, setTehsilsList] = useState([]);
   const [destinationsList, setDestinationsList] = useState([]);
+  const [attractionsList, setAttractionsList] = useState([]);
 
   // Media Library in-modal state
   const [mediaAssets, setMediaAssets] = useState([]);
@@ -101,16 +105,18 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
   useEffect(() => {
     async function loadLocations() {
       try {
-        const [sRes, dRes, distRes, tehRes] = await Promise.all([
+        const [sRes, dRes, distRes, tehRes, aRes] = await Promise.all([
           fetch('/api/admin/states?limit=100', { cache: 'no-store' }),
           fetch('/api/admin/destinations?limit=100', { cache: 'no-store' }),
           fetch('/api/admin/districts?limit=100', { cache: 'no-store' }),
           fetch('/api/admin/tehsils?limit=100', { cache: 'no-store' }),
+          fetch('/api/admin/attractions?limit=100', { cache: 'no-store' }),
         ]);
         if (sRes.ok) setStatesList((await sRes.json()).data || []);
         if (dRes.ok) setDestinationsList((await dRes.json()).data || []);
         if (distRes.ok) setDistrictsList((await distRes.json()).data || []);
         if (tehRes.ok) setTehsilsList((await tehRes.json()).data || []);
+        if (aRes.ok) setAttractionsList((await aRes.json()).data || []);
       } catch {}
     }
     void loadLocations();
@@ -503,6 +509,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
     (t) => !form.district_id || t.district_id === form.district_id
   );
   // Filtered destinations
+  const availableAttractions = attractionsList.filter((a) => !form.destination_id || a.destination_id === form.destination_id);
   const availableDestinations = destinationsList.filter(
     (dest) => !form.state_id || dest.state_id === form.state_id
   );
@@ -905,6 +912,16 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
                     placeholder="Descriptive alt text for search engines and screen readers"
                   />
                 </label>
+
+                <label className="sidebar-field">
+                  <span>Image Credits & Source</span>
+                  <input
+                    type="text"
+                    value={form.image_credits}
+                    onChange={(e) => handleFieldChange('image_credits', e.target.value)}
+                    placeholder="e.g. Photo by Rahul / Unsplash (CC-BY-4.0)"
+                  />
+                </label>
               </div>
             )}
 
@@ -999,6 +1016,30 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
                         ))}
                       </select>
                     </label>
+
+                    <label className="sidebar-field">
+                      <span>Primary Subject Attraction / Monument</span>
+                      <select
+                        value={form.attraction_id}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleFieldChange('attraction_id', val);
+                          if (val) {
+                            const found = attractionsList.find((a) => a.id === val);
+                            if (found?.destination_id && !form.destination_id) {
+                              handleFieldChange('destination_id', found.destination_id);
+                            }
+                          }
+                        }}
+                      >
+                        <option value="">— Link Related Attraction / Monument —</option>
+                        {availableAttractions.map((attr) => (
+                          <option key={attr.id} value={attr.id}>
+                            {attr.name_en} ({attr.category || 'Monument'})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                   </>
                 )}
               </div>
@@ -1063,6 +1104,16 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
                 </label>
 
                 <label className="sidebar-field">
+                  <span>Social Sharing Image (OG Image)</span>
+                  <input
+                    type="url"
+                    value={form.og_image_url}
+                    onChange={(e) => handleFieldChange('og_image_url', e.target.value)}
+                    placeholder={form.cover_image_url || 'https://... (defaults to Featured Image)'}
+                  />
+                </label>
+
+                <label className="sidebar-field">
                   <span>Structured Data Type</span>
                   <select
                     value={form.structured_data_type}
@@ -1100,7 +1151,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
                   <div className="social-card">
                     {form.cover_image_url && (
                       <div className="social-img">
-                        <img src={form.cover_image_url} alt="Card preview" />
+                        <img src={form.og_image_url || form.cover_image_url} alt="Card preview" />
                       </div>
                     )}
                     <div className="social-content">
