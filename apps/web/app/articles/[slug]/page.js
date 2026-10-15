@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getContent } from '../../../lib/content-api.mjs';
+import { getContent, getCollection } from '../../../lib/content-api.mjs';
 import { MarkdownContent, TableOfContents, extractHeadings } from '../../../lib/markdown.js';
 import prisma from '../../../lib/db.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
@@ -12,16 +12,18 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   let item = null;
 
+  // 1. Check API first (fast, reliable on serverless)
   try {
-    item = await prisma.articles.findFirst({ where: { slug, status: 'PUBLISHED' } });
+    const result = await getContent('articles', [slug]);
+    if (result.state === 'success' && result.payload?.data) {
+      item = result.payload.data;
+    }
   } catch {}
 
+  // 2. Fallback to direct DB query if API did not return it
   if (!item) {
     try {
-      const result = await getContent('articles', [slug]);
-      if (result.state === 'success' && result.payload?.data) {
-        item = result.payload.data;
-      }
+      item = await prisma.articles.findFirst({ where: { slug, status: 'PUBLISHED' } });
     } catch {}
   }
 
@@ -61,24 +63,24 @@ export default async function ArticleDetailPage({ params }) {
   const { slug } = await params;
   let item = null;
 
-  // 1. Direct database query first for full relations (destinations, states)
+  // 1. Check API first (fast, reliable on serverless)
   try {
-    item = await prisma.articles.findFirst({
-      where: { slug, status: 'PUBLISHED' },
-      include: {
-        destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
-        states: { select: { id: true, slug: true, name_en: true } },
-      },
-    });
+    const result = await getContent('articles', [slug]);
+    if (result.state === 'success' && result.payload?.data) {
+      item = result.payload.data;
+    }
   } catch {}
 
-  // 2. Fallback to API if DB direct query was not available
+  // 2. Direct database query fallback for published records if API missed it or for extra relations
   if (!item) {
     try {
-      const result = await getContent('articles', [slug]);
-      if (result.state === 'success' && result.payload?.data) {
-        item = result.payload.data;
-      }
+      item = await prisma.articles.findFirst({
+        where: { slug, status: 'PUBLISHED' },
+        include: {
+          destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
+          states: { select: { id: true, slug: true, name_en: true } },
+        },
+      });
     } catch {}
   }
 
@@ -86,28 +88,35 @@ export default async function ArticleDetailPage({ params }) {
     notFound();
   }
 
-  // Fetch 2-3 related published articles for internal crawlable links
+  // Fetch related articles via public API first (fast, crawlable links)
   let relatedArticles = [];
   try {
-    relatedArticles = await prisma.articles.findMany({
-      where: {
-        status: 'PUBLISHED',
-        slug: { not: slug },
-      },
-      take: 3,
-      orderBy: { published_at: 'desc' },
-      select: {
-        slug: true,
-        title_en: true,
-        excerpt_en: true,
-        category: true,
-        cover_image_url: true,
-        cover_image_alt: true,
-      },
-    });
+    const relRes = await getCollection('articles', { limit: 4 });
+    if (relRes.state === 'success' && Array.isArray(relRes.data)) {
+      relatedArticles = relRes.data.filter((r) => r.slug !== slug).slice(0, 3);
+    }
   } catch {}
 
-  // Fetch related attractions if destination is attached
+  // DB fallback for related articles if API failed
+  if (relatedArticles.length === 0) {
+    try {
+      relatedArticles = await prisma.articles.findMany({
+        where: { status: 'PUBLISHED', slug: { not: slug } },
+        take: 3,
+        orderBy: { published_at: 'desc' },
+        select: {
+          slug: true,
+          title_en: true,
+          excerpt_en: true,
+          category: true,
+          cover_image_url: true,
+          cover_image_alt: true,
+        },
+      });
+    } catch {}
+  }
+
+  // Fetch related attractions if destination relation exists
   let relatedAttractions = [];
   const destId = item.destination_id || item.destinations?.id;
   if (destId) {
