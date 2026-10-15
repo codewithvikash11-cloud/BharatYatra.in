@@ -1,7 +1,4 @@
-// Safe, Rich Article Parser & Renderer for BharatYatra Editorial Content
-// Seamlessly supports both Tiptap rich HTML and legacy Markdown content
 import React from 'react';
-import DOMPurify from 'isomorphic-dompurify';
 
 export function isHTML(content) {
   if (!content || typeof content !== 'string') return false;
@@ -88,36 +85,24 @@ export function extractHeadings(content) {
  * Clean & Sanitize HTML with XSS prevention and inject heading IDs
  */
 export function sanitizeAndPrepareHTML(html) {
-  if (!html) return '';
+  if (!html || typeof html !== 'string') return '';
 
-  let clean = '';
-  try {
-    clean = DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: [
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'p', 'span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'mark',
-        'a', 'ul', 'ol', 'li', 'blockquote', 'hr', 'br',
-        'img', 'figure', 'figcaption',
-        'table', 'thead', 'tbody', 'tr', 'th', 'td',
-        'div', 'iframe'
-      ],
-      ALLOWED_ATTR: [
-        'class', 'id', 'style', 'href', 'target', 'rel', 'src', 'alt', 'title',
-        'width', 'height', 'loading', 'decoding',
-        'data-callout-type', 'data-youtube-video',
-        'frameborder', 'allow', 'allowfullscreen'
-      ],
-      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-      ADD_ATTR: ['target'],
-    });
-  } catch {
-    clean = String(html)
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-      .replace(/\s*on\w+="[^"]*"/gi, '')
-      .replace(/\s*on\w+='[^']*'/gi, '')
-      .replace(/javascript:[^"']*/gi, '#');
-  }
+  const clean = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/<applet\b[^<]*(?:(?!<\/applet>)<[^<]*)*<\/applet>/gi, '')
+    .replace(/<meta\b[^>]*>/gi, '')
+    .replace(/<link\b[^>]*>/gi, '')
+    .replace(/<iframe\b([^>]*)>[\s\S]*?<\/iframe>/gi, (match, attrs) => {
+      if (/src=["']https:\/\/(www\.)?(youtube\.com\/embed\/|youtube-nocookie\.com\/embed\/)/i.test(attrs)) {
+        return match;
+      }
+      return '';
+    })
+    .replace(/\s+on[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(/(href|src)\s*=\s*(["'])\s*(?:javascript|vbscript|data:text\/html):.*?\2/gi, '$1="#"');
 
   const slugCounts = {};
 
