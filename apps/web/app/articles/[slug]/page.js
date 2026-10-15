@@ -4,27 +4,33 @@ import { getContent } from '../../../lib/content-api.mjs';
 import { MarkdownContent, TableOfContents, extractHeadings } from '../../../lib/markdown.js';
 import prisma from '../../../lib/db.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
-import { SocialShare } from '../../../components/social-share.js';
+import SocialShare from '../../../components/social-share.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   let item = null;
-  const result = await getContent('articles', [slug]);
-  if (result.state === 'success' && result.payload?.data) {
-    item = result.payload.data;
-  }
+
+  try {
+    item = await prisma.articles.findFirst({ where: { slug, status: 'PUBLISHED' } });
+  } catch {}
+
   if (!item) {
     try {
-      item = await prisma.articles.findFirst({ where: { slug, status: 'PUBLISHED' } });
+      const result = await getContent('articles', [slug]);
+      if (result.state === 'success' && result.payload?.data) {
+        item = result.payload.data;
+      }
     } catch {}
   }
+
   if (!item) {
     return { title: 'Article Not Found | BharatYatra' };
   }
-  const title = item.seo_title_en || item.title_en;
-  const description = item.seo_description_en || item.excerpt_en || item.title_en;
+
+  const title = item.seo_title_en || item.title_en || 'Travel Story';
+  const description = item.seo_description_en || item.excerpt_en || title;
   const canonicalUrl = item.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${encodeURIComponent(slug)}`;
   const coverUrl = item.cover_image_url || '/hero.jpg';
 
@@ -37,7 +43,7 @@ export async function generateMetadata({ params }) {
       description,
       url: canonicalUrl,
       type: 'article',
-      publishedTime: item.published_at,
+      publishedTime: item.published_at || undefined,
       authors: [item.author_name || 'BharatYatra Editorial'],
       siteName: 'BharatYatra',
       images: [{ url: coverUrl, width: 1200, height: 630, alt: item.cover_image_alt || title }],
@@ -55,23 +61,24 @@ export default async function ArticleDetailPage({ params }) {
   const { slug } = await params;
   let item = null;
 
-  // 1. Check API first
-  const result = await getContent('articles', [slug]);
-  if (result.state === 'success' && result.payload?.data) {
-    item = result.payload.data;
-  }
+  // 1. Direct database query first for full relations (destinations, states)
+  try {
+    item = await prisma.articles.findFirst({
+      where: { slug, status: 'PUBLISHED' },
+      include: {
+        destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
+        states: { select: { id: true, slug: true, name_en: true } },
+      },
+    });
+  } catch {}
 
-  // 2. Direct database query fallback for published records
+  // 2. Fallback to API if DB direct query was not available
   if (!item) {
     try {
-      const dbArticle = await prisma.articles.findFirst({
-        where: { slug, status: 'PUBLISHED' },
-        include: {
-          destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
-          states: { select: { id: true, slug: true, name_en: true } },
-        },
-      });
-      if (dbArticle) item = dbArticle;
+      const result = await getContent('articles', [slug]);
+      if (result.state === 'success' && result.payload?.data) {
+        item = result.payload.data;
+      }
     } catch {}
   }
 
@@ -124,23 +131,23 @@ export default async function ArticleDetailPage({ params }) {
 
   const coverUrl = item.cover_image_url || '/hero.jpg';
   const wordCount = (item.body_en || item.excerpt_en || '').split(/\s+/).length;
-  const readingTime = Math.max(3, Math.ceil(wordCount / 200));
+  const readingTime = Math.max(2, Math.ceil(wordCount / 200));
   const publishDate = item.published_at
     ? new Date(item.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : 'Recent';
 
-  const destination = item.destinations;
-  const state = item.states;
+  const destination = item.destinations || null;
+  const state = item.states || null;
   const articleUrl = item.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${encodeURIComponent(slug)}`;
-  const headings = extractHeadings(item.body_en);
+  const headings = extractHeadings(item.body_en || '');
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: item.title_en,
-    description: item.excerpt_en || item.seo_description_en,
+    description: item.excerpt_en || item.seo_description_en || item.title_en,
     image: coverUrl,
-    datePublished: item.published_at,
+    datePublished: item.published_at || undefined,
     author: {
       '@type': 'Person',
       name: item.author_name || 'BharatYatra Editorial',
@@ -166,7 +173,7 @@ export default async function ArticleDetailPage({ params }) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://bharat-yatra-in.vercel.app' },
       { '@type': 'ListItem', position: 2, name: 'Travel Guides', item: 'https://bharat-yatra-in.vercel.app/articles' },
-      { '@type': 'ListItem', position: 3, name: item.category || 'Culture', item: `https://bharat-yatra-in.vercel.app/articles` },
+      { '@type': 'ListItem', position: 3, name: item.category || 'Culture', item: 'https://bharat-yatra-in.vercel.app/articles' },
       { '@type': 'ListItem', position: 4, name: item.title_en, item: articleUrl },
     ],
   };
@@ -285,12 +292,14 @@ export default async function ArticleDetailPage({ params }) {
           </article>
 
           {/* Content-Aware Specialized Template Extras */}
-          <ContentTypeTemplateExtras
-            category={item.category}
-            destination={destination}
-            state={state}
-            title={item.title_en}
-          />
+          {item.category && (
+            <ContentTypeTemplateExtras
+              category={item.category}
+              destination={destination}
+              state={state}
+              title={item.title_en}
+            />
+          )}
 
           {/* Related Attractions in Destination */}
           {relatedAttractions.length > 0 && (
@@ -300,19 +309,22 @@ export default async function ArticleDetailPage({ params }) {
                 Notable Attractions in {destination?.name_en || 'this Region'}
               </h3>
               <div className="attractions-mini-grid">
-                {relatedAttractions.map((att) => (
-                  <Link
-                    key={att.slug}
-                    href={`/attractions/${att.destinations?.slug || destination?.slug}/${att.slug}`}
-                    className="attraction-mini-card"
-                  >
-                    {att.category && <span className="attraction-mini-tag">{att.category}</span>}
-                    <h4>{att.name_en}</h4>
-                    {att.description_en && (
-                      <p>{att.description_en.slice(0, 110)}{att.description_en.length > 110 ? '...' : ''}</p>
-                    )}
-                  </Link>
-                ))}
+                {relatedAttractions.map((att) => {
+                  const destSlug = att.destinations?.slug || destination?.slug;
+                  return (
+                    <Link
+                      key={att.slug}
+                      href={destSlug ? `/attractions/${destSlug}/${att.slug}` : `/attractions`}
+                      className="attraction-mini-card"
+                    >
+                      {att.category && <span className="attraction-mini-tag">{att.category}</span>}
+                      <h4>{att.name_en}</h4>
+                      {att.description_en && (
+                        <p>{att.description_en.slice(0, 110)}{att.description_en.length > 110 ? '...' : ''}</p>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}

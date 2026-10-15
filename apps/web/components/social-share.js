@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-export function SocialShare({ title, url }) {
+export default function SocialShare({ title, url }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
