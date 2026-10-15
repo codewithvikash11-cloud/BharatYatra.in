@@ -1,75 +1,97 @@
 import Link from 'next/link';
 import HeroSearchWidget from '../components/hero-search-widget.js';
 import { getCollection } from '../lib/content-api.mjs';
+import { getSiteAppearance, getEditorialImage, DEFAULT_APPEARANCE } from '../lib/appearance.js';
+import {
+  IconCompass,
+  IconMapPin,
+  IconCalendar,
+  IconRoute,
+  IconUtensils,
+  IconSparkles,
+  IconShield,
+  IconCreditCard,
+  IconPhoneCall,
+  IconLandmark,
+  IconSun,
+  IconChecklist,
+  IconCalculator,
+  IconClock,
+  IconBookOpen,
+  IconMap,
+  IconArrowRight,
+  IconPassport,
+} from '../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'BharatYatra — Explore India, Plan Better Trips',
-  description: 'Your complete travel companion for destinations, itineraries, transport, stays, food, events and practical travel information across India.',
+  description:
+    'Curated, verified travel companion for destinations, itineraries, transport, stays, food, events, and authentic cultural heritage across India.',
 };
 
 const travelTools = [
   {
-    icon: '📍',
+    Icon: IconMapPin,
     title: 'Destinations',
-    sub: 'Places to visit',
+    sub: 'Heritage Towns & Cities',
     href: '/destinations',
     bg: '#EBF4F6',
     color: '#247A72',
   },
   {
-    icon: '📅',
+    Icon: IconCalendar,
     title: 'Trip Planner',
-    sub: 'Plan your journey',
+    sub: 'Day-Wise Itineraries',
     href: '/trip-planner',
     bg: '#FEF6E8',
     color: '#C58B32',
   },
   {
-    icon: '🚗',
+    Icon: IconRoute,
     title: 'Routes & Transport',
-    sub: 'Train, bus, flight, road',
+    sub: 'Rail, Bus, Air & Roads',
     href: '/routes',
     bg: '#EAF3F5',
     color: '#153E3A',
   },
   {
-    icon: '🍽',
-    title: 'Stay & Food',
-    sub: 'Hotels, restaurants',
+    Icon: IconUtensils,
+    title: 'Food & Stay',
+    sub: 'Regional Flavors & Stays',
     href: '/destinations',
     bg: '#FDF0EC',
     color: '#B9653F',
   },
   {
-    icon: '🎉',
-    title: 'Events & Festivals',
-    sub: 'Cultural experiences',
+    Icon: IconSparkles,
+    title: 'Fairs & Festivals',
+    sub: 'Living Celebrations',
     href: '/events',
     bg: '#FBEAF0',
     color: '#B33951',
   },
   {
-    icon: '🧭',
-    title: 'Travel Tips',
-    sub: 'Guides and safety',
+    Icon: IconChecklist,
+    title: 'Travel Checklist',
+    sub: 'Monsoon & Heritage Gear',
     href: '/checklist',
     bg: '#EDF5F0',
     color: '#496B55',
   },
   {
-    icon: '🗺',
+    Icon: IconMap,
     title: 'Interactive Map',
-    sub: 'Explore India',
+    sub: '36 States & Union Territories',
     href: '/states',
     bg: '#EAF1F7',
     color: '#2D68C4',
   },
   {
-    icon: '💰',
-    title: 'Budget Calculator',
-    sub: 'Estimate trip cost',
+    Icon: IconCalculator,
+    title: 'Budget Planner',
+    sub: 'Real Trip Cost Calculator',
     href: '/budget-calculator',
     bg: '#FFF5E6',
     color: '#D97706',
@@ -78,265 +100,289 @@ const travelTools = [
 
 const planTripTools = [
   {
-    icon: '🗓',
-    title: 'Trip Planner',
-    desc: 'Create day-wise itinerary for your journey',
+    Icon: IconCalendar,
+    title: 'Interactive Trip Planner',
+    desc: 'Generate day-wise, optimized travel schedules for family, solo, or heritage circuits.',
     href: '/trip-planner',
-    iconColor: '#3B82F6',
-    iconBg: '#EFF6FF',
+    iconColor: '#247A72',
+    iconBg: '#EBF4F6',
   },
   {
-    icon: '🔀',
-    title: 'Route Finder',
-    desc: 'Train, bus, flight and road options',
+    Icon: IconRoute,
+    title: 'Multimodal Route Finder',
+    desc: 'Compare Indian Railways (IRCTC), state roadways buses, flights, and highway drives.',
     href: '/routes',
-    iconColor: '#8B5CF6',
-    iconBg: '#F5F3FF',
+    iconColor: '#C58B32',
+    iconBg: '#FEF6E8',
   },
   {
-    icon: '🧮',
-    title: 'Budget Calculator',
-    desc: 'Estimate your trip cost',
+    Icon: IconCalculator,
+    title: 'Trip Budget Calculator',
+    desc: 'Calculate real-time lodging, local transport, dining, monument tickets, and contingencies.',
     href: '/budget-calculator',
     iconColor: '#10B981',
     iconBg: '#ECFDF5',
   },
   {
-    icon: '📋',
-    title: 'Travel Checklist',
-    desc: "Don't forget the essentials",
+    Icon: IconChecklist,
+    title: 'Mindful Packing Checklist',
+    desc: 'Temple dress codes, monsoon essentials, mountain layering, and regional gear recommendations.',
     href: '/checklist',
     iconColor: '#059669',
     iconBg: '#ECFDF5',
   },
   {
-    icon: '📍',
-    title: 'Nearby Places',
-    desc: 'Find attractions around you',
+    Icon: IconMapPin,
+    title: 'Nearby Heritage & Local Sights',
+    desc: 'Discover uncrowded stepwells, historic cenotaphs, and artisan workshops around you.',
     href: '/nearby',
-    iconColor: '#EF4444',
-    iconBg: '#FEF2F2',
+    iconColor: '#B9653F',
+    iconBg: '#FDF0EC',
   },
   {
-    icon: '🌤',
-    title: 'Weather Guide',
-    desc: 'Best time to visit',
+    Icon: IconSun,
+    title: 'Seasonal Weather Guide',
+    desc: 'Month-by-month temperature, rainfall, and festival calendars for all 36 Indian regions.',
     href: '/weather',
-    iconColor: '#F59E0B',
+    iconColor: '#D97706',
     iconBg: '#FFFBEB',
-  },
-];
-
-const regions = [
-  {
-    name: 'North India',
-    sub: 'Himalayas, Heritage, Spirituality',
-    href: '/destinations?region=north',
-    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    name: 'South India',
-    sub: 'Beaches, Temples, Culture',
-    href: '/destinations?region=south',
-    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    name: 'East India',
-    sub: 'Temples, Nature, Tribal Culture',
-    href: '/destinations?region=east',
-    image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    name: 'West India',
-    sub: 'Rajasthan, Gujarat, Beaches',
-    href: '/destinations?region=west',
-    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    name: 'Central India',
-    sub: 'Forests, Wildlife, Ancient Sites',
-    href: '/destinations?region=central',
-    image: 'https://images.unsplash.com/photo-1571536802807-30451e3955d8?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    name: 'North East India',
-    sub: 'Nature, Adventure, Unique Cultures',
-    href: '/destinations?region=northeast',
-    image: 'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?auto=format&fit=crop&w=700&q=80',
   },
 ];
 
 const essentialInfoCards = [
   {
-    icon: '🛂',
-    title: 'Visa & Entry Rules',
-    desc: 'For international travellers',
+    Icon: IconPassport,
+    title: 'Visa & Entry Protocols',
+    desc: 'Official e-Visa eligibility, Indian immigration rules, and entry guidelines for foreign guests.',
     href: '/travel-help#visa',
-    iconColor: '#10B981',
-    iconBg: '#ECFDF5',
+    iconColor: '#247A72',
+    iconBg: '#EBF4F6',
   },
   {
-    icon: '📞',
-    title: 'Emergency Numbers',
-    desc: '112 • Tourist Helpline 1363',
+    Icon: IconPhoneCall,
+    title: '24/7 National Emergency & Helplines',
+    desc: 'Unified Emergency (112) • Ministry of Tourism 24x7 Multi-lingual Tourist Helpline (1363).',
     href: '/travel-help#emergency',
-    iconColor: '#EF4444',
-    iconBg: '#FEF2F2',
+    iconColor: '#B33951',
+    iconBg: '#FBEAF0',
   },
   {
-    icon: '🏛',
-    title: 'State Tourism Websites',
-    desc: 'Official government links',
+    Icon: IconLandmark,
+    title: 'Official State Tourism Portals',
+    desc: 'Direct, authentic links to state government tourism departments and booking facilities.',
     href: '/travel-help#tourism-portals',
-    iconColor: '#3B82F6',
-    iconBg: '#EFF6FF',
+    iconColor: '#2D68C4',
+    iconBg: '#EAF1F7',
   },
   {
-    icon: '💵',
-    title: 'Currency & Payments',
-    desc: 'Rupee (INR) and travel tips',
+    Icon: IconCreditCard,
+    title: 'Currency, UPI & Digital Payments',
+    desc: 'How international cards, ATMs, forex exchange, and instant UPI QR payments work across India.',
     href: '/travel-help#currency',
-    iconColor: '#F59E0B',
-    iconBg: '#FFFBEB',
+    iconColor: '#D97706',
+    iconBg: '#FFF5E6',
   },
   {
-    icon: '☀️',
-    title: 'Weather Information',
-    desc: 'Season-wise travel guide',
+    Icon: IconSun,
+    title: 'Monsoon & Climate Advisory',
+    desc: 'Real-time seasonal weather, high-altitude acclimatization, and best months to visit.',
     href: '/weather',
-    iconColor: '#EAB308',
-    iconBg: '#FEFCE8',
+    iconColor: '#C58B32',
+    iconBg: '#FEF6E8',
   },
   {
-    icon: '🛡',
-    title: 'Safety Tips',
-    desc: 'Travel safe across India',
+    Icon: IconShield,
+    title: 'Safe Travel & Cultural Etiquette',
+    desc: 'Verified safety guidance, temple customs, authorized guide verification, and mindful travel tips.',
     href: '/travel-help#safety',
-    iconColor: '#F97316',
-    iconBg: '#FFF7ED',
+    iconColor: '#496B55',
+    iconBg: '#EDF5F0',
   },
 ];
 
 export default async function HomePage() {
-  // Fetch real articles, destinations, and itineraries from DB/API
-  const [destRes, articleRes, itinRes] = await Promise.all([
+  // Fetch real articles, destinations, itineraries, and live appearance settings
+  const [destRes, articleRes, itinRes, appearance] = await Promise.all([
     getCollection('destinations', { limit: 6 }),
     getCollection('articles', { limit: 6 }),
     getCollection('itineraries', { limit: 4 }),
+    getSiteAppearance(),
   ]);
 
   const dbDestinations = destRes.state === 'success' && destRes.data?.length ? destRes.data : [];
   const dbArticles = articleRes.state === 'success' && articleRes.data?.length ? articleRes.data : [];
   const dbItineraries = itinRes.state === 'success' && itinRes.data?.length ? itinRes.data : [];
 
+  const heroImage = appearance['site/home/hero'] || DEFAULT_APPEARANCE['site/home/hero'];
+  const ctaBgImage = appearance['site/home/cta-bg'] || DEFAULT_APPEARANCE['site/home/cta-bg'];
+
+  const regions = [
+    {
+      name: 'North India',
+      sub: 'Himalayas, Heritage & Sacred Valleys',
+      href: '/destinations?region=north',
+      image: appearance['site/regions/north'] || DEFAULT_APPEARANCE['site/regions/north'],
+    },
+    {
+      name: 'South India',
+      sub: 'Backwaters, Chola Temples & Coasts',
+      href: '/destinations?region=south',
+      image: appearance['site/regions/south'] || DEFAULT_APPEARANCE['site/regions/south'],
+    },
+    {
+      name: 'East India',
+      sub: 'Sacred Architecture, Art & Tea Hills',
+      href: '/destinations?region=east',
+      image: appearance['site/regions/east'] || DEFAULT_APPEARANCE['site/regions/east'],
+    },
+    {
+      name: 'West India',
+      sub: 'Desert Enclaves, Merchant Havelis & Forts',
+      href: '/destinations?region=west',
+      image: appearance['site/regions/west'] || DEFAULT_APPEARANCE['site/regions/west'],
+    },
+    {
+      name: 'Central India',
+      sub: 'Tiger Reserves, Ancient Caves & Temples',
+      href: '/destinations?region=central',
+      image: appearance['site/regions/central'] || DEFAULT_APPEARANCE['site/regions/central'],
+    },
+    {
+      name: 'North East India',
+      sub: 'Living Root Bridges, Cloud Forests & Tribes',
+      href: '/destinations?region=northeast',
+      image: appearance['site/regions/northeast'] || DEFAULT_APPEARANCE['site/regions/northeast'],
+    },
+  ];
+
   return (
     <main className="by-home-root">
       {/* ========================================================
-          1. HERO SECTION: "India, through every journey"
+          1. EDITORIAL HERO SECTION: "India, through every journey"
           ======================================================== */}
-      <section className="by-hero-section">
-        {/* Full-bleed scenic Kashmir Dal Lake image overlay */}
+      <section
+        className="by-hero-section"
+        style={{
+          backgroundImage: `url(${heroImage})`,
+          backgroundPosition: 'center 35%',
+          backgroundSize: 'cover',
+        }}
+      >
         <div className="by-hero-overlay" aria-hidden="true" />
 
         <div className="by-container by-hero-content">
-          <p className="by-hero-eyebrow">DISCOVER INCREDIBLE INDIA</p>
+          <div className="by-hero-trust-badge">
+            <span className="trust-dot" />
+            <span>VERIFIED TRAVEL JOURNAL &amp; DISCOVERY</span>
+          </div>
+
           <h1 className="by-hero-title">
-            Explore India, Plan<br />Better Trips
+            Explore India, Plan<br />
+            <span className="serif-italic-gold">Better Trips.</span>
           </h1>
+
           <p className="by-hero-subtitle">
-            Your complete travel companion for destinations, itineraries, transport, stays, food, events and practical travel information.
+            Your mindful editorial companion for authentic heritage towns, sacred monuments, living culture, regional routes, and practical travel advisory across all 36 States and Union Territories.
           </p>
 
           {/* Interactive Search Card Widget with Tabs */}
           <HeroSearchWidget />
 
-          {/* Floating Photo Caption Badge */}
-          <div className="by-hero-photo-badge">
-            <button type="button" className="by-badge-arrow" aria-label="Previous photo">‹</button>
-            <div className="by-badge-info">
-              <strong>Dal Lake</strong>
-              <span>Srinagar, Jammu &amp; Kashmir</span>
+          {/* Verified Editorial Highlights Bar */}
+          <div className="by-hero-editorial-pills">
+            <div className="hero-pill-badge">
+              <IconLandmark size={14} color="#C58B32" />
+              <span>Authentic Heritage</span>
             </div>
-            <button type="button" className="by-badge-arrow" aria-label="Next photo">›</button>
-            <div className="by-badge-dots" aria-hidden="true">
-              <span className="dot active" />
-              <span className="dot" />
-              <span className="dot" />
-              <span className="dot" />
+            <div className="hero-pill-badge">
+              <IconRoute size={14} color="#C58B32" />
+              <span>Verified Multimodal Routes</span>
+            </div>
+            <div className="hero-pill-badge">
+              <IconPhoneCall size={14} color="#C58B32" />
+              <span>Official Helplines (112 &amp; 1363)</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          2. EIGHT CIRCULAR TRAVEL-TOOL CATEGORIES
+          2. EIGHT TRAVEL-TOOL PILLS WITH PROFESSIONAL SVG ICONS
           ======================================================== */}
       <section className="by-tools-strip-section">
         <div className="by-container">
           <div className="by-tools-grid">
-            {travelTools.map((tool) => (
-              <Link key={tool.title} href={tool.href} className="by-tool-pill-item">
-                <div
-                  className="by-tool-icon-circle"
-                  style={{ backgroundColor: tool.bg, color: tool.color }}
-                >
-                  <span>{tool.icon}</span>
-                </div>
-                <strong className="by-tool-pill-title">{tool.title}</strong>
-                <span className="by-tool-pill-sub">{tool.sub}</span>
-              </Link>
-            ))}
+            {travelTools.map((tool) => {
+              const { Icon } = tool;
+              return (
+                <Link key={tool.title} href={tool.href} className="by-tool-pill-item">
+                  <div className="by-tool-icon-circle" style={{ backgroundColor: tool.bg, color: tool.color }}>
+                    <Icon size={24} color={tool.color} />
+                  </div>
+                  <strong className="by-tool-pill-title">{tool.title}</strong>
+                  <span className="by-tool-pill-sub">{tool.sub}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          3. POPULAR DESTINATIONS
+          3. FEATURED EDITORIAL STORIES & RECENT JOURNAL POSTS
           ======================================================== */}
       <section className="by-section">
         <div className="by-container">
           <div className="by-section-header">
             <div>
-              <h2 className="by-section-title">Popular Destinations</h2>
-              <p className="by-section-desc">Explore India&apos;s most loved destinations</p>
+              <p className="section-eyebrow">EDITORIAL TRAVEL JOURNAL</p>
+              <h2 className="by-section-title">Stories for the Road</h2>
+              <p className="by-section-desc">In-depth guides, living traditions, and cultural journeys written by BharatYatra editors.</p>
             </div>
-            <Link href="/destinations" className="by-section-more-link">
-              View All Destinations →
+            <Link href="/articles" className="by-section-more-link">
+              <span>All Articles</span>
+              <IconArrowRight size={16} />
             </Link>
           </div>
 
-          <div className="by-destinations-grid">
-            {dbDestinations.length > 0 ? (
-              dbDestinations.map((dest) => (
-                <Link
-                  key={dest.slug}
-                  href={`/destinations/${dest.slug}`}
-                  className="by-dest-card"
-                >
-                  <div className="by-dest-img-wrap">
-                    <img
-                      src={dest.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=900&q=80'}
-                      alt={dest.name_en}
-                      width="600"
-                      height="400"
-                      loading="lazy"
-                    />
-                    <div className="by-dest-gradient" />
-                  </div>
-                  <div className="by-dest-overlay-info">
-                    <h3 className="by-dest-name">{dest.name_en}</h3>
-                    <p className="by-dest-state">{dest.states?.name_en || dest.state_name || 'India'}</p>
-                    <span className="by-dest-tags">{dest.summary_en || 'Heritage · Culture · Monuments'}</span>
-                  </div>
-                  <div className="by-dest-circle-arrow" aria-hidden="true">
-                    →
-                  </div>
-                </Link>
-              ))
+          <div className="by-articles-grid">
+            {dbArticles.length > 0 ? (
+              dbArticles.slice(0, 6).map((art, idx) => {
+                const articleImage = getEditorialImage(art, idx % 2 === 0 ? 'haveli' : 'food');
+                return (
+                  <Link key={art.slug} href={`/articles/${art.slug}`} className="by-article-card">
+                    <div className="by-article-img-wrap">
+                      <img
+                        src={articleImage}
+                        alt={art.title_en}
+                        width="600"
+                        height="360"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span className="article-category-badge">{art.category || 'Travel Guide'}</span>
+                    </div>
+                    <div className="by-article-body">
+                      <h3 className="by-article-title">{art.title_en}</h3>
+                      {art.excerpt_en && <p className="by-article-snippet">{art.excerpt_en}</p>}
+                      <div className="by-article-footer">
+                        <span className="by-article-read-time">
+                          <IconBookOpen size={14} color="#87938F" style={{ marginRight: '5px' }} />
+                          Verified Story
+                        </span>
+                        <span className="by-article-arrow">
+                          <IconArrowRight size={16} color="#247A72" />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
             ) : (
-              <div style={{ gridColumn: '1 / -1', padding: '2.5rem', textAlign: 'center', background: '#F8FAF9', borderRadius: '12px', border: '1px dashed #CBD5E1', color: '#475569' }}>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', color: 'var(--teal-deep)' }}>No published destinations yet.</p>
-                <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', color: '#64748B' }}>Verified destinations published through the BharatYatra Studio will appear here automatically.</p>
+              <div className="by-empty-state-box">
+                <IconBookOpen size={36} color="#247A72" />
+                <p className="empty-title">Curated Stories in Preparation</p>
+                <p className="empty-desc">Our editors are documenting verified destinations across India.</p>
               </div>
             )}
           </div>
@@ -344,51 +390,114 @@ export default async function HomePage() {
       </section>
 
       {/* ========================================================
-          4. PLAN YOUR TRIP (6 TOOLS)
+          4. POPULAR DESTINATIONS
           ======================================================== */}
       <section className="by-section by-section-cream">
         <div className="by-container">
           <div className="by-section-header">
             <div>
-              <h2 className="by-section-title">Plan Your Trip</h2>
-              <p className="by-section-desc">Useful tools to make your India journey easier</p>
+              <p className="section-eyebrow">CURATED DISCOVERY</p>
+              <h2 className="by-section-title">Living Heritage &amp; Destinations</h2>
+              <p className="by-section-desc">Sacred monuments, living heritage enclaves, and timeless landscapes across India.</p>
             </div>
-            <Link href="/trip-planner" className="by-section-more-link">
-              View All Tools →
+            <Link href="/destinations" className="by-section-more-link">
+              <span>View All Destinations</span>
+              <IconArrowRight size={16} />
             </Link>
           </div>
 
-          <div className="by-plan-tools-grid">
-            {planTripTools.map((tool) => (
-              <Link key={tool.title} href={tool.href} className="by-plan-tool-card">
-                <div className="by-plan-tool-icon" style={{ backgroundColor: tool.iconBg, color: tool.iconColor }}>
-                  <span>{tool.icon}</span>
-                </div>
-                <div className="by-plan-tool-content">
-                  <h3 className="by-plan-tool-title">{tool.title}</h3>
-                  <p className="by-plan-tool-desc">{tool.desc}</p>
-                </div>
-                <div className="by-plan-tool-arrow" aria-hidden="true">
-                  →
-                </div>
-              </Link>
-            ))}
+          <div className="by-destinations-grid">
+            {dbDestinations.length > 0 ? (
+              dbDestinations.map((dest, idx) => {
+                const destImage = getEditorialImage(dest, idx === 0 ? 'haveli' : 'heritage');
+                return (
+                  <Link key={dest.slug} href={`/destinations/${dest.slug}`} className="by-dest-card">
+                    <div className="by-dest-img-wrap">
+                      <img
+                        src={destImage}
+                        alt={dest.name_en}
+                        width="600"
+                        height="400"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="by-dest-gradient" />
+                    </div>
+                    <div className="by-dest-overlay-info">
+                      <h3 className="by-dest-name">{dest.name_en}</h3>
+                      <p className="by-dest-state">{dest.states?.name_en || dest.state_name || 'Rajasthan, India'}</p>
+                      <span className="by-dest-tags">{dest.summary_en || 'Merchant Havelis · Fresco Murals · Living Heritage'}</span>
+                    </div>
+                    <div className="by-dest-circle-arrow" aria-hidden="true">
+                      <IconArrowRight size={16} color="#153E3A" />
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="by-empty-state-box">
+                <IconMapPin size={36} color="#247A72" />
+                <p className="empty-title">Published Destinations</p>
+                <p className="empty-desc">Verified destinations published through the BharatYatra Studio will appear here.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          5. EXPLORE INDIA BY REGION (6 REGIONS)
+          5. PLAN YOUR TRIP SUITE (6 CARDS WITH PROFESSIONAL SVGS)
           ======================================================== */}
       <section className="by-section">
         <div className="by-container">
           <div className="by-section-header">
             <div>
+              <p className="section-eyebrow">TRAVEL TOOLKIT</p>
+              <h2 className="by-section-title">Plan Your India Journey</h2>
+              <p className="by-section-desc">Practical, vetted tools designed to make Indian travel seamless and predictable.</p>
+            </div>
+            <Link href="/trip-planner" className="by-section-more-link">
+              <span>Open Trip Planner</span>
+              <IconArrowRight size={16} />
+            </Link>
+          </div>
+
+          <div className="by-plan-tools-grid">
+            {planTripTools.map((tool) => {
+              const { Icon } = tool;
+              return (
+                <Link key={tool.title} href={tool.href} className="by-plan-tool-card">
+                  <div className="by-plan-tool-icon" style={{ backgroundColor: tool.iconBg, color: tool.iconColor }}>
+                    <Icon size={22} color={tool.iconColor} />
+                  </div>
+                  <div className="by-plan-tool-content">
+                    <h3 className="by-plan-tool-title">{tool.title}</h3>
+                    <p className="by-plan-tool-desc">{tool.desc}</p>
+                  </div>
+                  <div className="by-plan-tool-arrow" aria-hidden="true">
+                    <IconArrowRight size={18} color={tool.iconColor} />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          6. EXPLORE INDIA BY REGION (6 REGIONS)
+          ======================================================== */}
+      <section className="by-section by-section-cream">
+        <div className="by-container">
+          <div className="by-section-header">
+            <div>
+              <p className="section-eyebrow">GEOGRAPHIC CIRCUITS</p>
               <h2 className="by-section-title">Explore India by Region</h2>
-              <p className="by-section-desc">Discover destinations across different regions</p>
+              <p className="by-section-desc">Discover heritage, landscapes, and distinct cultural identities across every corner of India.</p>
             </div>
             <Link href="/states" className="by-section-more-link">
-              All 36 States &amp; UTs →
+              <span>All 36 States &amp; UTs</span>
+              <IconArrowRight size={16} />
             </Link>
           </div>
 
@@ -396,18 +505,15 @@ export default async function HomePage() {
             {regions.map((region) => (
               <Link key={region.name} href={region.href} className="by-region-card">
                 <div className="by-region-img-wrap">
-                  <img
-                    src={region.image}
-                    alt={region.name}
-                    width="600"
-                    height="320"
-                    loading="lazy"
-                  />
+                  <img src={region.image} alt={region.name} width="600" height="320" loading="lazy" decoding="async" />
                   <div className="by-region-gradient" />
                 </div>
                 <div className="by-region-content">
                   <h3 className="by-region-name">{region.name}</h3>
-                  <p className="by-region-sub">{region.sub} →</p>
+                  <p className="by-region-sub">
+                    <span>{region.sub}</span>
+                    <IconArrowRight size={14} style={{ display: 'inline', marginLeft: '6px' }} />
+                  </p>
                 </div>
               </Link>
             ))}
@@ -416,152 +522,124 @@ export default async function HomePage() {
       </section>
 
       {/* ========================================================
-          6. SUGGESTED ITINERARIES (4 READY-MADE ITINERARIES)
+          7. SUGGESTED ITINERARIES
+          ======================================================== */}
+      {dbItineraries.length > 0 && (
+        <section className="by-section">
+          <div className="by-container">
+            <div className="by-section-header">
+              <div>
+                <p className="section-eyebrow">READY-MADE JOURNEYS</p>
+                <h2 className="by-section-title">Curated Itineraries</h2>
+                <p className="by-section-desc">Tested day-by-day itineraries with transport notes and verified timing.</p>
+              </div>
+              <Link href="/itineraries" className="by-section-more-link">
+                <span>View All Itineraries</span>
+                <IconArrowRight size={16} />
+              </Link>
+            </div>
+
+            <div className="by-itineraries-grid">
+              {dbItineraries.map((itin, idx) => {
+                const itinImage = getEditorialImage(itin, idx % 2 === 0 ? 'routes' : 'heritage');
+                return (
+                  <Link key={itin.title_en || itin.slug} href={`/itineraries/${itin.slug}`} className="by-itin-card">
+                    <div className="by-itin-img-wrap">
+                      <img src={itinImage} alt={itin.title_en} width="600" height="360" loading="lazy" decoding="async" />
+                    </div>
+                    <div className="by-itin-body">
+                      <h3 className="by-itin-title">{itin.title_en}</h3>
+                      <p className="by-itin-sub">{itin.summary_en}</p>
+                      <div className="by-itin-meta">
+                        <span className="by-itin-meta-item">
+                          <IconClock size={13} style={{ marginRight: '4px' }} />
+                          {itin.duration_days ? `${itin.duration_days} Days` : 'Multi-day'}
+                        </span>
+                        <span className="by-itin-meta-item">
+                          <IconRoute size={13} style={{ marginRight: '4px' }} />
+                          Verified
+                        </span>
+                      </div>
+                      <div className="by-itin-footer">
+                        <span className="by-itin-badge">{itin.category || 'Route'}</span>
+                        <span className="by-itin-arrow">
+                          <IconArrowRight size={16} />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================
+          8. ESSENTIAL TRAVEL ADVISORY (6 PILLS WITH PROFESSIONAL SVGS)
           ======================================================== */}
       <section className="by-section by-section-cream">
         <div className="by-container">
           <div className="by-section-header">
             <div>
-              <h2 className="by-section-title">Suggested Itineraries</h2>
-              <p className="by-section-desc">Ready-made itineraries for your perfect trip</p>
-            </div>
-            <Link href="/itineraries" className="by-section-more-link">
-              View All Itineraries →
-            </Link>
-          </div>
-
-          <div className="by-itineraries-grid">
-            {dbItineraries.length > 0 ? (
-              dbItineraries.map((itin) => (
-                <Link key={itin.title_en || itin.slug} href={`/itineraries/${itin.slug}`} className="by-itin-card">
-                  <div className="by-itin-img-wrap">
-                    <img
-                      src={itin.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80'}
-                      alt={itin.title_en}
-                      width="600"
-                      height="360"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="by-itin-body">
-                    <h3 className="by-itin-title">{itin.title_en}</h3>
-                    <p className="by-itin-sub">{itin.summary_en}</p>
-                    <div className="by-itin-meta">
-                      <span className="by-itin-meta-item">⏱ {itin.duration_days ? `${itin.duration_days} Days` : 'Multi-day'}</span>
-                      <span className="by-itin-meta-item">📍 Verified Route</span>
-                    </div>
-                    <div className="by-itin-footer">
-                      <span className="by-itin-badge">{itin.category || 'Route'}</span>
-                      <span className="by-itin-arrow">→</span>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div style={{ gridColumn: '1 / -1', padding: '2.5rem 1.5rem', textAlign: 'center', background: '#FFFFFF', borderRadius: '16px', border: '1px dashed #E2E8F0', color: '#475569' }}>
-                <p style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: 'var(--teal-deep)' }}>Curated Itineraries in Preparation</p>
-                <p style={{ margin: '0.5rem 0 1.25rem', fontSize: '0.95rem', color: '#64748B' }}>Our editorial team is crafting verified day-by-day itineraries. In the meantime, use our Trip Planner to create your custom route.</p>
-                <Link href="/trip-planner" style={{ display: 'inline-block', padding: '0.6rem 1.25rem', borderRadius: '8px', background: 'var(--teal-primary)', color: '#fff', textDecoration: 'none', fontWeight: 500 }}>
-                  Open Trip Planner →
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================
-          7. LATEST FROM OUR BLOG
-          ======================================================== */}
-      <section className="by-section">
-        <div className="by-container">
-          <div className="by-section-header">
-            <div>
-              <h2 className="by-section-title">Latest from Our Blog</h2>
-              <p className="by-section-desc">Travel tips, guides and stories from across India</p>
-            </div>
-            <Link href="/articles" className="by-section-more-link">
-              View All Articles →
-            </Link>
-          </div>
-
-          <div className="by-articles-grid">
-            {dbArticles.length > 0 ? (
-              dbArticles.slice(0, 6).map((art) => (
-                <Link key={art.slug} href={`/articles/${art.slug}`} className="by-article-card">
-                  <div className="by-article-img-wrap">
-                    <img
-                      src={art.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=700&q=80'}
-                      alt={art.title_en}
-                      width="600"
-                      height="360"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="by-article-body">
-                    <h3 className="by-article-title">{art.title_en}</h3>
-                    <div className="by-article-footer">
-                      <span className="by-article-read-time">📖 {art.category || 'Travel Guide'}</span>
-                      <span className="by-article-arrow">→</span>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div style={{ gridColumn: '1 / -1', padding: '2.5rem', textAlign: 'center', background: '#F8FAF9', borderRadius: '12px', border: '1px dashed #CBD5E1', color: '#475569' }}>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem', color: 'var(--teal-deep)' }}>No published stories yet.</p>
-                <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', color: '#64748B' }}>Travel guides, regional tips, and cultural stories will appear here once published.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================
-          8. ESSENTIAL TRAVEL INFORMATION (6 PILLS)
-          ======================================================== */}
-      <section className="by-section by-section-cream">
-        <div className="by-container">
-          <div className="by-section-header">
-            <div>
+              <p className="section-eyebrow">TRAVEL SAFETY &amp; READINESS</p>
               <h2 className="by-section-title">Essential Travel Information</h2>
-              <p className="by-section-desc">Quick access to important information for travellers</p>
+              <p className="by-section-desc">Quick, verified access to official emergency numbers, government links, and payment protocols.</p>
             </div>
             <Link href="/travel-help" className="by-section-more-link">
-              View All →
+              <span>All Advisories</span>
+              <IconArrowRight size={16} />
             </Link>
           </div>
 
           <div className="by-essential-info-grid">
-            {essentialInfoCards.map((info) => (
-              <Link key={info.title} href={info.href} className="by-essential-card">
-                <div className="by-essential-icon" style={{ backgroundColor: info.iconBg, color: info.iconColor }}>
-                  <span>{info.icon}</span>
-                </div>
-                <div className="by-essential-content">
-                  <h3 className="by-essential-title">{info.title}</h3>
-                  <p className="by-essential-desc">{info.desc}</p>
-                </div>
-              </Link>
-            ))}
+            {essentialInfoCards.map((info) => {
+              const { Icon } = info;
+              return (
+                <Link key={info.title} href={info.href} className="by-essential-card">
+                  <div className="by-essential-icon" style={{ backgroundColor: info.iconBg, color: info.iconColor }}>
+                    <Icon size={22} color={info.iconColor} />
+                  </div>
+                  <div className="by-essential-content">
+                    <h3 className="by-essential-title">{info.title}</h3>
+                    <p className="by-essential-desc">{info.desc}</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ========================================================
-          9. BOTTOM TRIP-PLANNING CTA
+          9. EDITORIAL BOTTOM TRIP-PLANNING CTA
           ======================================================== */}
-      <section className="by-bottom-cta-section">
+      <section
+        className="by-bottom-cta-section"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(16, 47, 44, 0.88) 0%, rgba(16, 47, 44, 0.94) 100%), url(${ctaBgImage})`,
+          backgroundPosition: 'center 40%',
+          backgroundSize: 'cover',
+        }}
+      >
         <div className="by-container">
           <div className="by-cta-content">
+            <span className="by-cta-eyebrow">YOUR JOURNEY AWAITS</span>
             <h2 className="by-cta-title">Start Planning Your India Journey Today</h2>
             <p className="by-cta-desc">
-              Discover destinations, build your itinerary and get practical travel information — all in one place.
+              Discover authentic heritage monuments, craft optimized day-by-day itineraries, check verified train &amp; bus routes, and travel with mindful local knowledge.
             </p>
+            <div className="by-cta-actions">
+              <Link href="/trip-planner" className="by-cta-btn primary">
+                <span>Plan Your Trip Now</span>
+                <IconArrowRight size={16} />
+              </Link>
+              <Link href="/articles" className="by-cta-btn secondary">
+                <span>Read Travel Guides</span>
+                <IconBookOpen size={16} />
+              </Link>
+            </div>
           </div>
-          <Link href="/trip-planner" className="by-cta-btn">
-            Plan Your Trip Now →
-          </Link>
         </div>
       </section>
     </main>
