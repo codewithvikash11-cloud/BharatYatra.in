@@ -1,16 +1,151 @@
-// Zero-dependency, safe Markdown to JSX parser for BharatYatra editorial content
+// Safe, Rich Article Parser & Renderer for BharatYatra Editorial Content
+// Seamlessly supports both Tiptap rich HTML and legacy Markdown content
 import React from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 
+export function isHTML(content) {
+  if (!content || typeof content !== 'string') return false;
+  return /<\/?(p|h[1-6]|div|span|ul|ol|li|blockquote|table|img|a|br|hr)\b/i.test(content);
+}
+
+export function slugifyHeading(text) {
+  return (text || '')
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Extract H2 and H3 headings for the Table of Contents
+ */
+export function extractHeadings(content) {
+  if (!content || typeof content !== 'string') return [];
+  const headings = [];
+  const slugCounts = {};
+
+  if (isHTML(content)) {
+    const headingRegex = /<h([2-3])[^>]*>(.*?)<\/h\1>/gi;
+    let match;
+    while ((match = headingRegex.exec(content)) !== null) {
+      const level = parseInt(match[1], 10);
+      const rawText = match[2].replace(/<[^>]*>/g, '').trim();
+      if (!rawText) continue;
+
+      let baseSlug = slugifyHeading(rawText) || `section-${headings.length + 1}`;
+      let slug = baseSlug;
+      if (slugCounts[slug]) {
+        slugCounts[slug] += 1;
+        slug = `${baseSlug}-${slugCounts[slug]}`;
+      } else {
+        slugCounts[slug] = 1;
+      }
+
+      headings.push({
+        id: slug,
+        level,
+        text: rawText,
+      });
+    }
+  } else {
+    // Markdown
+    const lines = content.replace(/\r\n/g, '\n').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      let level = 0;
+      let rawText = '';
+      if (trimmed.startsWith('## ')) {
+        level = 2;
+        rawText = trimmed.slice(3).trim();
+      } else if (trimmed.startsWith('### ')) {
+        level = 3;
+        rawText = trimmed.slice(4).trim();
+      }
+      if (level > 0 && rawText) {
+        let baseSlug = slugifyHeading(rawText) || `section-${headings.length + 1}`;
+        let slug = baseSlug;
+        if (slugCounts[slug]) {
+          slugCounts[slug] += 1;
+          slug = `${baseSlug}-${slugCounts[slug]}`;
+        } else {
+          slugCounts[slug] = 1;
+        }
+        headings.push({
+          id: slug,
+          level,
+          text: rawText,
+        });
+      }
+    }
+  }
+
+  return headings;
+}
+
+/**
+ * Clean & Sanitize HTML with XSS prevention and inject heading IDs
+ */
+export function sanitizeAndPrepareHTML(html) {
+  if (!html) return '';
+
+  const clean = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'p', 'span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'mark',
+      'a', 'ul', 'ol', 'li', 'blockquote', 'hr', 'br',
+      'img', 'figure', 'figcaption',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td',
+      'div', 'iframe'
+    ],
+    ALLOWED_ATTR: [
+      'class', 'id', 'style', 'href', 'target', 'rel', 'src', 'alt', 'title',
+      'width', 'height', 'loading', 'decoding',
+      'data-callout-type', 'data-youtube-video',
+      'frameborder', 'allow', 'allowfullscreen'
+    ],
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    ADD_ATTR: ['target'],
+  });
+
+  const slugCounts = {};
+
+  // Inject anchor IDs into H2 and H3 if missing
+  let withHeadings = clean.replace(/<h([2-3])([^>]*)>(.*?)<\/h\1>/gi, (match, level, attrs, inner) => {
+    if (/\bid=["']([^"']+)["']/i.test(attrs)) {
+      return match;
+    }
+    const rawText = inner.replace(/<[^>]*>/g, '').trim();
+    let baseSlug = slugifyHeading(rawText) || `section-${level}`;
+    let slug = baseSlug;
+    if (slugCounts[slug]) {
+      slugCounts[slug]++;
+      slug = `${baseSlug}-${slugCounts[slug]}`;
+    } else {
+      slugCounts[slug] = 1;
+    }
+    return `<h${level}${attrs} id="${slug}">${inner}</h${level}>`;
+  });
+
+  // Wrap tables in responsive container if not already wrapped
+  withHeadings = withHeadings.replace(/(<table[\s\S]*?<\/table>)/gi, (match) => {
+    return `<div class="by-table-wrapper">${match}</div>`;
+  });
+
+  return withHeadings;
+}
+
+/**
+ * Legacy Markdown Parser fallback
+ */
 function parseInline(text) {
   if (!text) return null;
-
-  // Split by inline markdown patterns: images, links, bold, italic, code
   const tokens = [];
   let remaining = text;
   let key = 0;
 
   while (remaining.length > 0) {
-    // 1. Image: ![alt](url)
     const imgMatch = remaining.match(/^!\[([^\]]*)\]\(([^)]+)\)/);
     if (imgMatch) {
       tokens.push(
@@ -26,7 +161,6 @@ function parseInline(text) {
       continue;
     }
 
-    // 2. Link: [text](url)
     const linkMatch = remaining.match(/^\[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
       const isExternal = linkMatch[2].startsWith('http');
@@ -44,7 +178,6 @@ function parseInline(text) {
       continue;
     }
 
-    // 3. Bold: **text**
     const boldMatch = remaining.match(/^\*\*([^*]+)\*\*/);
     if (boldMatch) {
       tokens.push(<strong key={key++}>{boldMatch[1]}</strong>);
@@ -52,7 +185,6 @@ function parseInline(text) {
       continue;
     }
 
-    // 4. Italic: *text* or _text_
     const italicMatch = remaining.match(/^\*([^*]+)\*/) || remaining.match(/^_([^_]+)_/);
     if (italicMatch) {
       tokens.push(<em key={key++}>{italicMatch[1]}</em>);
@@ -60,7 +192,6 @@ function parseInline(text) {
       continue;
     }
 
-    // Plain text up to next special character
     const nextSpecial = remaining.search(/([!\[*_])/);
     if (nextSpecial === -1) {
       tokens.push(remaining);
@@ -77,14 +208,12 @@ function parseInline(text) {
   return tokens;
 }
 
-export function MarkdownContent({ content }) {
-  if (!content) return null;
-
+function renderLegacyMarkdown(content) {
   const lines = content.replace(/\r\n/g, '\n').split('\n');
   const elements = [];
   let key = 0;
   let inList = false;
-  let listType = null; // 'ul' | 'ol'
+  let listType = null;
   let listItems = [];
 
   const flushList = () => {
@@ -120,19 +249,18 @@ export function MarkdownContent({ content }) {
       continue;
     }
 
-    // Horizontal Rule
     if (/^(\*\*\*|---|___)$/.test(line)) {
       flushList();
       elements.push(<hr key={key++} className="article-divider" />);
       continue;
     }
 
-    // Headings
     if (line.startsWith('### ')) {
       flushList();
+      const text = line.slice(4);
       elements.push(
-        <h3 key={key++} className="article-heading-3">
-          {parseInline(line.slice(4))}
+        <h3 key={key++} id={slugifyHeading(text)} className="article-heading-3">
+          {parseInline(text)}
         </h3>
       );
       continue;
@@ -140,9 +268,10 @@ export function MarkdownContent({ content }) {
 
     if (line.startsWith('## ')) {
       flushList();
+      const text = line.slice(3);
       elements.push(
-        <h2 key={key++} className="article-heading-2">
-          {parseInline(line.slice(3))}
+        <h2 key={key++} id={slugifyHeading(text)} className="article-heading-2">
+          {parseInline(text)}
         </h2>
       );
       continue;
@@ -150,15 +279,15 @@ export function MarkdownContent({ content }) {
 
     if (line.startsWith('# ')) {
       flushList();
+      const text = line.slice(2);
       elements.push(
-        <h2 key={key++} className="article-heading-2">
-          {parseInline(line.slice(2))}
+        <h2 key={key++} id={slugifyHeading(text)} className="article-heading-2">
+          {parseInline(text)}
         </h2>
       );
       continue;
     }
 
-    // Blockquote
     if (line.startsWith('> ')) {
       flushList();
       elements.push(
@@ -169,7 +298,6 @@ export function MarkdownContent({ content }) {
       continue;
     }
 
-    // Ordered list: "1. "
     const olMatch = line.match(/^(\d+)\.\s+(.*)$/);
     if (olMatch) {
       if (!inList || listType !== 'ol') {
@@ -181,7 +309,6 @@ export function MarkdownContent({ content }) {
       continue;
     }
 
-    // Unordered list: "- " or "* "
     const ulMatch = line.match(/^[-*]\s+(.*)$/);
     if (ulMatch) {
       if (!inList || listType !== 'ul') {
@@ -193,7 +320,6 @@ export function MarkdownContent({ content }) {
       continue;
     }
 
-    // Regular paragraph
     flushList();
     elements.push(
       <p key={key++} className="article-paragraph">
@@ -203,6 +329,51 @@ export function MarkdownContent({ content }) {
   }
 
   flushList();
-
   return <div className="article-prose">{elements}</div>;
+}
+
+/**
+ * Universal Content Component:
+ * - If HTML: cleans with DOMPurify and renders dangerouslySetInnerHTML with complete security
+ * - If Markdown: parses with fallback parser
+ */
+export function MarkdownContent({ content }) {
+  if (!content) return null;
+
+  if (isHTML(content)) {
+    const preparedHtml = sanitizeAndPrepareHTML(content);
+    return (
+      <div
+        className="article-prose"
+        dangerouslySetInnerHTML={{ __html: preparedHtml }}
+      />
+    );
+  }
+
+  return renderLegacyMarkdown(content);
+}
+
+/**
+ * Table of Contents Component
+ */
+export function TableOfContents({ headings }) {
+  if (!headings || headings.length < 2) return null;
+
+  return (
+    <nav className="by-toc-card" aria-label="Table of Contents">
+      <div className="by-toc-header">
+        <span>📑</span>
+        <span>Table of Contents</span>
+      </div>
+      <ol className="by-toc-list">
+        {headings.map((h, i) => (
+          <li key={i} className={`by-toc-item level-${h.level}`}>
+            <a href={`#${h.id}`} className="by-toc-link">
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
 }

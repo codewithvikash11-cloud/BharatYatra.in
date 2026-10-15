@@ -1,0 +1,351 @@
+/* ==========================================================================
+   BharatYatra Editorial Article Stylesheet
+   Supports rich Tiptap editor output, markdown, tables, callouts, and TOC
+   ========================================================================== */
+
+.article-page-root {
+  background-color: var(--bg-surface, #FFFDF8);
+  color: var(--text-primary, #173633);
+  min-height: 100vh;
+}
+
+/* --- Table of Contents Card --- */
+.by-toc-card {
+  background: var(--cream, #F9F6F0);
+  border: 1px solid var(--border-color, #E5E0D5);
+  border-left: 4px solid var(--gold-accent, #C58B32);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0 2.5rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.by-toc-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading, "Playfair Display", Georgia, serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--teal-deep, #153E3A);
+  margin-bottom: 0.85rem;
+}
+
+.by-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.by-toc-item {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.by-toc-item.level-3 {
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.by-toc-link {
+  color: var(--teal-primary, #1B5E55);
+  text-decoration: none;
+  transition: color 0.15s ease, padding-left 0.15s ease;
+  display: inline-block;
+}
+
+.by-toc-link:hover {
+  color: var(--gold-accent, #C58B32);
+  padding-left: 4px;
+  text-decoration: underline;
+}
+
+/* --- Social Share Bar --- */
+.by-share-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2rem 0;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--border-color, #E5E0D5);
+  border-bottom: 1px solid var(--border-color, #E5E0D5);
+  flex-wrap: wrap;
+}
+
+.by-share-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-muted, #72807C);
+  margin-right: 0.25rem;
+}
+
+.by-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--cream, #F7F3E8);
+  color: var(--teal-deep, #153E3A);
+  border: 1px solid var(--border-color, #E5E0D5);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.by-share-btn:hover {
+  background: var(--teal-deep, #153E3A);
+  color: #FFFDF8;
+  border-color: var(--teal-deep, #153E3A);
+  transform: translateY(-1px);
+}
+
+/* --- Prose Body Typography --- */
+.article-prose {
+  font-size: 1.125rem;
+  line-height: 1.85;
+  color: var(--text-primary, #1E2E2B);
+  word-break: break-word;
+}
+
+.article-prose p {
+  margin: 0 0 1.5rem 0;
+}
+
+.article-prose h2 {
+  font-family: var(--font-heading, "Playfair Display", Georgia, serif);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--teal-deep, #153E3A);
+  margin: 2.75rem 0 1rem 0;
+  line-height: 1.3;
+  scroll-margin-top: 90px;
+  position: relative;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid rgba(197, 139, 50, 0.2);
+}
+
+.article-prose h3 {
+  font-family: var(--font-heading, "Playfair Display", Georgia, serif);
+  font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+  color: var(--teal-deep, #153E3A);
+  margin: 2.25rem 0 0.85rem 0;
+  line-height: 1.35;
+  scroll-margin-top: 90px;
+}
+
+.article-prose h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--teal-primary, #1B5E55);
+  margin: 1.75rem 0 0.65rem 0;
+  scroll-margin-top: 90px;
+}
+
+.article-prose a {
+  color: var(--teal-primary, #1B5E55);
+  text-decoration: underline;
+  text-decoration-color: rgba(27, 94, 85, 0.4);
+  text-underline-offset: 3px;
+  transition: all 0.15s ease;
+}
+
+.article-prose a:hover {
+  color: var(--gold-accent, #C58B32);
+  text-decoration-color: var(--gold-accent, #C58B32);
+}
+
+.article-prose blockquote {
+  border-left: 4px solid var(--gold-accent, #C58B32);
+  background: var(--cream, #F7F3E8);
+  margin: 2rem 0;
+  padding: 1.25rem 1.75rem;
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  color: var(--teal-deep, #153E3A);
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
+
+.article-prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.article-prose hr {
+  border: none;
+  border-top: 1px solid var(--border-color, #E5E0D5);
+  margin: 3rem 0;
+}
+
+.article-prose ul,
+.article-prose ol {
+  margin: 0 0 1.6rem 0;
+  padding-left: 1.75rem;
+}
+
+.article-prose li {
+  margin-bottom: 0.5rem;
+}
+
+/* --- Callout Boxes --- */
+.by-callout {
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  margin: 2rem 0;
+  border-left: 4px solid;
+  line-height: 1.7;
+  font-size: 1.02rem;
+}
+
+.by-callout p:last-child {
+  margin-bottom: 0;
+}
+
+.by-callout-tip {
+  background: #EFF8F5;
+  border-left-color: #1B5E55;
+  color: #103B35;
+}
+
+.by-callout-warning {
+  background: #FFF9ED;
+  border-left-color: #D97706;
+  color: #78350F;
+}
+
+.by-callout-info {
+  background: #F0F6FF;
+  border-left-color: #2563EB;
+  color: #1E3A8A;
+}
+
+.by-callout-heritage {
+  background: #FBF6EC;
+  border-left-color: #C58B32;
+  color: #5C3E08;
+}
+
+/* --- Responsive Tables --- */
+.by-table-wrapper {
+  overflow-x: auto;
+  margin: 2.25rem 0;
+  border: 1px solid var(--border-color, #E5E0D5);
+  border-radius: 10px;
+  background: #FFFDF8;
+}
+
+.article-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.96rem;
+  text-align: left;
+}
+
+.article-prose th {
+  background: var(--cream, #F7F3E8);
+  color: var(--teal-deep, #153E3A);
+  font-weight: 700;
+  padding: 0.85rem 1.15rem;
+  border-bottom: 2px solid var(--border-color, #E5E0D5);
+  letter-spacing: 0.02em;
+}
+
+.article-prose td {
+  padding: 0.75rem 1.15rem;
+  border-bottom: 1px solid var(--border-color, #E5E0D5);
+  color: var(--text-primary, #173633);
+}
+
+.article-prose tr:last-child td {
+  border-bottom: none;
+}
+
+.article-prose tr:nth-child(even) td {
+  background: rgba(247, 243, 232, 0.35);
+}
+
+/* --- Inline & Featured Images --- */
+.article-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  display: block;
+}
+
+.article-prose figure {
+  margin: 2.25rem 0;
+}
+
+.article-prose figcaption {
+  font-size: 0.85rem;
+  color: var(--text-muted, #72807C);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* --- YouTube Videos Embed --- */
+.article-prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  margin: 2rem 0;
+  border: 1px solid var(--border-color, #E5E0D5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Attractions in Destination Grid --- */
+.attractions-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.attraction-mini-card {
+  background: #FFFDF8;
+  border: 1px solid var(--border-color, #E5E0D5);
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.attraction-mini-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border-color: var(--teal-primary, #1B5E55);
+}
+
+.attraction-mini-card h4 {
+  font-family: var(--font-heading, "Playfair Display", Georgia, serif);
+  font-size: 1.15rem;
+  color: var(--teal-deep, #153E3A);
+  margin: 0 0 0.4rem 0;
+}
+
+.attraction-mini-card p {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #4B5B57);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.attraction-mini-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gold-accent, #C58B32);
+  margin-bottom: 0.35rem;
+}

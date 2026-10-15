@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import { createHmac } from 'node:crypto';
 import prisma from '../../../../lib/db.js';
 import Link from 'next/link';
-import { MarkdownContent } from '../../../../lib/markdown.js';
+import { MarkdownContent, TableOfContents, extractHeadings } from '../../../../lib/markdown.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../../components/article-templates.js';
+import '../../../articles/article.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -228,6 +229,9 @@ function renderArticlePreview(item) {
 
       {/* Content-Type Specialized Extras */}
       <ContentTypeTemplateExtras category={item.category} destination={item.destinations} />
+
+      {/* Table of Contents */}
+      <TableOfContents headings={extractHeadings(item.body_en)} />
 
       {/* Body Content */}
       <div className="by-article-body" style={{ color: '#173633', fontSize: '1.05rem', lineHeight: 1.8 }}>

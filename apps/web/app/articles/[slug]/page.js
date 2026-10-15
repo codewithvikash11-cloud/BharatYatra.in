@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getContent } from '../../../lib/content-api.mjs';
-import { MarkdownContent } from '../../../lib/markdown.js';
+import { MarkdownContent, TableOfContents, extractHeadings } from '../../../lib/markdown.js';
 import prisma from '../../../lib/db.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
+import { SocialShare } from '../../../components/social-share.js';
+import '../article.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,8 +68,8 @@ export default async function ArticleDetailPage({ params }) {
       const dbArticle = await prisma.articles.findFirst({
         where: { slug, status: 'PUBLISHED' },
         include: {
-          destinations: { select: { slug: true, name_en: true, state_name: true } },
-          states: { select: { slug: true, name_en: true } },
+          destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
+          states: { select: { id: true, slug: true, name_en: true } },
         },
       });
       if (dbArticle) item = dbArticle;
@@ -99,6 +101,28 @@ export default async function ArticleDetailPage({ params }) {
     });
   } catch {}
 
+  // Fetch related attractions if destination is attached
+  let relatedAttractions = [];
+  const destId = item.destination_id || item.destinations?.id;
+  if (destId) {
+    try {
+      relatedAttractions = await prisma.attractions.findMany({
+        where: {
+          destination_id: destId,
+          status: 'PUBLISHED',
+        },
+        take: 3,
+        select: {
+          slug: true,
+          name_en: true,
+          category: true,
+          description_en: true,
+          destinations: { select: { slug: true } },
+        },
+      });
+    } catch {}
+  }
+
   const coverUrl = item.cover_image_url || '/hero.jpg';
   const wordCount = (item.body_en || item.excerpt_en || '').split(/\s+/).length;
   const readingTime = Math.max(3, Math.ceil(wordCount / 200));
@@ -108,6 +132,8 @@ export default async function ArticleDetailPage({ params }) {
 
   const destination = item.destinations;
   const state = item.states;
+  const articleUrl = item.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${encodeURIComponent(slug)}`;
+  const headings = extractHeadings(item.body_en);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -131,7 +157,7 @@ export default async function ArticleDetailPage({ params }) {
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://bharat-yatra-in.vercel.app/articles/${slug}`,
+      '@id': articleUrl,
     },
   };
 
@@ -142,7 +168,7 @@ export default async function ArticleDetailPage({ params }) {
       { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://bharat-yatra-in.vercel.app' },
       { '@type': 'ListItem', position: 2, name: 'Travel Guides', item: 'https://bharat-yatra-in.vercel.app/articles' },
       { '@type': 'ListItem', position: 3, name: item.category || 'Culture', item: `https://bharat-yatra-in.vercel.app/articles` },
-      { '@type': 'ListItem', position: 4, name: item.title_en, item: `https://bharat-yatra-in.vercel.app/articles/${slug}` },
+      { '@type': 'ListItem', position: 4, name: item.title_en, item: articleUrl },
     ],
   };
 
@@ -204,7 +230,7 @@ export default async function ArticleDetailPage({ params }) {
           )}
 
           {/* Byline / Metadata */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '1rem 0', margin: '1.5rem 0 2rem 0', fontSize: '0.9rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '1rem 0', margin: '1.5rem 0 1rem 0', fontSize: '0.9rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--teal-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFDF8', fontWeight: 700, fontSize: '0.95rem' }}>
                 BY
@@ -216,9 +242,12 @@ export default async function ArticleDetailPage({ params }) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', fontSize: '0.85rem' }}>
               <span>⏱ {readingTime} min read</span>
-              <span>📖 English Edition</span>
+              <span>📖 Verified Editorial</span>
             </div>
           </div>
+
+          {/* Social Share Bar */}
+          <SocialShare title={item.title_en} url={articleUrl} />
         </div>
 
         {/* ====================================================
@@ -246,9 +275,12 @@ export default async function ArticleDetailPage({ params }) {
         </div>
 
         {/* ====================================================
-            3. ARTICLE BODY (MARKDOWN PROSE)
+            3. ARTICLE BODY & TABLE OF CONTENTS
             ==================================================== */}
         <div className="page-shell" style={{ maxWidth: '820px', paddingBottom: '3rem' }}>
+          {/* Table of contents automatically rendered from H2/H3 headings */}
+          <TableOfContents headings={headings} />
+
           <article className="article-prose-container" style={{ fontSize: '1.1rem', lineHeight: 1.85, color: 'var(--text-primary)' }}>
             <MarkdownContent content={item.body_en} />
           </article>
@@ -261,9 +293,34 @@ export default async function ArticleDetailPage({ params }) {
             title={item.title_en}
           />
 
+          {/* Related Attractions in Destination */}
+          {relatedAttractions.length > 0 && (
+            <div style={{ marginTop: '3.5rem', paddingTop: '2.5rem', borderTop: '1px solid var(--border-color)' }}>
+              <p className="section-eyebrow" style={{ margin: 0 }}>LOCAL EXPLORATION</p>
+              <h3 style={{ margin: '0.35rem 0 1.25rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.4rem' }}>
+                Notable Attractions in {destination?.name_en || 'this Region'}
+              </h3>
+              <div className="attractions-mini-grid">
+                {relatedAttractions.map((att) => (
+                  <Link
+                    key={att.slug}
+                    href={`/attractions/${att.destinations?.slug || destination?.slug}/${att.slug}`}
+                    className="attraction-mini-card"
+                  >
+                    {att.category && <span className="attraction-mini-tag">{att.category}</span>}
+                    <h4>{att.name_en}</h4>
+                    {att.description_en && (
+                      <p>{att.description_en.slice(0, 110)}{att.description_en.length > 110 ? '...' : ''}</p>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Related Destination Banner */}
           {destination && (
-            <div style={{ marginTop: '3.5rem', padding: '2rem', borderRadius: 'var(--radius-lg)', background: 'var(--cream)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
+            <div style={{ marginTop: '3rem', padding: '2rem', borderRadius: 'var(--radius-lg)', background: 'var(--cream)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
               <div>
                 <p className="section-eyebrow" style={{ margin: 0 }}>EXPLORE THE DESTINATION</p>
                 <h3 style={{ margin: '0.35rem 0 0 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.4rem' }}>
