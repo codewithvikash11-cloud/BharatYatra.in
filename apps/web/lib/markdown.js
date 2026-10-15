@@ -90,24 +90,34 @@ export function extractHeadings(content) {
 export function sanitizeAndPrepareHTML(html) {
   if (!html) return '';
 
-  const clean = DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-      'p', 'span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'mark',
-      'a', 'ul', 'ol', 'li', 'blockquote', 'hr', 'br',
-      'img', 'figure', 'figcaption',
-      'table', 'thead', 'tbody', 'tr', 'th', 'td',
-      'div', 'iframe'
-    ],
-    ALLOWED_ATTR: [
-      'class', 'id', 'style', 'href', 'target', 'rel', 'src', 'alt', 'title',
-      'width', 'height', 'loading', 'decoding',
-      'data-callout-type', 'data-youtube-video',
-      'frameborder', 'allow', 'allowfullscreen'
-    ],
-    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-    ADD_ATTR: ['target'],
-  });
+  let clean = '';
+  try {
+    clean = DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'span', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup', 'mark',
+        'a', 'ul', 'ol', 'li', 'blockquote', 'hr', 'br',
+        'img', 'figure', 'figcaption',
+        'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        'div', 'iframe'
+      ],
+      ALLOWED_ATTR: [
+        'class', 'id', 'style', 'href', 'target', 'rel', 'src', 'alt', 'title',
+        'width', 'height', 'loading', 'decoding',
+        'data-callout-type', 'data-youtube-video',
+        'frameborder', 'allow', 'allowfullscreen'
+      ],
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+      ADD_ATTR: ['target'],
+    });
+  } catch {
+    clean = String(html)
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+      .replace(/\s*on\w+="[^"]*"/gi, '')
+      .replace(/\s*on\w+='[^']*'/gi, '')
+      .replace(/javascript:[^"']*/gi, '#');
+  }
 
   const slugCounts = {};
 

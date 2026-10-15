@@ -1,4 +1,5 @@
 import './globals.css';
+import './articles/article.css';
 import { Inter, Playfair_Display } from 'next/font/google';
 import SiteHeader from '../components/site-header.js';
 import SiteFooter from '../components/site-footer.js';

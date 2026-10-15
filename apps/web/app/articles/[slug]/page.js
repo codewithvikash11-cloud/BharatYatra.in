@@ -5,7 +5,6 @@ import { MarkdownContent, TableOfContents, extractHeadings } from '../../../lib/
 import prisma from '../../../lib/db.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
 import { SocialShare } from '../../../components/social-share.js';
-import '../article.css';
 
 export const dynamic = 'force-dynamic';
 
