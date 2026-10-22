@@ -21,4 +21,4 @@
 .menu-grid a, .signout-btn { padding: 15px; border-radius: 12px; background: var(--sage); color: var(--ink); font-weight: 600; text-align: center; border: none; width: 100%; font-size: 0.9rem; text-decoration: none; }
 .signout-btn { background: #fff5f1; color: #9b3729; }
 .mobile-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1001; }
-@media(max-width:720px){.mobile-bottom-nav { display: flex; }}
+@media(max-width:720px){.mobile-bottom-nav { display: flex; } .topbar-logo { display: block !important; }}

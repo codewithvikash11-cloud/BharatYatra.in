@@ -2807,36 +2807,55 @@ textarea:focus-visible {
 .brand-logo-root {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   text-decoration: none;
   cursor: pointer;
+  line-height: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.brand-logo-mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.brand-logo-root:hover {
+  opacity: 0.92;
 }
 
-.brand-logo-text {
-  display: flex;
-  flex-direction: column;
+.brand-logo-img {
+  height: 40px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-.brand-logo-name {
-  font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+.brand-logo-sm {
+  height: 32px;
 }
 
-.brand-logo-sub {
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
+.brand-logo-default {
+  height: 40px;
 }
+
+.brand-logo-lg {
+  height: 48px;
+}
+
+/* Light / Inverted variant for dark footers & dark surfaces */
+.brand-logo-light .brand-logo-img {
+  filter: brightness(0) invert(1);
+}
+
+@media (max-width: 768px) {
+  .brand-logo-img {
+    height: 34px !important;
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-logo-img {
+    height: 30px !important;
+    max-width: 140px;
+  }
+}
+
 
 /* Navbar */
 .by-navbar-wrapper {

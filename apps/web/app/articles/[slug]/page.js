@@ -168,7 +168,7 @@ export default async function ArticleDetailPage({ params }) {
       url: 'https://bharat-yatra-in.vercel.app',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://bharat-yatra-in.vercel.app/icon.svg',
+        url: 'https://bharat-yatra-in.vercel.app/image.png',
       },
     },
     mainEntityOfPage: {

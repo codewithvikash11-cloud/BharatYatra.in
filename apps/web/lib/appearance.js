@@ -2,8 +2,8 @@ import prisma from './db.js';
 
 // Curated editorial defaults for BharatYatra
 export const DEFAULT_APPEARANCE = {
-  'site/brand/logo': '/icon.svg',
-  'site/brand/navbar_logo': '/icon.svg',
+  'site/brand/logo': '/image.png',
+  'site/brand/navbar_logo': '/image.png',
   'site/brand/favicon': '/icon.svg',
   'site/home/hero': 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1920&q=85', // Majestic Indian architecture
   'site/home/cta-bg': 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=85', // Kerala backwaters & serene nature

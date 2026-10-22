@@ -134,12 +134,20 @@ export default function AppearanceManager({ initialMedia }) {
         <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid var(--line)', borderRadius: '12px', display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
           <div style={{ flex: 1, minWidth: '250px' }}>
              <h3>Primary Logo</h3>
-             {logoPreview ? <img src={logoPreview} alt="Logo" style={{ maxHeight: '60px', marginBottom: '1rem', background: '#f5f5f5', padding: '10px' }} /> : <p>Default horizontal logo</p>}
+             <img
+               src={logoPreview || '/image.png'}
+               alt="BharatYatra"
+               style={{ maxHeight: '60px', maxWidth: '100%', marginBottom: '1rem', background: '#f5f5f5', padding: '10px', objectFit: 'contain', display: 'block', borderRadius: '8px' }}
+             />
              <input type="file" accept="image/*" onChange={handleLogoChange} />
           </div>
           <div style={{ flex: 1, minWidth: '250px' }}>
              <h3>Compact Logo</h3>
-             {logoCompactPreview ? <img src={logoCompactPreview} alt="Compact Logo" style={{ maxHeight: '60px', marginBottom: '1rem', background: '#f5f5f5', padding: '10px' }} /> : <p>Default compact logo</p>}
+             <img
+               src={logoCompactPreview || '/image.png'}
+               alt="BharatYatra"
+               style={{ maxHeight: '60px', maxWidth: '100%', marginBottom: '1rem', background: '#f5f5f5', padding: '10px', objectFit: 'contain', display: 'block', borderRadius: '8px' }}
+             />
              <input type="file" accept="image/*" onChange={handleLogoCompactChange} />
           </div>
         </div>
