@@ -19,7 +19,7 @@ import {
   IconBuildingFortress,
   IconBuildingArch,
   IconSun,
-  IconCloudSun,
+  IconSunHigh,
   IconCloudRain,
   IconSnowflake,
   IconSearch,
@@ -27,7 +27,7 @@ import {
   IconClipboardCheck,
   IconCalculator,
   IconClock,
-  IconBookOpen,
+  IconBook,
   IconFileText,
   IconFileDescription,
   IconArticle,
@@ -188,17 +188,25 @@ export const IconCreditCard = wrapIcon(IconCreditCard);
 export const IconPhoneCall = wrapIcon(IconPhoneCall);
 export const IconLandmark = wrapIcon(IconBuildingMonument);
 export const IconCastle = wrapIcon(IconBuildingCastle);
+export const IconBuildingCastle = wrapIcon(IconBuildingCastle);
 export const IconFort = wrapIcon(IconBuildingFortress);
+export const IconBuildingFortress = wrapIcon(IconBuildingFortress);
 export const IconMonument = wrapIcon(IconBuildingMonument);
+export const IconBuildingMonument = wrapIcon(IconBuildingMonument);
+export const IconBuildingArch = wrapIcon(IconBuildingArch);
+export const IconClipboardCheck = wrapIcon(IconClipboardCheck);
+export const IconRipple = wrapIcon(IconRipple);
 export const IconSun = wrapIcon(IconSun);
-export const IconCloudSun = wrapIcon(IconCloudSun);
+export const IconCloudSun = wrapIcon(IconSunHigh);
+export const IconSunHigh = wrapIcon(IconSunHigh);
 export const IconCloudRain = wrapIcon(IconCloudRain);
 export const IconSnowflake = wrapIcon(IconSnowflake);
 export const IconSearch = wrapIcon(IconSearch);
 export const IconChecklist = wrapIcon(IconChecklist);
 export const IconCalculator = wrapIcon(IconCalculator);
 export const IconClock = wrapIcon(IconClock);
-export const IconBookOpen = wrapIcon(IconBookOpen);
+export const IconBook = wrapIcon(IconBook);
+export const IconBookOpen = wrapIcon(IconBook);
 export const IconArticle = wrapIcon(IconArticle);
 export const IconFileText = wrapIcon(IconFileText);
 export const IconFileDescription = wrapIcon(IconFileDescription);

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import HeroSearchWidget from '../components/hero-search-widget.js';
+import CinematicHero from '../components/cinematic-hero.js';
 import { getCollection } from '../lib/content-api.mjs';
 import { getSiteAppearance, getEditorialImage, DEFAULT_APPEARANCE } from '../lib/appearance.js';
 import {
@@ -258,53 +258,9 @@ export default async function HomePage() {
   return (
     <main className="by-home-root">
       {/* ========================================================
-          1. EDITORIAL HERO SECTION: "India, through every journey"
+          1. CINEMATIC VIDEO HERO SECTION
           ======================================================== */}
-      <section
-        className="by-hero-section"
-        style={{
-          backgroundImage: `url(${heroImage})`,
-          backgroundPosition: 'center 35%',
-          backgroundSize: 'cover',
-        }}
-      >
-        <div className="by-hero-overlay" aria-hidden="true" />
-
-        <div className="by-container by-hero-content">
-          <div className="by-hero-trust-badge">
-            <span className="trust-dot" />
-            <span>VERIFIED TRAVEL JOURNAL &amp; DISCOVERY</span>
-          </div>
-
-          <h1 className="by-hero-title">
-            Explore India, Plan<br />
-            <span className="serif-italic-gold">Better Trips.</span>
-          </h1>
-
-          <p className="by-hero-subtitle">
-            Your mindful editorial companion for authentic heritage towns, sacred monuments, living culture, regional routes, and practical travel advisory across all 36 States and Union Territories.
-          </p>
-
-          {/* Interactive Search Card Widget with Tabs */}
-          <HeroSearchWidget />
-
-          {/* Verified Editorial Highlights Bar */}
-          <div className="by-hero-editorial-pills">
-            <div className="hero-pill-badge">
-              <IconLandmark size={14} color="#C58B32" />
-              <span>Authentic Heritage</span>
-            </div>
-            <div className="hero-pill-badge">
-              <IconRoute size={14} color="#C58B32" />
-              <span>Verified Multimodal Routes</span>
-            </div>
-            <div className="hero-pill-badge">
-              <IconPhoneCall size={14} color="#C58B32" />
-              <span>Official Helplines (112 &amp; 1363)</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CinematicHero poster={heroImage} />
 
       {/* ========================================================
           2. EIGHT TRAVEL-TOOL PILLS WITH PROFESSIONAL SVG ICONS
