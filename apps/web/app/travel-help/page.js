@@ -176,6 +176,7 @@ export default function TravelHelpPage() {
               </ul>
             </div>
           </div>
+        </section>
       </div>
     </main>
   );

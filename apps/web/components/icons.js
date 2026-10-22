@@ -1,118 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  IconCompass,
-  IconMapPin,
-  IconCalendar,
-  IconCalendarEvent,
-  IconRoute,
-  IconSoup,
-  IconToolsKitchen2,
-  IconSparkles,
-  IconShield,
-  IconShieldCheck,
-  IconCreditCard,
-  IconPhoneCall,
-  IconBuildingMonument,
-  IconBuildingCastle,
-  IconBuildingFortress,
-  IconBuildingArch,
-  IconSun,
-  IconSunHigh,
-  IconCloudRain,
-  IconSnowflake,
-  IconSearch,
-  IconChecklist,
-  IconClipboardCheck,
-  IconCalculator,
-  IconClock,
-  IconBook,
-  IconFileText,
-  IconFileDescription,
-  IconArticle,
-  IconMap,
-  IconMap2,
-  IconArrowRight,
-  IconArrowLeft,
-  IconArrowUp,
-  IconArrowDown,
-  IconChevronRight,
-  IconChevronLeft,
-  IconChevronDown,
-  IconChevronUp,
-  IconEPassport,
-  IconCamera,
-  IconHeart,
-  IconHeartFilled,
-  IconShare,
-  IconPrinter,
-  IconCopy,
-  IconCheck,
-  IconX,
-  IconTrash,
-  IconRefresh,
-  IconRestore,
-  IconRocket,
-  IconLink,
-  IconExternalLink,
-  IconEye,
-  IconEyeOff,
-  IconPencil,
-  IconPlus,
-  IconMinus,
-  IconFilter,
-  IconAdjustments,
-  IconUser,
-  IconUsers,
-  IconSettings,
-  IconHistory,
-  IconMenu2,
-  IconLayoutDashboard,
-  IconPhoto,
-  IconPhotoOff,
-  IconUpload,
-  IconPalette,
-  IconBed,
-  IconPlane,
-  IconTrain,
-  IconBus,
-  IconCar,
-  IconMotorbike,
-  IconMountain,
-  IconBeach,
-  IconRipple,
-  IconPaw,
-  IconLeaf,
-  IconTrees,
-  IconTicket,
-  IconFirstAidKit,
-  IconSos,
-  IconAlertTriangle,
-  IconInfoCircle,
-  IconBulb,
-  IconSpeakerphone,
-  IconDeviceFloppy,
-  IconCheckbox,
-  IconSquare,
-  IconCategory,
-  IconLuggage,
-  IconShirt,
-  IconPill,
-  IconPlug,
-  IconBottle,
-  IconBrandWhatsapp,
-  IconBrandX,
-  IconBrandFacebook,
-  IconBrandInstagram,
-  IconBrandYoutube,
-  IconList,
-  IconLock,
-  IconVolume,
-  IconVolumeOff,
-  IconPlayerPlay,
-  IconPlayerPause,
-} from '@tabler/icons-react';
+import * as Tabler from '@tabler/icons-react';
 
 // Default design system specifications
 const DEFAULT_SIZE = 20;
@@ -125,182 +14,185 @@ const SIZE_MAP = {
   md: 20,
   lg: 24,
   xl: 32,
-  '2xl': 40,
+  xxl: 40,
 };
 
-function resolveSize(size) {
+function normalizeSize(size) {
   if (typeof size === 'number') return size;
   if (typeof size === 'string' && SIZE_MAP[size]) return SIZE_MAP[size];
-  const parsed = parseInt(size, 10);
-  return isNaN(parsed) ? DEFAULT_SIZE : parsed;
+  if (typeof size === 'string' && !isNaN(Number(size))) return Number(size);
+  return DEFAULT_SIZE;
 }
 
-// Higher-order icon wrapper to enforce consistent styling and accessibility
-function wrapIcon(TablerComponent, defaultProps = {}) {
-  const IconComponent = ({
-    size = DEFAULT_SIZE,
-    stroke = DEFAULT_STROKE,
-    strokeWidth,
-    color = 'currentColor',
-    className = '',
-    style,
-    'aria-hidden': ariaHidden = true,
-    'aria-label': ariaLabel,
-    ...rest
-  }) => {
-    const finalSize = resolveSize(size);
-    const finalStroke = strokeWidth ?? stroke;
-    const finalAriaHidden = ariaLabel ? undefined : (ariaHidden ?? true);
+// Icon Wrapper Factory to enforce design system consistency
+export function wrapIcon(TablerComponent, defaultProps = {}) {
+  if (!TablerComponent) {
+    return function NullIcon() {
+      return null;
+    };
+  }
 
-    return (
-      <TablerComponent
-        size={finalSize}
-        stroke={finalStroke}
-        color={color}
-        className={`by-icon ${className}`.trim()}
-        style={{ verticalAlign: 'middle', flexShrink: 0, ...style }}
-        aria-hidden={finalAriaHidden}
-        aria-label={ariaLabel}
-        {...defaultProps}
-        {...rest}
-      />
-    );
-  };
+  const WrappedIcon = React.forwardRef(function WrappedIcon(props, ref) {
+    const {
+      size = DEFAULT_SIZE,
+      stroke = DEFAULT_STROKE,
+      color,
+      className = '',
+      style = {},
+      ...rest
+    } = props;
 
-  IconComponent.displayName = `ByIcon(${TablerComponent.displayName || TablerComponent.name || 'Icon'})`;
-  return IconComponent;
+    const computedSize = normalizeSize(size);
+
+    return React.createElement(TablerComponent, {
+      ref,
+      size: computedSize,
+      stroke: stroke,
+      color: color || defaultProps.color || 'currentColor',
+      className: `by-icon ${className}`.trim(),
+      style: {
+        verticalAlign: 'middle',
+        flexShrink: 0,
+        ...defaultProps.style,
+        ...style,
+      },
+      ...defaultProps,
+      ...rest,
+    });
+  });
+
+  WrappedIcon.displayName = `Wrapped(${TablerComponent.displayName || TablerComponent.name || 'Icon'})`;
+  return WrappedIcon;
 }
 
-// Core Interface & Navigation Icons
-export const IconCompassStandard = wrapIcon(IconCompass);
-export const IconCompass = wrapIcon(IconCompass);
-export const IconMapPin = wrapIcon(IconMapPin);
-export const IconCalendar = wrapIcon(IconCalendar);
-export const IconCalendarEvent = wrapIcon(IconCalendarEvent);
-export const IconRoute = wrapIcon(IconRoute);
-export const IconUtensils = wrapIcon(IconToolsKitchen2);
-export const IconFood = wrapIcon(IconSoup);
-export const IconSoup = wrapIcon(IconSoup);
-export const IconSparkles = wrapIcon(IconSparkles);
-export const IconShield = wrapIcon(IconShield);
-export const IconShieldCheck = wrapIcon(IconShieldCheck);
-export const IconCreditCard = wrapIcon(IconCreditCard);
-export const IconPhoneCall = wrapIcon(IconPhoneCall);
-export const IconLandmark = wrapIcon(IconBuildingMonument);
-export const IconCastle = wrapIcon(IconBuildingCastle);
-export const IconBuildingCastle = wrapIcon(IconBuildingCastle);
-export const IconFort = wrapIcon(IconBuildingFortress);
-export const IconBuildingFortress = wrapIcon(IconBuildingFortress);
-export const IconMonument = wrapIcon(IconBuildingMonument);
-export const IconBuildingMonument = wrapIcon(IconBuildingMonument);
-export const IconBuildingArch = wrapIcon(IconBuildingArch);
-export const IconClipboardCheck = wrapIcon(IconClipboardCheck);
-export const IconRipple = wrapIcon(IconRipple);
-export const IconSun = wrapIcon(IconSun);
-export const IconCloudSun = wrapIcon(IconSunHigh);
-export const IconSunHigh = wrapIcon(IconSunHigh);
-export const IconCloudRain = wrapIcon(IconCloudRain);
-export const IconSnowflake = wrapIcon(IconSnowflake);
-export const IconSearch = wrapIcon(IconSearch);
-export const IconChecklist = wrapIcon(IconChecklist);
-export const IconCalculator = wrapIcon(IconCalculator);
-export const IconClock = wrapIcon(IconClock);
-export const IconBook = wrapIcon(IconBook);
-export const IconBookOpen = wrapIcon(IconBook);
-export const IconArticle = wrapIcon(IconArticle);
-export const IconFileText = wrapIcon(IconFileText);
-export const IconFileDescription = wrapIcon(IconFileDescription);
-export const IconList = wrapIcon(IconList);
-export const IconLock = wrapIcon(IconLock);
-export const IconVolume = wrapIcon(IconVolume);
-export const IconVolumeOff = wrapIcon(IconVolumeOff);
-export const IconPlayerPlay = wrapIcon(IconPlayerPlay);
-export const IconPlayerPause = wrapIcon(IconPlayerPause);
-export const IconMap = wrapIcon(IconMap);
-export const IconMap2 = wrapIcon(IconMap2);
-export const IconArrowRight = wrapIcon(IconArrowRight);
-export const IconArrowLeft = wrapIcon(IconArrowLeft);
-export const IconArrowUp = wrapIcon(IconArrowUp);
-export const IconArrowDown = wrapIcon(IconArrowDown);
-export const IconChevronRight = wrapIcon(IconChevronRight);
-export const IconChevronLeft = wrapIcon(IconChevronLeft);
-export const IconChevronDown = wrapIcon(IconChevronDown);
-export const IconChevronUp = wrapIcon(IconChevronUp);
-export const IconPassport = wrapIcon(IconEPassport);
-export const IconCamera = wrapIcon(IconCamera);
+// Navigation & Core Travel Icons
+export const IconCompassStandard = wrapIcon(Tabler.IconCompass);
+export const IconCompass = wrapIcon(Tabler.IconCompass);
+export const IconMapPin = wrapIcon(Tabler.IconMapPin);
+export const IconCalendar = wrapIcon(Tabler.IconCalendar);
+export const IconCalendarEvent = wrapIcon(Tabler.IconCalendarEvent);
+export const IconRoute = wrapIcon(Tabler.IconRoute);
+export const IconUtensils = wrapIcon(Tabler.IconToolsKitchen2);
+export const IconFood = wrapIcon(Tabler.IconSoup);
+export const IconSoup = wrapIcon(Tabler.IconSoup);
+export const IconSparkles = wrapIcon(Tabler.IconSparkles);
+export const IconShield = wrapIcon(Tabler.IconShield);
+export const IconShieldCheck = wrapIcon(Tabler.IconShieldCheck);
+export const IconCreditCard = wrapIcon(Tabler.IconCreditCard);
+export const IconPhoneCall = wrapIcon(Tabler.IconPhoneCall);
+export const IconLandmark = wrapIcon(Tabler.IconBuildingMonument);
+export const IconCastle = wrapIcon(Tabler.IconBuildingCastle);
+export const IconBuildingCastle = wrapIcon(Tabler.IconBuildingCastle);
+export const IconFort = wrapIcon(Tabler.IconBuildingFortress);
+export const IconBuildingFortress = wrapIcon(Tabler.IconBuildingFortress);
+export const IconMonument = wrapIcon(Tabler.IconBuildingMonument);
+export const IconBuildingMonument = wrapIcon(Tabler.IconBuildingMonument);
+export const IconBuildingArch = wrapIcon(Tabler.IconBuildingArch);
+export const IconClipboardCheck = wrapIcon(Tabler.IconClipboardCheck);
+export const IconRipple = wrapIcon(Tabler.IconRipple);
+export const IconSun = wrapIcon(Tabler.IconSun);
+export const IconCloudSun = wrapIcon(Tabler.IconSunHigh);
+export const IconSunHigh = wrapIcon(Tabler.IconSunHigh);
+export const IconCloudRain = wrapIcon(Tabler.IconCloudRain);
+export const IconSnowflake = wrapIcon(Tabler.IconSnowflake);
+export const IconSearch = wrapIcon(Tabler.IconSearch);
+export const IconChecklist = wrapIcon(Tabler.IconChecklist);
+export const IconCalculator = wrapIcon(Tabler.IconCalculator);
+export const IconClock = wrapIcon(Tabler.IconClock);
+export const IconBook = wrapIcon(Tabler.IconBook);
+export const IconBookOpen = wrapIcon(Tabler.IconBook);
+export const IconArticle = wrapIcon(Tabler.IconArticle);
+export const IconFileText = wrapIcon(Tabler.IconFileText);
+export const IconFileDescription = wrapIcon(Tabler.IconFileDescription);
+export const IconList = wrapIcon(Tabler.IconList);
+export const IconLock = wrapIcon(Tabler.IconLock);
+export const IconVolume = wrapIcon(Tabler.IconVolume);
+export const IconVolumeOff = wrapIcon(Tabler.IconVolumeOff);
+export const IconPlayerPlay = wrapIcon(Tabler.IconPlayerPlay);
+export const IconPlayerPause = wrapIcon(Tabler.IconPlayerPause);
+export const IconMap = wrapIcon(Tabler.IconMap);
+export const IconMap2 = wrapIcon(Tabler.IconMap2);
+export const IconArrowRight = wrapIcon(Tabler.IconArrowRight);
+export const IconArrowLeft = wrapIcon(Tabler.IconArrowLeft);
+export const IconArrowUp = wrapIcon(Tabler.IconArrowUp);
+export const IconArrowDown = wrapIcon(Tabler.IconArrowDown);
+export const IconChevronRight = wrapIcon(Tabler.IconChevronRight);
+export const IconChevronLeft = wrapIcon(Tabler.IconChevronLeft);
+export const IconChevronDown = wrapIcon(Tabler.IconChevronDown);
+export const IconChevronUp = wrapIcon(Tabler.IconChevronUp);
+export const IconPassport = wrapIcon(Tabler.IconEPassport);
+export const IconCamera = wrapIcon(Tabler.IconCamera);
 
 // User Actions & State Icons
-export const IconHeart = wrapIcon(IconHeart);
-export const IconHeartFilled = wrapIcon(IconHeartFilled, { color: '#B9653F' });
-export const IconShare = wrapIcon(IconShare);
-export const IconPrinter = wrapIcon(IconPrinter);
-export const IconCopy = wrapIcon(IconCopy);
-export const IconCheck = wrapIcon(IconCheck);
-export const IconX = wrapIcon(IconX);
-export const IconTrash = wrapIcon(IconTrash);
-export const IconRefresh = wrapIcon(IconRefresh);
-export const IconRestore = wrapIcon(IconRestore);
-export const IconRocket = wrapIcon(IconRocket);
-export const IconLink = wrapIcon(IconLink);
-export const IconExternalLink = wrapIcon(IconExternalLink);
-export const IconEye = wrapIcon(IconEye);
-export const IconEyeOff = wrapIcon(IconEyeOff);
-export const IconPencil = wrapIcon(IconPencil);
-export const IconPlus = wrapIcon(IconPlus);
-export const IconMinus = wrapIcon(IconMinus);
-export const IconFilter = wrapIcon(IconFilter);
-export const IconAdjustments = wrapIcon(IconAdjustments);
-export const IconUser = wrapIcon(IconUser);
-export const IconUsers = wrapIcon(IconUsers);
-export const IconSettings = wrapIcon(IconSettings);
-export const IconHistory = wrapIcon(IconHistory);
-export const IconMenu2 = wrapIcon(IconMenu2);
-export const IconLayoutDashboard = wrapIcon(IconLayoutDashboard);
-export const IconPhoto = wrapIcon(IconPhoto);
-export const IconPhotoOff = wrapIcon(IconPhotoOff);
-export const IconUpload = wrapIcon(IconUpload);
-export const IconPalette = wrapIcon(IconPalette);
-
-// Travel, Stay & Transport Specific
-export const IconBed = wrapIcon(IconBed);
-export const IconHotel = wrapIcon(IconBed);
-export const IconPlane = wrapIcon(IconPlane);
-export const IconTrain = wrapIcon(IconTrain);
-export const IconBus = wrapIcon(IconBus);
-export const IconCar = wrapIcon(IconCar);
-export const IconMotorbike = wrapIcon(IconMotorbike);
-export const IconMountain = wrapIcon(IconMountain);
-export const IconBeach = wrapIcon(IconBeach);
-export const IconCoast = wrapIcon(IconRipple);
-export const IconPaw = wrapIcon(IconPaw);
-export const IconWildlife = wrapIcon(IconPaw);
-export const IconLeaf = wrapIcon(IconLeaf);
-export const IconTrees = wrapIcon(IconTrees);
-export const IconNature = wrapIcon(IconTrees);
-export const IconTicket = wrapIcon(IconTicket);
-export const IconFirstAidKit = wrapIcon(IconFirstAidKit);
-export const IconSos = wrapIcon(IconSos);
-export const IconEmergency = wrapIcon(IconSos);
-export const IconAlertTriangle = wrapIcon(IconAlertTriangle);
-export const IconInfoCircle = wrapIcon(IconInfoCircle);
-export const IconBulb = wrapIcon(IconBulb);
-export const IconSpeakerphone = wrapIcon(IconSpeakerphone);
-export const IconDeviceFloppy = wrapIcon(IconDeviceFloppy);
-export const IconCheckbox = wrapIcon(IconCheckbox);
-export const IconSquare = wrapIcon(IconSquare);
-export const IconCategory = wrapIcon(IconCategory);
-export const IconLuggage = wrapIcon(IconLuggage);
-export const IconShirt = wrapIcon(IconShirt);
-export const IconPill = wrapIcon(IconPill);
-export const IconPlug = wrapIcon(IconPlug);
-export const IconBottle = wrapIcon(IconBottle);
+export const IconHeart = wrapIcon(Tabler.IconHeart);
+export const IconHeartFilled = wrapIcon(Tabler.IconHeartFilled, { color: '#B9653F' });
+export const IconShare = wrapIcon(Tabler.IconShare);
+export const IconPrinter = wrapIcon(Tabler.IconPrinter);
+export const IconCopy = wrapIcon(Tabler.IconCopy);
+export const IconCheck = wrapIcon(Tabler.IconCheck);
+export const IconX = wrapIcon(Tabler.IconX);
+export const IconTrash = wrapIcon(Tabler.IconTrash);
+export const IconRefresh = wrapIcon(Tabler.IconRefresh);
+export const IconRestore = wrapIcon(Tabler.IconRestore);
+export const IconRocket = wrapIcon(Tabler.IconRocket);
+export const IconLink = wrapIcon(Tabler.IconLink);
+export const IconExternalLink = wrapIcon(Tabler.IconExternalLink);
+export const IconEye = wrapIcon(Tabler.IconEye);
+export const IconEyeOff = wrapIcon(Tabler.IconEyeOff);
+export const IconPencil = wrapIcon(Tabler.IconPencil);
+export const IconPlus = wrapIcon(Tabler.IconPlus);
+export const IconMinus = wrapIcon(Tabler.IconMinus);
+export const IconFilter = wrapIcon(Tabler.IconFilter);
+export const IconAdjustments = wrapIcon(Tabler.IconAdjustments);
+export const IconUser = wrapIcon(Tabler.IconUser);
+export const IconUsers = wrapIcon(Tabler.IconUsers);
+export const IconSettings = wrapIcon(Tabler.IconSettings);
+export const IconHistory = wrapIcon(Tabler.IconHistory);
+export const IconMenu2 = wrapIcon(Tabler.IconMenu2);
+export const IconLayoutDashboard = wrapIcon(Tabler.IconLayoutDashboard);
+export const IconPhoto = wrapIcon(Tabler.IconPhoto);
+export const IconPhotoOff = wrapIcon(Tabler.IconPhotoOff);
+export const IconUpload = wrapIcon(Tabler.IconUpload);
+export const IconPalette = wrapIcon(Tabler.IconPalette);
+export const IconBed = wrapIcon(Tabler.IconBed);
+export const IconHotel = wrapIcon(Tabler.IconBed);
+export const IconPlane = wrapIcon(Tabler.IconPlane);
+export const IconTrain = wrapIcon(Tabler.IconTrain);
+export const IconBus = wrapIcon(Tabler.IconBus);
+export const IconCar = wrapIcon(Tabler.IconCar);
+export const IconMotorbike = wrapIcon(Tabler.IconMotorbike);
+export const IconMountain = wrapIcon(Tabler.IconMountain);
+export const IconBeach = wrapIcon(Tabler.IconBeach);
+export const IconCoast = wrapIcon(Tabler.IconBeach);
+export const IconPaw = wrapIcon(Tabler.IconPaw);
+export const IconWildlife = wrapIcon(Tabler.IconPaw);
+export const IconLeaf = wrapIcon(Tabler.IconLeaf);
+export const IconTrees = wrapIcon(Tabler.IconTrees);
+export const IconNature = wrapIcon(Tabler.IconTrees);
+export const IconTicket = wrapIcon(Tabler.IconTicket);
+export const IconFirstAidKit = wrapIcon(Tabler.IconFirstAidKit);
+export const IconSos = wrapIcon(Tabler.IconSos);
+export const IconEmergency = wrapIcon(Tabler.IconSos);
+export const IconAlertTriangle = wrapIcon(Tabler.IconAlertTriangle);
+export const IconInfoCircle = wrapIcon(Tabler.IconInfoCircle);
+export const IconBulb = wrapIcon(Tabler.IconBulb);
+export const IconSpeakerphone = wrapIcon(Tabler.IconSpeakerphone);
+export const IconDeviceFloppy = wrapIcon(Tabler.IconDeviceFloppy);
+export const IconCheckbox = wrapIcon(Tabler.IconCheckbox);
+export const IconSquare = wrapIcon(Tabler.IconSquare);
+export const IconCategory = wrapIcon(Tabler.IconCategory);
+export const IconLuggage = wrapIcon(Tabler.IconLuggage);
+export const IconShirt = wrapIcon(Tabler.IconShirt);
+export const IconPill = wrapIcon(Tabler.IconPill);
+export const IconPlug = wrapIcon(Tabler.IconPlug);
+export const IconBottle = wrapIcon(Tabler.IconBottle);
 
 // Social Media Icons
-export const IconBrandWhatsapp = wrapIcon(IconBrandWhatsapp);
-export const IconBrandX = wrapIcon(IconBrandX);
-export const IconBrandFacebook = wrapIcon(IconBrandFacebook);
-export const IconBrandInstagram = wrapIcon(IconBrandInstagram);
-export const IconBrandYoutube = wrapIcon(IconBrandYoutube);
+export const IconBrandWhatsapp = wrapIcon(Tabler.IconBrandWhatsapp);
+export const IconBrandX = wrapIcon(Tabler.IconBrandX);
+export const IconBrandFacebook = wrapIcon(Tabler.IconBrandFacebook);
+export const IconBrandInstagram = wrapIcon(Tabler.IconBrandInstagram);
+export const IconBrandYoutube = wrapIcon(Tabler.IconBrandYoutube);
 
 // Regional Mapping Helper
 export function getRegionIcon(regionId, props = {}) {
