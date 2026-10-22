@@ -1,6 +1,15 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import prisma from '../../../lib/db.js';
+import {
+  IconMapPin,
+  IconArrowLeft,
+  IconArrowRight,
+  IconBuildingMonument,
+  IconCheck,
+  IconClock,
+  IconTicket,
+} from '../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -136,7 +145,10 @@ export default async function DestinationAttractionsPage({ params, searchParams 
 
         {/* Heading */}
         <header style={{ marginBottom: '2.5rem' }}>
-          <p className="section-eyebrow" style={{ margin: 0 }}>📍 {locationLabel || 'INDIA'}</p>
+          <p className="section-eyebrow" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <IconMapPin size={13} />
+            <span>{locationLabel || 'INDIA'}</span>
+          </p>
           <h1 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: 'clamp(2.2rem, 4vw, 3rem)', margin: '0.35rem 0 0.75rem 0', lineHeight: 1.2 }}>
             Tourist Attractions &amp; Monuments in {destination.name_en}
           </h1>
@@ -145,11 +157,13 @@ export default async function DestinationAttractionsPage({ params, searchParams 
           </p>
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <Link href={`/destinations/${destination.slug}`} className="btn-outline-teal" style={{ fontSize: '0.85rem' }}>
-              ← Return to {destination.name_en} Guide
+            <Link href={`/destinations/${destination.slug}`} className="btn-outline-teal" style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <IconArrowLeft size={14} />
+              <span>Return to {destination.name_en} Guide</span>
             </Link>
-            <Link href={`/trip-planner?destination=${encodeURIComponent(destination.slug)}`} className="btn-gold-pill" style={{ fontSize: '0.85rem' }}>
-              Plan Trip to {destination.name_en} →
+            <Link href={`/trip-planner?destination=${encodeURIComponent(destination.slug)}`} className="btn-gold-pill" style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Plan Trip to {destination.name_en}</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </header>
@@ -201,7 +215,9 @@ export default async function DestinationAttractionsPage({ params, searchParams 
         {/* Attractions Grid */}
         {attractions.length === 0 ? (
           <div className="empty-editorial-card" style={{ maxWidth: '640px', margin: '2rem auto', textAlign: 'center', padding: '3rem 1.5rem' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏛️</div>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem auto' }}>
+              <IconBuildingMonument size={28} style={{ color: 'var(--teal-primary)' }} />
+            </div>
             <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem', margin: '0 0 0.5rem 0' }}>
               No attractions found in this category
             </h3>
@@ -233,8 +249,9 @@ export default async function DestinationAttractionsPage({ params, searchParams 
                       {attr.category || 'Historic Monument'}
                     </span>
                     {attr.verified_at && (
-                      <span style={{ fontSize: '0.72rem', color: '#16A34A', fontWeight: 600 }}>
-                        ✓ ASI / Dept. Verified
+                      <span style={{ fontSize: '0.72rem', color: '#16A34A', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                        <IconCheck size={13} />
+                        <span>ASI / Dept. Verified</span>
                       </span>
                     )}
                   </div>
@@ -254,14 +271,14 @@ export default async function DestinationAttractionsPage({ params, searchParams 
                   {/* Monument Facts Box */}
                   <div style={{ background: 'var(--cream)', borderRadius: 'var(--radius-sm)', padding: '0.85rem 1rem', border: '1px solid var(--border-color)', marginBottom: '1.25rem', fontSize: '0.82rem', lineHeight: 1.6 }}>
                     {attr.visiting_hours && (
-                      <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.25rem' }}>
-                        <span>⏱</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                        <IconClock size={14} style={{ color: 'var(--teal-primary)' }} />
                         <span><strong>Hours:</strong> {attr.visiting_hours}</span>
                       </div>
                     )}
                     {attr.entry_fee_note && (
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <span>🎟</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <IconTicket size={14} style={{ color: 'var(--teal-primary)' }} />
                         <span><strong>Entry Fee:</strong> {attr.entry_fee_note}</span>
                       </div>
                     )}
@@ -271,9 +288,10 @@ export default async function DestinationAttractionsPage({ params, searchParams 
                     <Link
                       href={`/attractions/${destination.slug}/${attr.slug}`}
                       className="btn-gold-pill"
-                      style={{ fontSize: '0.85rem', display: 'inline-block', textDecoration: 'none' }}
+                      style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
                     >
-                      View Attraction Details →
+                      <span>View Attraction Details</span>
+                      <IconArrowRight size={14} />
                     </Link>
                   </div>
                 </div>

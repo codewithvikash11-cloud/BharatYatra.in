@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import prisma from '../../lib/db.js';
+import { IconSearch, IconArrowRight, IconMapPin, IconClock } from '../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -154,10 +155,7 @@ export default async function SearchPage({ searchParams }) {
           </h1>
 
           <form action="/search" method="get" role="search" className="hero-search-box" style={{ maxWidth: '640px', margin: '0 auto' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#87938F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+            <IconSearch size={20} style={{ color: 'var(--text-muted)' }} />
             <input
               id="search-main-input"
               className="search-input-field"
@@ -204,8 +202,9 @@ export default async function SearchPage({ searchParams }) {
                 </>
               )}
             </h2>
-            <Link href="/destinations" style={{ fontSize: '0.88rem', color: 'var(--teal-primary)', textDecoration: 'none', fontWeight: 600 }}>
-              Browse all destinations →
+            <Link href="/destinations" style={{ fontSize: '0.88rem', color: 'var(--teal-primary)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Browse all destinations</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         )}
@@ -213,8 +212,8 @@ export default async function SearchPage({ searchParams }) {
         {/* NO RESULTS STATE */}
         {query && totalResults === 0 && (
           <div className="empty-editorial-card" style={{ maxWidth: '680px', margin: '2rem auto', textAlign: 'center', padding: '3.5rem 2rem' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto', fontSize: '1.75rem' }}>
-              🔍
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
+              <IconSearch size={26} style={{ color: 'var(--gold-muted)' }} />
             </div>
             <h3 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0 0 0.5rem 0' }}>
               No exact matches found for &ldquo;{query}&rdquo;
@@ -263,7 +262,10 @@ export default async function SearchPage({ searchParams }) {
                       <span className="destination-card-badge">Destination</span>
                     </div>
                     <div className="destination-card-body">
-                      <p className="destination-location-kicker">📍 {location || 'India'}</p>
+                      <p className="destination-location-kicker" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <IconMapPin size={13} style={{ flexShrink: 0 }} />
+                        <span>{location || 'India'}</span>
+                      </p>
                       <h3 className="destination-card-title">
                         <Link href={`/destinations/${dest.slug}`}>{dest.name_en}</Link>
                       </h3>
@@ -271,8 +273,9 @@ export default async function SearchPage({ searchParams }) {
                         <p className="destination-card-summary">{dest.summary_en}</p>
                       )}
                       <div className="destination-card-footer">
-                        <Link href={`/destinations/${dest.slug}`}>
-                          Explore Destination Guide <span className="arrow">→</span>
+                        <Link href={`/destinations/${dest.slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <span>Explore Destination Guide</span>
+                          <IconArrowRight size={14} className="arrow" />
                         </Link>
                       </div>
                     </div>
@@ -308,8 +311,9 @@ export default async function SearchPage({ searchParams }) {
                   }}
                 >
                   <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-dark)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      ⏱ {it.duration_days} Days Circuit
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold-dark)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <IconClock size={13} />
+                      <span>{it.duration_days} Days Circuit</span>
                     </span>
                     <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem', margin: '0.35rem 0 0.5rem 0' }}>
                       <Link href={`/itineraries/${it.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>
@@ -326,9 +330,10 @@ export default async function SearchPage({ searchParams }) {
                     <Link
                       href={`/itineraries/${it.slug}`}
                       className="btn-gold-pill"
-                      style={{ fontSize: '0.82rem', textDecoration: 'none', display: 'inline-block' }}
+                      style={{ fontSize: '0.82rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      View Day-by-Day Plan →
+                      <span>View Day-by-Day Plan</span>
+                      <IconArrowRight size={14} />
                     </Link>
                   </div>
                 </article>
@@ -365,8 +370,9 @@ export default async function SearchPage({ searchParams }) {
                     </p>
                     <h3 className="story-card-title">{art.title_en}</h3>
                     {art.excerpt_en && <p className="story-card-excerpt">{art.excerpt_en}</p>}
-                    <span className="story-card-link-cta">
-                      Read full story <span>→</span>
+                    <span className="story-card-link-cta" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <span>Read full story</span>
+                      <IconArrowRight size={14} />
                     </span>
                   </div>
                 </Link>
@@ -415,9 +421,10 @@ export default async function SearchPage({ searchParams }) {
                   <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                     <Link
                       href={`/attractions/${attr.destinations?.slug || 'nawalgarh-rajasthan'}/${attr.slug}`}
-                      style={{ color: 'var(--teal-primary)', fontWeight: 600, fontSize: '0.85rem', textDecoration: 'none' }}
+                      style={{ color: 'var(--teal-primary)', fontWeight: 600, fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      View Attraction Details →
+                      <span>View Attraction Details</span>
+                      <IconArrowRight size={14} />
                     </Link>
                   </div>
                 </article>

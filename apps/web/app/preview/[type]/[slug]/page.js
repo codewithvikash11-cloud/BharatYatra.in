@@ -4,6 +4,7 @@ import prisma from '../../../../lib/db.js';
 import Link from 'next/link';
 import { MarkdownContent, TableOfContents, extractHeadings } from '../../../../lib/markdown.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../../components/article-templates.js';
+import { IconLock, IconMapPin } from '../../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 

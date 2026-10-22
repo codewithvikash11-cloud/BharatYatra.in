@@ -3,7 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "description": "BharatYatra India travel discovery and trip-planning monorepo",
-  "workspaces": ["apps/web", "apps/admin", "apps/api", "apps/mobile", "packages/*"],
+  "workspaces": [
+    "apps/web",
+    "apps/admin",
+    "apps/api",
+    "apps/mobile",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace=@bharatyatra/web",
     "dev:web": "npm run dev --workspace=@bharatyatra/web",
@@ -17,5 +23,11 @@
   "devDependencies": {
     "prisma": "^6.19.0"
   },
-  "engines": { "node": ">=22.12.0", "npm": ">=10.9.0" }
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10.9.0"
+  },
+  "dependencies": {
+    "@tabler/icons-react": "^3.49.0"
+  }
 }

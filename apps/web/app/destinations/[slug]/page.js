@@ -8,6 +8,36 @@ import DestinationInteractiveClient, {
   DestinationHistoryToggle,
   SidebarPlanForm,
 } from '../../../components/destination-interactive-client.js';
+import {
+  IconBuildingMonument,
+  IconBuildingCastle,
+  IconBuildingArch,
+  IconSun,
+  IconCloudSun,
+  IconCloudRain,
+  IconSnowflake,
+  IconClock,
+  IconPlane,
+  IconTrain,
+  IconBus,
+  IconCar,
+  IconMotorbike,
+  IconSparkles,
+  IconSoup,
+  IconUsers,
+  IconBed,
+  IconBookOpen,
+  IconBulb,
+  IconMapPin,
+  IconMap,
+  IconCalendarEvent,
+  IconInfoCircle,
+  IconPhoneCall,
+  IconCheck,
+  IconArrowRight,
+  IconExternalLink,
+  IconRoute,
+} from '../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,10 +52,10 @@ const jaipurData = {
     "A royal blend of history, culture, architecture and vibrant markets, Jaipur is the capital of Rajasthan and one of India's most popular travel destinations.",
   coverUrl: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85',
   keyFacts: [
-    { label: 'Forts & Palaces', value: '20+', icon: '🏛' },
-    { label: 'Best Time', value: 'Oct – Mar', icon: '☀️' },
-    { label: 'Ideal Trip Duration', value: '2 – 4 Days', icon: '⏱' },
-    { label: 'Nearest Airport', value: 'Jaipur (JAI)', icon: '✈' },
+    { label: 'Forts & Palaces', value: '20+', icon: IconBuildingCastle },
+    { label: 'Best Time', value: 'Oct – Mar', icon: IconSun },
+    { label: 'Ideal Trip Duration', value: '2 – 4 Days', icon: IconClock },
+    { label: 'Nearest Airport', value: 'Jaipur (JAI)', icon: IconPlane },
   ],
   gallery: [
     { title: 'Hawa Mahal at Sunset', url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80' },
@@ -42,12 +72,12 @@ const jaipurData = {
     thumbCaption: 'Jal Mahal, Jaipur',
   },
   highlights: [
-    { icon: '🏰', text: 'Majestic forts and palaces' },
-    { icon: '🛍', text: 'Vibrant local markets' },
-    { icon: '🏛', text: 'UNESCO World Heritage sites nearby' },
-    { icon: '👑', text: 'Rich Rajput history and culture' },
-    { icon: '🍲', text: 'Delicious Rajasthani cuisine' },
-    { icon: '👥', text: 'Great for family, solo and group travel' },
+    { icon: IconBuildingCastle, text: 'Majestic forts and palaces' },
+    { icon: IconBuildingMonument, text: 'Vibrant local markets' },
+    { icon: IconBuildingArch, text: 'UNESCO World Heritage sites nearby' },
+    { icon: IconSparkles, text: 'Rich Rajput history and culture' },
+    { icon: IconSoup, text: 'Delicious Rajasthani cuisine' },
+    { icon: IconUsers, text: 'Great for family, solo and group travel' },
   ],
   history: {
     summary:
@@ -64,7 +94,7 @@ const jaipurData = {
       temp: '10°C – 25°C',
       badge: 'Recommended',
       badgeClass: 'rec',
-      icon: '❄',
+      icon: IconSnowflake,
     },
     {
       season: 'Summer',
@@ -73,7 +103,7 @@ const jaipurData = {
       temp: '28°C – 45°C',
       badge: 'Not Recommended',
       badgeClass: 'not-rec',
-      icon: '☀️',
+      icon: IconSun,
     },
     {
       season: 'Monsoon',
@@ -82,7 +112,7 @@ const jaipurData = {
       temp: '23°C – 35°C',
       badge: 'Moderate',
       badgeClass: 'mod',
-      icon: '🌧',
+      icon: IconCloudRain,
     },
     {
       season: 'Festivals',
@@ -91,44 +121,44 @@ const jaipurData = {
       temp: 'Oct – Mar',
       badge: 'Great for Culture',
       badgeClass: 'cult',
-      icon: '⭐',
+      icon: IconSparkles,
     },
   ],
   howToReach: [
     {
       mode: 'By Air',
-      icon: '✈',
+      icon: IconPlane,
       desc: 'Jaipur International Airport (JAI) is well connected to major Indian cities and some international destinations.',
       action: 'View Flight Options →',
       href: '/routes?to=Jaipur&mode=air',
     },
     {
       mode: 'By Train',
-      icon: '🚆',
+      icon: IconTrain,
       desc: 'Jaipur Junction is a major railway station with regular trains from Delhi, Mumbai, Kolkata, Chennai and more.',
       action: 'View Train Options →',
       href: '/routes?to=Jaipur&mode=train',
     },
     {
       mode: 'By Bus',
-      icon: '🚌',
+      icon: IconBus,
       desc: 'Well connected by state and private buses from nearby cities like Delhi, Agra, Udaipur and Ajmer.',
       action: 'View Bus Options →',
       href: '/routes?to=Jaipur&mode=bus',
     },
     {
       mode: 'By Road',
-      icon: '🚗',
+      icon: IconCar,
       desc: 'Good road connectivity via NH48, NH52 and expressways. Popular for road trips from Delhi and Agra (Golden Triangle).',
       action: 'View Road Trip →',
       href: '/routes?to=Jaipur&mode=road',
     },
   ],
   gettingAround: [
-    { mode: 'Auto Rickshaw', icon: '🛺', desc: 'Widely available. Negotiate fare or use apps like Uber/Ola Auto.' },
-    { mode: 'Taxi / Cab', icon: '🚕', desc: 'Ola, Uber and local rental taxis available with AC comfort.' },
-    { mode: 'City Bus', icon: '🚌', desc: 'Affordable option for local travel and connecting monument stops.' },
-    { mode: 'Rental Bike / Car', icon: '🛵', desc: 'Good for nearby attractions, Nahargarh Fort, and day trips.' },
+    { mode: 'Auto Rickshaw', icon: IconCar, desc: 'Widely available. Negotiate fare or use apps like Uber/Ola Auto.' },
+    { mode: 'Taxi / Cab', icon: IconCar, desc: 'Ola, Uber and local rental taxis available with AC comfort.' },
+    { mode: 'City Bus', icon: IconBus, desc: 'Affordable option for local travel and connecting monument stops.' },
+    { mode: 'Rental Bike / Car', icon: IconMotorbike, desc: 'Good for nearby attractions, Nahargarh Fort, and day trips.' },
   ],
   places: [
     {
@@ -277,10 +307,10 @@ const jaipurData = {
     { name: 'Mawa Kachori', image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=400&q=80' },
   ],
   whereToStay: [
-    { title: 'Luxury Hotels', price: '₹6,000+ per night', desc: 'Rambagh Palace, Jai Mahal, Oberoi Rajvilas', icon: '🏨' },
-    { title: 'Mid-range Hotels', price: '₹3,000 – ₹6,000 per night', desc: 'Boutique havelis and central city hotels', icon: '🏨' },
-    { title: 'Budget Hotels', price: '₹1,000 – ₹3,000 per night', desc: 'Clean guest houses and boutique hostels', icon: '🏨' },
-    { title: 'Heritage Stays', price: 'Experience royal hospitality', desc: 'Converted aristocratic residences and thikanas', icon: '🏰' },
+    { title: 'Luxury Hotels', price: '₹6,000+ per night', desc: 'Rambagh Palace, Jai Mahal, Oberoi Rajvilas', icon: IconBed },
+    { title: 'Mid-range Hotels', price: '₹3,000 – ₹6,000 per night', desc: 'Boutique havelis and central city hotels', icon: IconBed },
+    { title: 'Budget Hotels', price: '₹1,000 – ₹3,000 per night', desc: 'Clean guest houses and boutique hostels', icon: IconBed },
+    { title: 'Heritage Stays', price: 'Experience royal hospitality', desc: 'Converted aristocratic residences and thikanas', icon: IconBuildingCastle },
   ],
   travelTips: [
     'Wear comfortable clothing and walking shoes.',
@@ -306,13 +336,13 @@ const jaipurData = {
     temp: '24°C',
     condition: 'Clear Sky',
     minMax: 'Min 14°C | Max 28°C',
-    icon: '☀️',
+    icon: IconSun,
   },
   officialInfo: [
-    { name: 'Rajasthan Tourism', url: 'https://tourism.rajasthan.gov.in', label: 'Official website ↗' },
-    { name: 'Jaipur District Administration', url: 'https://jaipur.rajasthan.gov.in', label: 'Official website ↗' },
-    { name: 'Incredible India', url: 'https://incredibleindia.org', label: 'Official website ↗' },
-    { name: 'Tourist Helpline', phone: '1363 (24x7)', label: '📞 1363 (24x7)' },
+    { name: 'Rajasthan Tourism', url: 'https://tourism.rajasthan.gov.in', label: 'Official website' },
+    { name: 'Jaipur District Administration', url: 'https://jaipur.rajasthan.gov.in', label: 'Official website' },
+    { name: 'Incredible India', url: 'https://incredibleindia.org', label: 'Official website' },
+    { name: 'Tourist Helpline', phone: '1363 (24x7)', label: '1363 (24x7)' },
     { name: 'Emergency Number', phone: '112', label: '112' },
   ],
   nearbyDestinations: [
@@ -464,8 +494,9 @@ function renderJaipurReferenceView() {
           <div className="by-container by-dest-hero-shell">
             {/* Top row: State badge + Save/Share actions */}
             <div className="by-dest-hero-top-row">
-              <span className="by-dest-state-badge">
-                <span>📍</span> Rajasthan
+              <span className="by-dest-state-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <IconMapPin size={14} />
+                <span>Rajasthan</span>
               </span>
 
               <DestinationInteractiveClient
@@ -488,15 +519,20 @@ function renderJaipurReferenceView() {
 
             {/* Bottom: 4 Key Fact Badges */}
             <div className="by-dest-facts-row">
-              {data.keyFacts.map((fact) => (
-                <div key={fact.label} className="by-dest-fact-pill">
-                  <span className="by-fact-icon">{fact.icon}</span>
-                  <div className="by-fact-text">
-                    <span className="by-fact-label">{fact.label}</span>
-                    <strong className="by-fact-val">{fact.value}</strong>
+              {data.keyFacts.map((fact) => {
+                const FactIcon = fact.icon;
+                return (
+                  <div key={fact.label} className="by-dest-fact-pill">
+                    <span className="by-fact-icon">
+                      <FactIcon size={18} />
+                    </span>
+                    <div className="by-fact-text">
+                      <span className="by-fact-label">{fact.label}</span>
+                      <strong className="by-fact-val">{fact.value}</strong>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -529,7 +565,8 @@ function renderJaipurReferenceView() {
               {/* Section 1: About Jaipur */}
               <section id="overview" className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">📖</span> About Jaipur
+                  <IconBookOpen size={22} className="by-sec-icon" />
+                  <span>About Jaipur</span>
                 </h2>
                 <div className="by-about-row">
                   <p className="by-about-p">{data.about.text}</p>
@@ -542,15 +579,21 @@ function renderJaipurReferenceView() {
                 {/* Top Highlights Grid (6 items) */}
                 <div className="by-highlights-card">
                   <h3 className="by-highlights-title">
-                    <span className="by-high-icon">🏆</span> Top Highlights
+                    <IconSparkles size={20} className="by-high-icon" />
+                    <span>Top Highlights</span>
                   </h3>
                   <div className="by-highlights-grid">
-                    {data.highlights.map((h, i) => (
-                      <div key={i} className="by-highlight-item">
-                        <span className="by-h-icon">{h.icon}</span>
-                        <span>{h.text}</span>
-                      </div>
-                    ))}
+                    {data.highlights.map((h, i) => {
+                      const HIcon = h.icon;
+                      return (
+                        <div key={i} className="by-highlight-item">
+                          <span className="by-h-icon">
+                            <HIcon size={18} />
+                          </span>
+                          <span>{h.text}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </section>
@@ -558,7 +601,8 @@ function renderJaipurReferenceView() {
               {/* Section 2: History of Jaipur */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">🏛</span> History of Jaipur
+                  <IconBuildingCastle size={22} className="by-sec-icon" />
+                  <span>History of Jaipur</span>
                 </h2>
                 <DestinationHistoryToggle
                   text={data.history.summary}
@@ -571,59 +615,77 @@ function renderJaipurReferenceView() {
               {/* Section 3: Best Time to Visit */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">☀️</span> Best Time to Visit Jaipur
+                  <IconSun size={22} className="by-sec-icon" />
+                  <span>Best Time to Visit Jaipur</span>
                 </h2>
                 <div className="by-seasons-grid">
-                  {data.seasons.map((s) => (
-                    <div key={s.season} className="by-season-card">
-                      <div className="by-season-top">
-                        <span className="by-season-icon">{s.icon}</span>
-                        <h3 className="by-season-name">{s.season} <small>({s.period})</small></h3>
+                  {data.seasons.map((s) => {
+                    const SeasonIcon = s.icon;
+                    return (
+                      <div key={s.season} className="by-season-card">
+                        <div className="by-season-top">
+                          <span className="by-season-icon">
+                            <SeasonIcon size={20} />
+                          </span>
+                          <h3 className="by-season-name">{s.season} <small>({s.period})</small></h3>
+                        </div>
+                        <p className="by-season-desc">{s.desc}</p>
+                        <div className="by-season-badges">
+                          <span className="by-temp-badge">{s.temp}</span>
+                          <span className={`by-rec-badge ${s.badgeClass}`}>{s.badge}</span>
+                        </div>
                       </div>
-                      <p className="by-season-desc">{s.desc}</p>
-                      <div className="by-season-badges">
-                        <span className="by-temp-badge">{s.temp}</span>
-                        <span className={`by-rec-badge ${s.badgeClass}`}>{s.badge}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
 
               {/* Section 4: How to Reach Jaipur */}
               <section id="how-to-reach" className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">🚗</span> How to Reach Jaipur
+                  <IconCar size={22} className="by-sec-icon" />
+                  <span>How to Reach Jaipur</span>
                 </h2>
                 <div className="by-transport-grid">
-                  {data.howToReach.map((t) => (
-                    <div key={t.mode} className="by-transport-card">
-                      <div className="by-transport-icon-box">{t.icon}</div>
-                      <h3 className="by-transport-mode">{t.mode}</h3>
-                      <p className="by-transport-desc">{t.desc}</p>
-                      <Link href={t.href} className="by-transport-action">
-                        {t.action}
-                      </Link>
-                    </div>
-                  ))}
+                  {data.howToReach.map((t) => {
+                    const TIcon = t.icon;
+                    return (
+                      <div key={t.mode} className="by-transport-card">
+                        <div className="by-transport-icon-box">
+                          <TIcon size={22} />
+                        </div>
+                        <h3 className="by-transport-mode">{t.mode}</h3>
+                        <p className="by-transport-desc">{t.desc}</p>
+                        <Link href={t.href} className="by-transport-action">
+                          {t.action}
+                        </Link>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
 
               {/* Section 5: Getting Around in Jaipur */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">🛺</span> Getting Around in Jaipur
+                  <IconRoute size={22} className="by-sec-icon" />
+                  <span>Getting Around in Jaipur</span>
                 </h2>
                 <div className="by-getting-around-grid">
-                  {data.gettingAround.map((g) => (
-                    <div key={g.mode} className="by-around-card">
-                      <div className="by-around-header">
-                        <span className="by-around-icon">{g.icon}</span>
-                        <strong>{g.mode}</strong>
+                  {data.gettingAround.map((g) => {
+                    const GIcon = g.icon;
+                    return (
+                      <div key={g.mode} className="by-around-card">
+                        <div className="by-around-header">
+                          <span className="by-around-icon">
+                            <GIcon size={18} />
+                          </span>
+                          <strong>{g.mode}</strong>
+                        </div>
+                        <p>{g.desc}</p>
                       </div>
-                      <p>{g.desc}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
 
@@ -631,7 +693,8 @@ function renderJaipurReferenceView() {
               <section id="places" className="by-dest-section">
                 <div className="by-dest-sec-header-row">
                   <h2 className="by-dest-sec-title">
-                    <span className="by-sec-icon">📍</span> Top Places to Visit in Jaipur
+                    <IconMapPin size={22} className="by-sec-icon" />
+                    <span>Top Places to Visit in Jaipur</span>
                   </h2>
                   <Link href="/attractions" className="by-sec-viewall">
                     View All (20+) →
@@ -652,10 +715,14 @@ function renderJaipurReferenceView() {
                         <h3 className="by-place-name">{place.name}</h3>
                         <div className="by-place-meta">
                           <span className="by-place-tag">{place.category}</span>
-                          <span className="by-place-time">⏱ {place.time}</span>
+                          <span className="by-place-time" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <IconClock size={13} />
+                            <span>{place.time}</span>
+                          </span>
                         </div>
-                        <div className="by-place-rating">
-                          ⭐ {place.rating}
+                        <div className="by-place-rating" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <IconSparkles size={12} color="#D97706" />
+                          <span>{place.rating}</span>
                         </div>
                       </div>
                     </Link>
@@ -666,7 +733,8 @@ function renderJaipurReferenceView() {
               {/* Section 7: Suggested Itinerary */}
               <section id="itinerary" className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">🗓</span> Suggested Itinerary for Jaipur
+                  <IconCalendarEvent size={22} className="by-sec-icon" />
+                  <span>Suggested Itinerary for Jaipur</span>
                 </h2>
                 <DestinationItineraryTabs itineraries={data.itineraries} />
               </section>
@@ -675,10 +743,12 @@ function renderJaipurReferenceView() {
               <section id="food" className="by-dest-section">
                 <div className="by-dest-sec-header-row">
                   <h2 className="by-dest-sec-title">
-                    <span className="by-sec-icon">🍲</span> Famous Food in Jaipur
+                    <IconSoup size={22} className="by-sec-icon" />
+                    <span>Famous Food in Jaipur</span>
                   </h2>
-                  <Link href="/articles" className="by-sec-viewall">
-                    View All →
+                  <Link href="/articles" className="by-sec-viewall" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span>View All</span>
+                    <IconArrowRight size={14} />
                   </Link>
                 </div>
 
@@ -698,35 +768,45 @@ function renderJaipurReferenceView() {
               <section id="stay" className="by-dest-section">
                 <div className="by-dest-sec-header-row">
                   <h2 className="by-dest-sec-title">
-                    <span className="by-sec-icon">🏨</span> Where to Stay in Jaipur
+                    <IconBed size={22} className="by-sec-icon" />
+                    <span>Where to Stay in Jaipur</span>
                   </h2>
-                  <Link href="/destinations" className="by-sec-viewall">
-                    View All →
+                  <Link href="/destinations" className="by-sec-viewall" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span>View All</span>
+                    <IconArrowRight size={14} />
                   </Link>
                 </div>
 
                 <div className="by-stay-grid">
-                  {data.whereToStay.map((stay) => (
-                    <div key={stay.title} className="by-stay-card">
-                      <span className="by-stay-icon">{stay.icon}</span>
-                      <h3 className="by-stay-title">{stay.title}</h3>
-                      <span className="by-stay-price">{stay.price}</span>
-                      <p className="by-stay-desc">{stay.desc}</p>
-                    </div>
-                  ))}
+                  {data.whereToStay.map((stay) => {
+                    const StayIcon = stay.icon;
+                    return (
+                      <div key={stay.title} className="by-stay-card">
+                        <span className="by-stay-icon">
+                          <StayIcon size={24} />
+                        </span>
+                        <h3 className="by-stay-title">{stay.title}</h3>
+                        <span className="by-stay-price">{stay.price}</span>
+                        <p className="by-stay-desc">{stay.desc}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
 
               {/* Section 10: Travel Tips */}
               <section id="travel-guide" className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">💡</span> Travel Tips
+                  <IconBulb size={22} className="by-sec-icon" />
+                  <span>Travel Tips</span>
                 </h2>
                 <div className="by-tips-card">
                   <ul className="by-tips-two-col">
                     {data.travelTips.map((tip, idx) => (
                       <li key={idx}>
-                        <span className="by-tip-check">✓</span>
+                        <span className="by-tip-check" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                          <IconCheck size={14} />
+                        </span>
                         <span>{tip}</span>
                       </li>
                     ))}
@@ -739,8 +819,9 @@ function renderJaipurReferenceView() {
             <aside className="by-dest-sidebar-col">
               {/* Sidebar Card 1: Quick Information */}
               <div className="by-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">ℹ</span> Quick Information
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconInfoCircle size={18} className="by-sidebar-title-icon" />
+                  <span>Quick Information</span>
                 </h3>
                 <dl className="by-quick-info-list">
                   {data.quickInfo.map((q) => (
@@ -754,8 +835,9 @@ function renderJaipurReferenceView() {
 
               {/* Sidebar Card 2: Jaipur on Map */}
               <div id="map" className="by-sidebar-card by-map-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">🗺</span> Jaipur on Map
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconMap size={18} className="by-sidebar-title-icon" />
+                  <span>Jaipur on Map</span>
                 </h3>
                 <div className="by-sidebar-map-preview">
                   <img
@@ -773,8 +855,10 @@ function renderJaipurReferenceView() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="by-map-ext-btn"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  Open in Google Maps ↗
+                  <span>Open in Google Maps</span>
+                  <IconExternalLink size={14} />
                 </a>
               </div>
 
@@ -783,36 +867,45 @@ function renderJaipurReferenceView() {
 
               {/* Sidebar Card 4: Current Weather */}
               <div className="by-sidebar-card by-weather-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">⛅</span> Current Weather
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconCloudSun size={18} className="by-sidebar-title-icon" />
+                  <span>Current Weather</span>
                 </h3>
                 <p className="by-weather-loc">Jaipur, Rajasthan</p>
                 <div className="by-weather-display">
                   <span className="by-weather-temp">{data.weather.temp}</span>
-                  <span className="by-weather-icon">{data.weather.icon}</span>
+                  <span className="by-weather-icon" style={{ display: 'inline-flex' }}>
+                    <IconSun size={32} />
+                  </span>
                 </div>
                 <p className="by-weather-cond">{data.weather.condition}</p>
                 <p className="by-weather-minmax">{data.weather.minMax}</p>
-                <Link href="/weather" className="by-weather-link">
-                  View 7 Day Forecast →
+                <Link href="/weather" className="by-weather-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <span>View 7 Day Forecast</span>
+                  <IconArrowRight size={14} />
                 </Link>
               </div>
 
               {/* Sidebar Card 5: Official Information */}
               <div className="by-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">🏛</span> Official Information
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconBuildingMonument size={18} className="by-sidebar-title-icon" />
+                  <span>Official Information</span>
                 </h3>
                 <ul className="by-official-links">
                   {data.officialInfo.map((info) => (
                     <li key={info.name} className="by-official-link-row">
                       <strong>{info.name}</strong>
                       {info.url ? (
-                        <a href={info.url} target="_blank" rel="noopener noreferrer">
-                          {info.label}
+                        <a href={info.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <span>{info.label}</span>
+                          <IconExternalLink size={12} />
                         </a>
                       ) : (
-                        <span className="by-official-tel">{info.label}</span>
+                        <span className="by-official-tel" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <IconPhoneCall size={14} />
+                          <span>{info.label}</span>
+                        </span>
                       )}
                     </li>
                   ))}
@@ -821,8 +914,9 @@ function renderJaipurReferenceView() {
 
               {/* Sidebar Card 6: Nearby Destinations */}
               <div className="by-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">📍</span> Nearby Destinations
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconMapPin size={18} className="by-sidebar-title-icon" />
+                  <span>Nearby Destinations</span>
                 </h3>
                 <div className="by-nearby-list">
                   {data.nearbyDestinations.map((near) => (
@@ -854,10 +948,10 @@ function renderDatabaseDestinationView(dest) {
   const mapUrl = getMapPinUrl(dest.latitude, dest.longitude);
 
   const keyFacts = [
-    ...(dest.attractions?.length ? [{ label: 'Monuments', value: `${dest.attractions.length}+`, icon: '🏛' }] : []),
-    ...(dest.best_time_en ? [{ label: 'Best Time', value: dest.best_time_en, icon: '☀️' }] : []),
-    { label: 'Ideal Duration', value: '1 – 2 Days', icon: '⏱' },
-    { label: 'State', value: stateName, icon: '📍' },
+    ...(dest.attractions?.length ? [{ label: 'Monuments', value: `${dest.attractions.length}+`, icon: IconBuildingMonument }] : []),
+    ...(dest.best_time_en ? [{ label: 'Best Time', value: dest.best_time_en, icon: IconSun }] : []),
+    { label: 'Ideal Duration', value: '1 – 2 Days', icon: IconClock },
+    { label: 'State', value: stateName, icon: IconMapPin },
   ];
 
   return (
@@ -886,8 +980,9 @@ function renderDatabaseDestinationView(dest) {
         <div className="by-dest-hero-gradient" aria-hidden="true" />
         <div className="by-container by-dest-hero-shell">
           <div className="by-dest-hero-top-row">
-            <span className="by-dest-state-badge">
-              <span>📍</span> {stateName.toUpperCase()}
+            <span className="by-dest-state-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <IconMapPin size={14} />
+              <span>{stateName.toUpperCase()}</span>
             </span>
             <DestinationInteractiveClient
               destination={{
@@ -907,15 +1002,20 @@ function renderDatabaseDestinationView(dest) {
           </div>
 
           <div className="by-dest-facts-row">
-            {keyFacts.map((fact) => (
-              <div key={fact.label} className="by-dest-fact-pill">
-                <span className="by-fact-icon">{fact.icon}</span>
-                <div className="by-fact-text">
-                  <span className="by-fact-label">{fact.label}</span>
-                  <strong className="by-fact-val">{fact.value}</strong>
+            {keyFacts.map((fact) => {
+              const FactIcon = fact.icon;
+              return (
+                <div key={fact.label} className="by-dest-fact-pill">
+                  <span className="by-fact-icon">
+                    <FactIcon size={18} />
+                  </span>
+                  <div className="by-fact-text">
+                    <span className="by-fact-label">{fact.label}</span>
+                    <strong className="by-fact-val">{fact.value}</strong>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -936,7 +1036,8 @@ function renderDatabaseDestinationView(dest) {
           <div className="by-dest-main-col">
             <section id="overview" className="by-dest-section">
               <h2 className="by-dest-sec-title">
-                <span className="by-sec-icon">📖</span> About {dest.name_en}
+                <IconBookOpen size={22} className="by-sec-icon" />
+                <span>About {dest.name_en}</span>
               </h2>
               <div className="by-about-row">
                 <p className="by-about-p">{dest.description_en || dest.summary_en}</p>
@@ -947,7 +1048,8 @@ function renderDatabaseDestinationView(dest) {
             <section id="places" className="by-dest-section">
               <div className="by-dest-sec-header-row">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">📍</span> Verified Attractions in {dest.name_en}
+                  <IconMapPin size={22} className="by-sec-icon" />
+                  <span>Verified Attractions in {dest.name_en}</span>
                 </h2>
                 <span className="by-sec-count">{dest.attractions?.length || 0} Listed</span>
               </div>
@@ -965,16 +1067,18 @@ function renderDatabaseDestinationView(dest) {
                           </p>
                         )}
                         {attr.visiting_hours && (
-                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0' }}>
-                            <strong>Hours:</strong> {attr.visiting_hours}
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <IconClock size={14} />
+                            <span><strong>Hours:</strong> {attr.visiting_hours}</span>
                           </p>
                         )}
                         <Link
                           href={`/attractions/${dest.slug}/${attr.slug}`}
                           className="by-transport-action"
-                          style={{ marginTop: '0.75rem', display: 'inline-block' }}
+                          style={{ marginTop: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                         >
-                          View Monument Details →
+                          <span>View Monument Details</span>
+                          <IconArrowRight size={14} />
                         </Link>
                       </div>
                     </article>
@@ -991,7 +1095,8 @@ function renderDatabaseDestinationView(dest) {
             {dest.articles?.length > 0 && (
               <section id="articles" className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">📖</span> Editorial Travel Guides for {dest.name_en}
+                  <IconBookOpen size={22} className="by-sec-icon" />
+                  <span>Editorial Travel Guides for {dest.name_en}</span>
                 </h2>
                 <div className="by-articles-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
                   {dest.articles.map((art) => (
@@ -1007,7 +1112,10 @@ function renderDatabaseDestinationView(dest) {
                           </p>
                         )}
                         <div className="by-article-footer">
-                          <span className="by-article-read-time">Read full guide →</span>
+                          <span className="by-article-read-time" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <span>Read full guide</span>
+                            <IconArrowRight size={14} />
+                          </span>
                         </div>
                       </div>
                     </Link>
@@ -1020,8 +1128,9 @@ function renderDatabaseDestinationView(dest) {
           {/* Sidebar */}
           <aside className="by-dest-sidebar-col">
             <div className="by-sidebar-card">
-              <h3 className="by-sidebar-title">
-                <span className="by-sidebar-title-icon">ℹ</span> Quick Information
+              <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <IconInfoCircle size={18} className="by-sidebar-title-icon" />
+                <span>Quick Information</span>
               </h3>
               <dl className="by-quick-info-list">
                 <div className="by-quick-info-row">
@@ -1045,11 +1154,13 @@ function renderDatabaseDestinationView(dest) {
 
             {mapUrl && (
               <div id="map" className="by-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">🗺</span> Location on Map
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconMap size={18} className="by-sidebar-title-icon" />
+                  <span>Location on Map</span>
                 </h3>
-                <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="by-map-ext-btn">
-                  Open in Google Maps ↗
+                <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="by-map-ext-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <span>Open in Google Maps</span>
+                  <IconExternalLink size={14} />
                 </a>
               </div>
             )}

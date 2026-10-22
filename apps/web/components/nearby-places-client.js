@@ -2,6 +2,15 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import {
+  IconMapPin,
+  IconCompass,
+  IconAlertTriangle,
+  IconRoute,
+  IconArrowRight,
+  IconMap,
+  IconExternalLink,
+} from './icons';
 
 // Verified coordinate repository of hubs, destinations, and attractions
 const verifiedPlaces = [
@@ -263,8 +272,9 @@ export default function NearbyPlacesClient() {
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--teal-deep)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
               Base Coordinate Reference
             </span>
-            <strong style={{ fontSize: '1.25rem', color: 'var(--teal-deep)', fontFamily: 'var(--font-heading)' }}>
-              📍 {currentCoords.name}
+            <strong style={{ fontSize: '1.25rem', color: 'var(--teal-deep)', fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <IconMapPin size={20} />
+              <span>{currentCoords.name}</span>
             </strong>
             <span style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
               Lat: {currentCoords.lat.toFixed(4)}° · Lng: {currentCoords.lng.toFixed(4)}°
@@ -290,7 +300,8 @@ export default function NearbyPlacesClient() {
               boxShadow: 'var(--shadow-sm)',
             }}
           >
-            {isLocating ? '📡 Acquiring GPS…' : '🎯 Use My Device Location'}
+            <IconCompass size={18} />
+            <span>{isLocating ? 'Acquiring GPS…' : 'Use My Device Location'}</span>
           </button>
         </div>
 
@@ -305,9 +316,13 @@ export default function NearbyPlacesClient() {
               color: '#DC2626',
               fontSize: '0.88rem',
               marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
-            ⚠️ {locationError}
+            <IconAlertTriangle size={18} />
+            <span>{locationError}</span>
           </div>
         )}
 
@@ -409,7 +424,9 @@ export default function NearbyPlacesClient() {
       {/* Results Grid */}
       {placesWithDistance.length === 0 ? (
         <div className="empty-editorial-card" style={{ maxWidth: '640px', margin: '2rem auto', textAlign: 'center', padding: '3rem 1.5rem' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🧭</div>
+          <div style={{ color: 'var(--teal-primary)', marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>
+            <IconCompass size={40} />
+          </div>
           <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem', margin: '0 0 0.5rem 0' }}>
             No verified places found within {maxRadiusKm} km
           </h3>
@@ -420,9 +437,10 @@ export default function NearbyPlacesClient() {
             type="button"
             onClick={() => setMaxRadiusKm(1000)}
             className="btn-gold-pill"
-            style={{ fontSize: '0.85rem' }}
+            style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            Search All India Places →
+            <span>Search All India Places</span>
+            <IconArrowRight size={16} />
           </button>
         </div>
       ) : (
@@ -480,15 +498,29 @@ export default function NearbyPlacesClient() {
                       fontWeight: 700,
                       padding: '0.3rem 0.75rem',
                       borderRadius: '999px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
                     }}
                   >
-                    {isSelf ? '📍 At this location' : `📏 ${item.distanceKm} km away`}
+                    {isSelf ? (
+                      <>
+                        <IconMapPin size={14} />
+                        <span>At this location</span>
+                      </>
+                    ) : (
+                      <>
+                        <IconRoute size={14} />
+                        <span>{item.distanceKm} km away</span>
+                      </>
+                    )}
                   </span>
                 </div>
 
                 <div style={{ padding: '1.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--gold-dark)', fontWeight: 600, display: 'block', marginBottom: '0.35rem' }}>
-                    📍 {item.state}
+                  <span style={{ fontSize: '0.82rem', color: 'var(--gold-dark)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '0.35rem' }}>
+                    <IconMapPin size={14} />
+                    <span>{item.state}</span>
                   </span>
 
                   <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem', margin: '0 0 0.5rem 0' }}>
@@ -507,17 +539,20 @@ export default function NearbyPlacesClient() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                    <Link href={item.href} className="btn-gold-pill" style={{ fontSize: '0.82rem', textDecoration: 'none' }}>
-                      Explore Guide →
+                    <Link href={item.href} className="btn-gold-pill" style={{ fontSize: '0.82rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <span>Explore Guide</span>
+                      <IconArrowRight size={14} />
                     </Link>
                     <a
                       href={mapsDirUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="button-link-secondary"
-                      style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                      style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      <span>🗺️ Navigate</span>
+                      <IconMap size={14} />
+                      <span>Navigate</span>
+                      <IconExternalLink size={12} />
                     </a>
                   </div>
                 </div>

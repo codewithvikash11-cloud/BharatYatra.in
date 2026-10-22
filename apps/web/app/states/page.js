@@ -90,7 +90,7 @@ export default async function StatesPage() {
                   </p>
 
                   <div className="by-state-card-action">
-                    <span>{dict.common.explore}</span>
+                    <span>{showHi ? 'देखें' : 'Explore'}</span>
                     <IconArrowRight size={15} />
                   </div>
                 </div>

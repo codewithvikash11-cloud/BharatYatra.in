@@ -5,6 +5,7 @@ import { MarkdownContent, TableOfContents, extractHeadings } from '../../../lib/
 import prisma from '../../../lib/db.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
 import SocialShare from '../../../components/social-share.js';
+import { IconMapPin, IconClock, IconBookOpen, IconArrowRight } from '../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -219,9 +220,10 @@ export default async function ArticleDetailPage({ params }) {
             {destination && (
               <Link
                 href={`/destinations/${destination.slug}`}
-                style={{ fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--teal-deep)', background: 'var(--cream)', border: '1px solid var(--border-color)', padding: '0.25rem 0.75rem', borderRadius: '999px', textDecoration: 'none' }}
+                style={{ fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--teal-deep)', background: 'var(--cream)', border: '1px solid var(--border-color)', padding: '0.25rem 0.75rem', borderRadius: '999px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                📍 {destination.name_en}
+                <IconMapPin size={12} />
+                <span>{destination.name_en}</span>
               </Link>
             )}
             {state && (
@@ -256,8 +258,14 @@ export default async function ArticleDetailPage({ params }) {
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', fontSize: '0.85rem' }}>
-              <span>⏱ {readingTime} min read</span>
-              <span>📖 Verified Editorial</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <IconClock size={14} />
+                <span>{readingTime} min read</span>
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <IconBookOpen size={14} />
+                <span>Verified Editorial</span>
+              </span>
             </div>
           </div>
 
@@ -350,8 +358,9 @@ export default async function ArticleDetailPage({ params }) {
                   Explore the latest verified places, practical guidance, and editorial stories for {destination.name_en}.
                 </p>
               </div>
-              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none' }}>
-                View {destination.name_en} Guide →
+              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span>View {destination.name_en} Guide</span>
+                <IconArrowRight size={14} />
               </Link>
             </div>
           )}
@@ -371,8 +380,9 @@ export default async function ArticleDetailPage({ params }) {
                     <span className="serif-italic-gold">the road.</span>
                   </h2>
                 </div>
-                <Link href="/articles" className="section-link-more">
-                  All articles <span>→</span>
+                <Link href="/articles" className="section-link-more" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <span>All articles</span>
+                  <IconArrowRight size={14} />
                 </Link>
               </div>
 
@@ -399,8 +409,9 @@ export default async function ArticleDetailPage({ params }) {
                           {rel.excerpt_en}
                         </p>
                       )}
-                      <span className="story-card-link-cta">
-                        Read story <span>→</span>
+                      <span className="story-card-link-cta" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <span>Read story</span>
+                        <IconArrowRight size={14} />
                       </span>
                     </div>
                   </Link>

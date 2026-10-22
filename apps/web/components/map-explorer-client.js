@@ -1,6 +1,12 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import {
+  IconMapPin,
+  IconArrowRight,
+  IconExternalLink,
+  getRegionIcon,
+} from './icons';
 
 const mapPins = [
   { id: 'jaipur', name: 'Jaipur', state: 'Rajasthan', region: 'west', lat: 26.9124, lng: 75.7873, tag: 'Forts & Royal Palaces', slug: 'jaipur' },
@@ -49,9 +55,13 @@ export default function MapExplorerClient() {
               fontWeight: 600,
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
-            {r.label}
+            {getRegionIcon(r.id, { size: 16 })}
+            <span>{r.label}</span>
           </button>
         ))}
       </div>
@@ -130,7 +140,8 @@ export default function MapExplorerClient() {
                 style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
               />
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'var(--teal-deep)', color: '#FFFFFF', padding: '0.5rem 1rem', borderRadius: '999px', fontWeight: 700, fontSize: '0.85rem', boxShadow: '0 4px 12px rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span style={{ color: 'var(--gold-muted)' }}>📍</span> {activePin.name}, {activePin.state}
+                <IconMapPin size={16} style={{ color: 'var(--gold-muted)' }} />
+                <span>{activePin.name}, {activePin.state}</span>
               </div>
             </div>
           </div>
@@ -139,18 +150,20 @@ export default function MapExplorerClient() {
             <Link
               href={activePin.id === 'jaipur' ? '/destinations/jaipur' : `/destinations/${activePin.slug}`}
               className="btn-gold-pill"
-              style={{ textDecoration: 'none', fontSize: '0.9rem' }}
+              style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              Explore {activePin.name} Guide →
+              <span>Explore {activePin.name} Guide</span>
+              <IconArrowRight size={16} />
             </Link>
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${activePin.lat},${activePin.lng}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-outline-teal"
-              style={{ textDecoration: 'none', fontSize: '0.9rem' }}
+              style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              Open in Google Maps ↗
+              <span>Open in Google Maps</span>
+              <IconExternalLink size={16} />
             </a>
           </div>
         </div>

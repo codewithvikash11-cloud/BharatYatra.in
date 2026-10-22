@@ -1,4 +1,13 @@
 import Link from 'next/link';
+import {
+  IconAlertTriangle,
+  IconPassport,
+  IconBuildingMonument,
+  IconTrain,
+  IconCreditCard,
+  IconBuildingArch,
+  IconExternalLink,
+} from '../../components/icons.js';
 
 export const metadata = {
   title: 'Travel Help & Safety Helpline | Essential India Travel Guide | BharatYatra',
@@ -41,7 +50,7 @@ export default function TravelHelpPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🚨</span>
+              <IconAlertTriangle size={24} style={{ color: 'var(--gold-muted)', flexShrink: 0 }} />
               <h2 style={{ fontFamily: 'var(--font-heading)', margin: 0, fontSize: '1.5rem', color: '#FFFDF8' }}>
                 24x7 National Emergency & Assistance Numbers
               </h2>
@@ -87,40 +96,43 @@ export default function TravelHelpPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
             <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.2rem' }}>🛂</span>
+                <IconPassport size={20} style={{ color: 'var(--teal-primary)' }} />
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--teal-deep)' }}>Indian Visa Online</h3>
               </div>
               <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 Official Government of India portal for e-Visa applications (Tourist, Business, Medical, Conference).
               </p>
-              <a href="https://indianvisaonline.gov.in" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
-                indianvisaonline.gov.in ↗
+              <a href="https://indianvisaonline.gov.in" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span>indianvisaonline.gov.in</span>
+                <IconExternalLink size={12} />
               </a>
             </div>
 
             <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.2rem' }}>🏛️</span>
+                <IconBuildingMonument size={20} style={{ color: 'var(--teal-primary)' }} />
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--teal-deep)' }}>Incredible India</h3>
               </div>
               <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 Ministry of Tourism official national tourism portal featuring certified guides, regional offices, and cultural itineraries.
               </p>
-              <a href="https://www.incredibleindia.org" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
-                incredibleindia.org ↗
+              <a href="https://www.incredibleindia.org" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span>incredibleindia.org</span>
+                <IconExternalLink size={12} />
               </a>
             </div>
 
             <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.2rem' }}>🚆</span>
+                <IconTrain size={20} style={{ color: 'var(--teal-primary)' }} />
                 <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--teal-deep)' }}>IRCTC Railway Booking</h3>
               </div>
               <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 Official railway portal for reservation of Vande Bharat, Rajdhani, Shatabdi, and Express trains across India.
               </p>
-              <a href="https://www.irctc.co.in" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
-                irctc.co.in ↗
+              <a href="https://www.irctc.co.in" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span>irctc.co.in</span>
+                <IconExternalLink size={12} />
               </a>
             </div>
           </div>
@@ -135,7 +147,7 @@ export default function TravelHelpPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <div style={{ background: 'var(--cream)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '1.2rem' }}>💳</span>
+                <IconCreditCard size={20} style={{ color: 'var(--teal-primary)' }} />
                 <h3 style={{ margin: 0, color: 'var(--teal-deep)', fontSize: '1.15rem' }}>Currency & UPI Payments</h3>
               </div>
               <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -150,7 +162,7 @@ export default function TravelHelpPage() {
 
             <div style={{ background: 'var(--cream)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '1.2rem' }}>🛕</span>
+                <IconBuildingArch size={20} style={{ color: 'var(--teal-primary)' }} />
                 <h3 style={{ margin: 0, color: 'var(--teal-deep)', fontSize: '1.15rem' }}>Sacred Site Etiquette</h3>
               </div>
               <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -164,7 +176,6 @@ export default function TravelHelpPage() {
               </ul>
             </div>
           </div>
-        </section>
       </div>
     </main>
   );

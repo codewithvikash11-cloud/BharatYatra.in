@@ -1,6 +1,19 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import {
+  IconSettings,
+  IconChevronDown,
+  IconChevronUp,
+  IconCopy,
+  IconCheck,
+  IconArrowRight,
+  IconBed,
+  IconSoup,
+  IconCar,
+  IconTicket,
+  IconShieldCheck,
+} from './icons';
 
 const defaultRates = {
   budget: { stay: 700, food: 400, transport: 300, activities: 200, buffer: 200 },
@@ -179,8 +192,9 @@ export default function BudgetCalculatorClient() {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h3 style={{ margin: '0 0 0.25rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.15rem' }}>
-              ⚙️ Editable Assumptions & Daily Rates
+            <h3 style={{ margin: '0 0 0.25rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IconSettings size={18} />
+              <span>Editable Assumptions & Daily Rates</span>
             </h3>
             <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
               Adjust baseline daily rates per person to match your exact accommodation or dietary preferences.
@@ -198,9 +212,22 @@ export default function BudgetCalculatorClient() {
               fontWeight: 600,
               fontSize: '0.82rem',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
-            {showCustomRates ? 'Hide Custom Rates ▲' : 'Edit Daily Assumptions ▼'}
+            {showCustomRates ? (
+              <>
+                <span>Hide Custom Rates</span>
+                <IconChevronUp size={14} />
+              </>
+            ) : (
+              <>
+                <span>Edit Daily Assumptions</span>
+                <IconChevronDown size={14} />
+              </>
+            )}
           </button>
         </div>
 
@@ -208,8 +235,9 @@ export default function BudgetCalculatorClient() {
           <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  🏨 Stay / Night (₹)
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  <IconBed size={15} />
+                  <span>Stay / Night (₹)</span>
                 </label>
                 <input
                   type="number"
@@ -222,8 +250,9 @@ export default function BudgetCalculatorClient() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  🍲 Food / Day (₹)
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  <IconSoup size={15} />
+                  <span>Food / Day (₹)</span>
                 </label>
                 <input
                   type="number"
@@ -236,8 +265,9 @@ export default function BudgetCalculatorClient() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  🛺 Transit / Day (₹)
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  <IconCar size={15} />
+                  <span>Transit / Day (₹)</span>
                 </label>
                 <input
                   type="number"
@@ -250,8 +280,9 @@ export default function BudgetCalculatorClient() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  🎟 Sightseeing / Day (₹)
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  <IconTicket size={15} />
+                  <span>Sightseeing / Day (₹)</span>
                 </label>
                 <input
                   type="number"
@@ -264,8 +295,9 @@ export default function BudgetCalculatorClient() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
-                  🛡️ Contingency / Day (₹)
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  <IconShieldCheck size={15} />
+                  <span>Contingency / Day (₹)</span>
                 </label>
                 <input
                   type="number"
@@ -388,16 +420,21 @@ export default function BudgetCalculatorClient() {
               fontWeight: 600,
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
-            📋 Copy Estimate
+            <IconCopy size={16} />
+            <span>Copy Estimate</span>
           </button>
           <Link
             href="/trip-planner"
             className="btn-gold-pill"
-            style={{ textDecoration: 'none', background: 'var(--gold-muted)', color: '#FFFFFF' }}
+            style={{ textDecoration: 'none', background: 'var(--gold-muted)', color: '#FFFFFF', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            Build Detailed Itinerary →
+            <span>Build Detailed Itinerary</span>
+            <IconArrowRight size={16} />
           </Link>
         </div>
       </div>
@@ -414,9 +451,14 @@ export default function BudgetCalculatorClient() {
             marginBottom: '1.5rem',
             textAlign: 'center',
             boxShadow: 'var(--shadow-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
           }}
         >
-          ✓ Budget breakdown copied to clipboard!
+          <IconCheck size={16} />
+          <span>Budget breakdown copied to clipboard!</span>
         </div>
       )}
 
@@ -428,7 +470,9 @@ export default function BudgetCalculatorClient() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🏨</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconBed size={24} />
+            </span>
             <strong style={{ display: 'block', color: 'var(--text-primary)', marginTop: '0.4rem', fontSize: '1.05rem' }}>Accommodation</strong>
             <span style={{ display: 'block', fontSize: '1.4rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0.2rem 0' }}>
               {formatAmount(stayTotal)}
@@ -437,7 +481,9 @@ export default function BudgetCalculatorClient() {
           </div>
 
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🍲</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconSoup size={24} />
+            </span>
             <strong style={{ display: 'block', color: 'var(--text-primary)', marginTop: '0.4rem', fontSize: '1.05rem' }}>Food & Dining</strong>
             <span style={{ display: 'block', fontSize: '1.4rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0.2rem 0' }}>
               {formatAmount(foodTotal)}
@@ -446,7 +492,9 @@ export default function BudgetCalculatorClient() {
           </div>
 
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🛺</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconCar size={24} />
+            </span>
             <strong style={{ display: 'block', color: 'var(--text-primary)', marginTop: '0.4rem', fontSize: '1.05rem' }}>Local Transport</strong>
             <span style={{ display: 'block', fontSize: '1.4rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0.2rem 0' }}>
               {formatAmount(transportTotal)}
@@ -455,7 +503,9 @@ export default function BudgetCalculatorClient() {
           </div>
 
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🎟</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconTicket size={24} />
+            </span>
             <strong style={{ display: 'block', color: 'var(--text-primary)', marginTop: '0.4rem', fontSize: '1.05rem' }}>Sightseeing & Tickets</strong>
             <span style={{ display: 'block', fontSize: '1.4rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0.2rem 0' }}>
               {formatAmount(activitiesTotal)}
@@ -464,7 +514,9 @@ export default function BudgetCalculatorClient() {
           </div>
 
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🛡️</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconShieldCheck size={24} />
+            </span>
             <strong style={{ display: 'block', color: 'var(--text-primary)', marginTop: '0.4rem', fontSize: '1.05rem' }}>Contingency Buffer</strong>
             <span style={{ display: 'block', fontSize: '1.4rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', margin: '0.2rem 0' }}>
               {formatAmount(bufferTotal)}

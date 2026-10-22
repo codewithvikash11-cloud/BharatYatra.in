@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import prisma from '../../../lib/db.js';
 import ItineraryInteractiveClient from '../../../components/itinerary-interactive-client.js';
+import { IconClock, IconMapPin } from '../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -549,9 +550,13 @@ export default async function ItineraryDetailPage({ params }) {
                     fontWeight: 600,
                     padding: '0.25rem 0.65rem',
                     borderRadius: '999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
                   }}
                 >
-                  ⏱ {itinerary.days} · {itinerary.placesCount}
+                  <IconClock size={12} />
+                  <span>{itinerary.days} · {itinerary.placesCount}</span>
                 </span>
               </div>
               <h1
@@ -565,8 +570,15 @@ export default async function ItineraryDetailPage({ params }) {
               >
                 {itinerary.title}
               </h1>
-              <p style={{ margin: 0, fontSize: '1rem', color: 'rgba(255, 253, 248, 0.85)', fontWeight: 500 }}>
-                {itinerary.subtitle} {itinerary.destinationName ? `· 📍 ${itinerary.destinationName}` : ''}
+              <p style={{ margin: 0, fontSize: '1rem', color: 'rgba(255, 253, 248, 0.85)', fontWeight: 500, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                <span>{itinerary.subtitle}</span>
+                {itinerary.destinationName && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span>·</span>
+                    <IconMapPin size={13} />
+                    <span>{itinerary.destinationName}</span>
+                  </span>
+                )}
               </p>
             </div>
           </div>

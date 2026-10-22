@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getMapPinUrl } from '../lib/map-url.mjs';
 import { getDictionary, getLanguage } from '../lib/i18n.js';
 import prisma from '../lib/db.js';
+import { IconSearch, IconChevronLeft, IconChevronRight, IconArrowRight, IconExternalLink } from './icons.js';
 
 export async function getCoverImage(type, slug) {
   try {
@@ -36,10 +37,7 @@ export function PageHeading({ eyebrow, title, description }) {
 export async function ContentSearch({ pathname, value }) {
   return (
     <form className="hero-search-box" action={pathname} method="get" role="search">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#87938F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
+      <IconSearch size={18} style={{ color: 'var(--text-muted)' }} />
       <input
         id={`search-${pathname.replaceAll('/', '-')}`}
         className="search-input-field"
@@ -70,9 +68,19 @@ export async function Pagination({ pagination, pathname, extra = {} }) {
   };
   return (
     <nav className="pagination" aria-label="Pagination navigation">
-      {pagination.page > 1 ? <Link href={linkFor(pagination.page - 1)}>← Previous</Link> : <span />}
+      {pagination.page > 1 ? (
+        <Link href={linkFor(pagination.page - 1)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <IconChevronLeft size={16} />
+          <span>Previous</span>
+        </Link>
+      ) : <span />}
       <span>Page {pagination.page} of {pagination.totalPages}</span>
-      {pagination.page < pagination.totalPages ? <Link href={linkFor(pagination.page + 1)}>Next →</Link> : <span />}
+      {pagination.page < pagination.totalPages ? (
+        <Link href={linkFor(pagination.page + 1)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <span>Next</span>
+          <IconChevronRight size={16} />
+        </Link>
+      ) : <span />}
     </nav>
   );
 }
@@ -118,8 +126,9 @@ export async function DestinationCard({ item }) {
           </p>
         )}
         <div className="destination-card-footer">
-          <Link href={`/destinations/${encodeURIComponent(item.slug)}`}>
-            Explore Destination <span className="arrow">→</span>
+          <Link href={`/destinations/${encodeURIComponent(item.slug)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span>Explore Destination</span>
+            <IconArrowRight size={14} className="arrow" />
           </Link>
         </div>
       </div>
@@ -165,8 +174,9 @@ export async function AttractionCard({ item }) {
           </p>
         )}
         <div className="destination-card-footer">
-          <Link href={`/attractions/${encodeURIComponent(destination?.slug || 'guide')}/${encodeURIComponent(item.slug)}`}>
-            View Attraction <span className="arrow">→</span>
+          <Link href={`/attractions/${encodeURIComponent(destination?.slug || 'guide')}/${encodeURIComponent(item.slug)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span>View Attraction</span>
+            <IconArrowRight size={14} className="arrow" />
           </Link>
         </div>
       </div>
@@ -216,8 +226,9 @@ export async function ArticleCard({ item }) {
         )}
         <div className="article-card-author-row">
           <span className="article-author-info">By {item.author_name || 'BharatYatra Editors'}</span>
-          <Link href={`/articles/${encodeURIComponent(item.slug)}`} className="article-read-link">
-            Read Guide <span>→</span>
+          <Link href={`/articles/${encodeURIComponent(item.slug)}`} className="article-read-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span>Read Guide</span>
+            <IconArrowRight size={14} />
           </Link>
         </div>
       </div>
@@ -304,8 +315,9 @@ export async function ContentDetail({ item, kind }) {
 
       {mapUrl && (
         <p style={{ margin: '1.5rem 0' }}>
-          <a className="button-link-secondary" href={mapUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.88rem', padding: '0.6rem 1.25rem' }}>
-            View Geographic Coordinates on Map ↗
+          <a className="button-link-secondary" href={mapUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.88rem', padding: '0.6rem 1.25rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span>View Geographic Coordinates on Map</span>
+            <IconExternalLink size={14} />
           </a>
         </p>
       )}

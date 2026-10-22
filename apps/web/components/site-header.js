@@ -5,6 +5,29 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import BrandLogo from './brand-logo.js';
 import FavoritesDrawer from './favorites-drawer.js';
+import {
+  IconChevronDown,
+  IconSearch,
+  IconHeart,
+  IconUser,
+  IconCalendar,
+  IconClipboardCheck,
+  IconSettings,
+  IconMapPin,
+  IconRoute,
+  IconCalculator,
+  IconShieldCheck,
+  IconSparkles,
+  IconBookOpen,
+  IconMap,
+  IconMountain,
+  IconBeach,
+  IconBuildingCastle,
+  IconBuildingMonument,
+  IconPaw,
+  IconLeaf,
+  IconArrowRight,
+} from './icons.js';
 
 export default function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -105,20 +128,11 @@ export default function SiteHeader() {
                 aria-haspopup="true"
               >
                 <span>Destinations</span>
-                <svg
+                <IconChevronDown
                   className={`by-dropdown-chevron ${destDropdownOpen ? 'rotated' : ''}`}
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                  size={14}
+                  stroke={2.2}
+                />
               </button>
 
               {destDropdownOpen && (
@@ -126,30 +140,36 @@ export default function SiteHeader() {
                   <div className="by-dropdown-col">
                     <span className="by-dropdown-header">Explore by Region</span>
                     <Link href="/destinations?region=north" className="by-dropdown-link" role="menuitem">
-                      🏔 North India <small>Himalayas &amp; Heritage</small>
+                      <IconMountain size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                      <span>North India <small>Himalayas &amp; Heritage</small></span>
                     </Link>
                     <Link href="/destinations?region=south" className="by-dropdown-link" role="menuitem">
-                      🌴 South India <small>Beaches &amp; Temples</small>
+                      <IconBeach size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                      <span>South India <small>Beaches &amp; Temples</small></span>
                     </Link>
                     <Link href="/destinations?region=west" className="by-dropdown-link" role="menuitem">
-                      🏰 West India <small>Rajasthan &amp; Deserts</small>
+                      <IconBuildingCastle size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                      <span>West India <small>Rajasthan &amp; Deserts</small></span>
                     </Link>
                     <Link href="/destinations?region=east" className="by-dropdown-link" role="menuitem">
-                      🛕 East India <small>Temples &amp; Culture</small>
+                      <IconBuildingMonument size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                      <span>East India <small>Temples &amp; Culture</small></span>
                     </Link>
                     <Link href="/destinations?region=central" className="by-dropdown-link" role="menuitem">
-                      🐅 Central India <small>Wildife &amp; Ancient Sites</small>
+                      <IconPaw size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                      <span>Central India <small>Wildife &amp; Ancient Sites</small></span>
                     </Link>
                     <Link href="/destinations?region=northeast" className="by-dropdown-link" role="menuitem">
-                      🌿 North East India <small>Living Roots &amp; Valleys</small>
+                      <IconLeaf size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                      <span>North East India <small>Living Roots &amp; Valleys</small></span>
                     </Link>
                   </div>
                   <div className="by-dropdown-footer">
                     <Link href="/destinations" className="by-dropdown-viewall">
-                      View All Destinations ({'>'})
+                      View All Destinations <IconArrowRight size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '4px' }} />
                     </Link>
                     <Link href="/states" className="by-dropdown-viewall">
-                      Browse by 36 States &amp; UTs ({'>'})
+                      Browse by 36 States &amp; UTs <IconArrowRight size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: '4px' }} />
                     </Link>
                   </div>
                 </div>
@@ -175,21 +195,12 @@ export default function SiteHeader() {
           <div className="by-navbar-actions">
             {/* Header Search Box */}
             <form onSubmit={handleNavSearchSubmit} className="by-navbar-search-form" role="search">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#87938F"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+              <IconSearch
+                size={16}
+                stroke={2.2}
+                color="#87938F"
                 className="by-navbar-search-icon"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              />
               <input
                 type="search"
                 className="by-navbar-search-input"
@@ -208,19 +219,12 @@ export default function SiteHeader() {
               aria-label={`Saved destinations (${favCount} items)`}
               title="Saved destinations"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill={favCount > 0 ? '#B9653F' : 'none'}
-                stroke={favCount > 0 ? '#B9653F' : '#153E3A'}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
+              <IconHeart
+                size={20}
+                stroke={1.8}
+                color={favCount > 0 ? '#B9653F' : '#153E3A'}
+                style={{ fill: favCount > 0 ? '#B9653F' : 'none' }}
+              />
               {favCount > 0 && <span className="by-favorites-badge">{favCount}</span>}
             </button>
 
@@ -233,20 +237,11 @@ export default function SiteHeader() {
                 aria-label="User Account"
                 title="Account"
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#153E3A"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
+                <IconUser
+                  size={20}
+                  stroke={1.8}
+                  color="#153E3A"
+                />
               </button>
 
               {accountModalOpen && (
@@ -256,7 +251,8 @@ export default function SiteHeader() {
                     <span>Plan &amp; save your journeys</span>
                   </div>
                   <Link href="/trip-planner" className="by-account-link" role="menuitem">
-                    🗓 My Saved Itineraries
+                    <IconCalendar size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                    <span>My Saved Itineraries</span>
                   </Link>
                   <button
                     type="button"
@@ -267,13 +263,16 @@ export default function SiteHeader() {
                     }}
                     role="menuitem"
                   >
-                    ❤️ Wishlist ({favCount})
+                    <IconHeart size={16} stroke={1.8} style={{ marginRight: '8px', color: '#B9653F' }} />
+                    <span>Wishlist ({favCount})</span>
                   </button>
                   <Link href="/checklist" className="by-account-link" role="menuitem">
-                    📋 Packing Checklist
+                    <IconClipboardCheck size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
+                    <span>Packing Checklist</span>
                   </Link>
                   <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer" className="by-account-link by-admin-link" role="menuitem">
-                    ⚙ Admin Studio ↗
+                    <IconSettings size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--gold-dark)' }} />
+                    <span>Admin Studio ↗</span>
                   </a>
                 </div>
               )}
@@ -311,28 +310,36 @@ export default function SiteHeader() {
 
             <div className="by-mobile-nav-list">
               <Link href="/destinations" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                📍 Destinations
+                <IconMapPin size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Destinations</span>
               </Link>
               <Link href="/trip-planner" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                🗓 Trip Planner
+                <IconCalendar size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Trip Planner</span>
               </Link>
               <Link href="/routes" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                🚗 Routes &amp; Transport
+                <IconRoute size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Routes &amp; Transport</span>
               </Link>
               <Link href="/budget-calculator" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                💰 Budget Calculator
+                <IconCalculator size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Budget Calculator</span>
               </Link>
               <Link href="/travel-help" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                🛡 Travel Help
+                <IconShieldCheck size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Travel Help</span>
               </Link>
               <Link href="/events" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                🎉 Events &amp; Festivals
+                <IconSparkles size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Events &amp; Festivals</span>
               </Link>
               <Link href="/articles" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                📖 Blog &amp; Travel Guides
+                <IconBookOpen size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>Blog &amp; Travel Guides</span>
               </Link>
               <Link href="/states" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
-                🗺 36 States &amp; UTs
+                <IconMap size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
+                <span>36 States &amp; UTs</span>
               </Link>
             </div>
 
@@ -345,7 +352,8 @@ export default function SiteHeader() {
                   setFavDrawerOpen(true);
                 }}
               >
-                ❤️ Saved Places ({favCount})
+                <IconHeart size={18} stroke={1.8} style={{ marginRight: '8px', color: '#B9653F' }} />
+                <span>Saved Places ({favCount})</span>
               </button>
               <Link href="/trip-planner" className="btn-gold-pill" style={{ display: 'block', textAlign: 'center', marginTop: '0.75rem' }} onClick={() => setMobileMenuOpen(false)}>
                 Plan Your Journey →

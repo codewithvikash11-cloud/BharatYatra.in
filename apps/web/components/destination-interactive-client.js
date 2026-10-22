@@ -3,6 +3,23 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  IconHeart,
+  IconHeartFilled,
+  IconShare,
+  IconCamera,
+  IconX,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronDown,
+  IconChevronUp,
+  IconCheck,
+  IconArrowRight,
+  IconCalendar,
+  IconCalendarEvent,
+  IconMapPin,
+  IconUsers,
+} from './icons';
 
 export default function DestinationInteractiveClient({ destination, galleryPhotos = [] }) {
   const [isSaved, setIsSaved] = useState(false);
@@ -93,7 +110,7 @@ export default function DestinationInteractiveClient({ destination, galleryPhoto
           className={`by-dest-action-btn ${isSaved ? 'is-active' : ''}`}
           aria-label={isSaved ? 'Remove from saved places' : 'Save to wishlist'}
         >
-          <span style={{ color: isSaved ? '#B9653F' : 'inherit' }}>{isSaved ? '❤️' : '♡'}</span>
+          {isSaved ? <IconHeartFilled size={18} /> : <IconHeart size={18} />}
           <span>{isSaved ? 'Saved' : 'Save'}</span>
         </button>
 
@@ -103,15 +120,16 @@ export default function DestinationInteractiveClient({ destination, galleryPhoto
           className="by-dest-action-btn"
           aria-label="Share destination"
         >
-          <span>↗</span>
+          <IconShare size={18} />
           <span>Share</span>
         </button>
       </div>
 
       {/* Share Toast */}
       {shareToast && (
-        <div className="by-toast-notification" role="status">
-          ✓ Link copied to clipboard!
+        <div className="by-toast-notification" role="status" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <IconCheck size={16} />
+          <span>Link copied to clipboard!</span>
         </div>
       )}
 
@@ -126,7 +144,7 @@ export default function DestinationInteractiveClient({ destination, galleryPhoto
           className="by-hero-gallery-trigger"
           aria-label="View destination photo gallery"
         >
-          <span className="camera-icon">📷</span>
+          <IconCamera size={18} className="camera-icon" />
           <span>View Gallery ({galleryPhotos.length}+ Photos)</span>
         </button>
       )}
@@ -154,7 +172,7 @@ export default function DestinationInteractiveClient({ destination, galleryPhoto
                 onClick={() => setGalleryOpen(false)}
                 aria-label="Close photo gallery"
               >
-                ✕
+                <IconX size={20} />
               </button>
             </div>
 
@@ -167,7 +185,7 @@ export default function DestinationInteractiveClient({ destination, galleryPhoto
                 }
                 aria-label="Previous photo"
               >
-                ‹
+                <IconChevronLeft size={24} />
               </button>
 
               <div className="by-gallery-active-image-wrap">
@@ -186,7 +204,7 @@ export default function DestinationInteractiveClient({ destination, galleryPhoto
                 }
                 aria-label="Next photo"
               >
-                ›
+                <IconChevronRight size={24} />
               </button>
             </div>
 
@@ -239,7 +257,9 @@ export function DestinationItineraryTabs({ itineraries }) {
             <ul className="by-itin-stops-list">
               {day.stops.map((stop, sIdx) => (
                 <li key={sIdx} className="by-itin-stop-item">
-                  <span className="by-itin-check">✓</span>
+                  <span className="by-itin-check" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <IconCheck size={14} />
+                  </span>
                   <div className="by-itin-stop-details">
                     <strong>{stop.name}</strong>
                     {stop.time && <span className="by-itin-time">({stop.time})</span>}
@@ -255,8 +275,10 @@ export function DestinationItineraryTabs({ itineraries }) {
         <Link
           href={`/trip-planner?itinerary=${encodeURIComponent(currentItin.tabLabel)}`}
           className="by-itin-detailed-btn"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          View Detailed Itinerary →
+          <span>View Detailed Itinerary</span>
+          <IconArrowRight size={16} />
         </Link>
       </div>
     </div>
@@ -281,8 +303,19 @@ export function DestinationHistoryToggle({ text, extendedText, image, imageAlt }
             type="button"
             className="by-history-toggle-btn"
             onClick={() => setExpanded(!expanded)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
           >
-            {expanded ? 'Read Less ↑' : 'Read More ↓'}
+            {expanded ? (
+              <>
+                <span>Read Less</span>
+                <IconChevronUp size={16} />
+              </>
+            ) : (
+              <>
+                <span>Read More</span>
+                <IconChevronDown size={16} />
+              </>
+            )}
           </button>
         )}
       </div>
@@ -316,14 +349,17 @@ export function SidebarPlanForm({ destinationName }) {
 
   return (
     <div className="by-sidebar-card by-sidebar-plan-card">
-      <h3 className="by-sidebar-title">
-        <span className="by-sidebar-title-icon">🗓</span> Plan Your Trip to {destinationName}
+      <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <IconCalendarEvent size={20} className="by-sidebar-title-icon" />
+        <span>Plan Your Trip to {destinationName}</span>
       </h3>
       <form onSubmit={handleSubmit} className="by-sidebar-form">
         <div className="by-sidebar-field">
           <label htmlFor="plan-from-city">From</label>
           <div className="by-sidebar-input-wrap">
-            <span className="by-input-icon">📍</span>
+            <span className="by-input-icon">
+              <IconMapPin size={18} />
+            </span>
             <input
               id="plan-from-city"
               type="text"
@@ -338,7 +374,9 @@ export function SidebarPlanForm({ destinationName }) {
         <div className="by-sidebar-field">
           <label htmlFor="plan-travel-date">Travel Date</label>
           <div className="by-sidebar-input-wrap">
-            <span className="by-input-icon">📅</span>
+            <span className="by-input-icon">
+              <IconCalendar size={18} />
+            </span>
             <input
               id="plan-travel-date"
               type="date"
@@ -351,7 +389,9 @@ export function SidebarPlanForm({ destinationName }) {
         <div className="by-sidebar-field">
           <label htmlFor="plan-travellers-count">No. of Travellers</label>
           <div className="by-sidebar-input-wrap">
-            <span className="by-input-icon">👥</span>
+            <span className="by-input-icon">
+              <IconUsers size={18} />
+            </span>
             <select
               id="plan-travellers-count"
               value={travellers}
@@ -365,8 +405,9 @@ export function SidebarPlanForm({ destinationName }) {
           </div>
         </div>
 
-        <button type="submit" className="by-sidebar-submit-btn">
-          Plan My Trip →
+        <button type="submit" className="by-sidebar-submit-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <span>Plan My Trip</span>
+          <IconArrowRight size={16} />
         </button>
       </form>
     </div>

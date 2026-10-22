@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ApiState, ContentSearch, DestinationCard, PageHeading, Pagination } from '../../components/content.js';
 import { getCollection, parsePage, parseSearchTerm } from '../../lib/content-api.mjs';
 import { getDictionary, getLanguage } from '../../lib/i18n.js';
+import { getRegionIcon, IconX, IconMapPin } from '../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,13 +12,13 @@ export const metadata = {
 };
 
 const regionsList = [
-  { id: 'all', label: 'All Regions', icon: '🇮🇳' },
-  { id: 'north', label: 'North India', icon: '🏔️' },
-  { id: 'south', label: 'South India', icon: '🌴' },
-  { id: 'east', label: 'East India', icon: '🛕' },
-  { id: 'west', label: 'West India', icon: '🏰' },
-  { id: 'central', label: 'Central India', icon: '🐅' },
-  { id: 'northeast', label: 'Northeast India', icon: '🌿' },
+  { id: 'all', label: 'All Regions' },
+  { id: 'north', label: 'North India' },
+  { id: 'south', label: 'South India' },
+  { id: 'east', label: 'East India' },
+  { id: 'west', label: 'West India' },
+  { id: 'central', label: 'Central India' },
+  { id: 'northeast', label: 'Northeast India' },
 ];
 
 export default async function DestinationsPage({ searchParams }) {
@@ -76,7 +77,7 @@ export default async function DestinationsPage({ searchParams }) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
+                  gap: '0.45rem',
                   padding: '0.55rem 1.15rem',
                   borderRadius: '999px',
                   border: isActive ? '1px solid var(--teal-deep)' : '1px solid var(--border-color)',
@@ -90,7 +91,7 @@ export default async function DestinationsPage({ searchParams }) {
                   transition: 'all 0.15s ease',
                 }}
               >
-                <span>{r.icon}</span>
+                {getRegionIcon(r.id, { size: 16 })}
                 <span>{r.label}</span>
               </Link>
             );
@@ -102,8 +103,9 @@ export default async function DestinationsPage({ searchParams }) {
       {region && region !== 'all' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
           <span>Filtering by: <strong>{selectedRegion.label}</strong></span>
-          <Link href={`/destinations${search.value ? `?q=${encodeURIComponent(search.value)}` : ''}`} style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none' }}>
-            ✕ Clear region filter
+          <Link href={`/destinations${search.value ? `?q=${encodeURIComponent(search.value)}` : ''}`} style={{ color: 'var(--teal-primary)', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <IconX size={14} />
+            <span>Clear region filter</span>
           </Link>
         </div>
       )}
@@ -116,7 +118,9 @@ export default async function DestinationsPage({ searchParams }) {
         <ApiState state={result.state} label={dict.nav.destinations} />
       ) : result.data.length === 0 ? (
         <div className="empty-editorial-card" style={{ maxWidth: '640px', margin: '2.5rem auto', textAlign: 'center', padding: '3rem 1.5rem' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📍</div>
+          <div style={{ color: 'var(--teal-primary)', marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>
+            <IconMapPin size={40} />
+          </div>
           <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem', margin: '0 0 0.5rem 0' }}>
             No destinations found {region && region !== 'all' ? `in ${selectedRegion.label}` : ''}
           </h3>

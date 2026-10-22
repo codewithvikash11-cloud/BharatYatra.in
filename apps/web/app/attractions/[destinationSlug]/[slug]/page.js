@@ -4,6 +4,21 @@ import { getContent } from '../../../../lib/content-api.mjs';
 import prisma from '../../../../lib/db.js';
 import { getMapPinUrl } from '../../../../lib/map-url.mjs';
 import DestinationInteractiveClient from '../../../../components/destination-interactive-client.js';
+import {
+  IconBuildingMonument,
+  IconClock,
+  IconSun,
+  IconMapPin,
+  IconBookOpen,
+  IconInfoCircle,
+  IconTicket,
+  IconCar,
+  IconExternalLink,
+  IconBulb,
+  IconCheck,
+  IconArrowRight,
+  IconPhoneCall,
+} from '../../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -184,8 +199,9 @@ export default async function AttractionDetailPage({ params }) {
           <div className="by-dest-hero-gradient" aria-hidden="true" />
           <div className="by-container by-dest-hero-shell">
             <div className="by-dest-hero-top-row">
-              <span className="by-dest-state-badge">
-                <span>🏛️</span> {data.category.toUpperCase()}
+              <span className="by-dest-state-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <IconBuildingMonument size={14} />
+                <span>{data.category.toUpperCase()}</span>
               </span>
 
               <DestinationInteractiveClient
@@ -208,21 +224,27 @@ export default async function AttractionDetailPage({ params }) {
             {/* Quick Fact Badges */}
             <div className="by-dest-facts-row">
               <div className="by-dest-fact-pill">
-                <span className="by-fact-icon">⏱</span>
+                <span className="by-fact-icon">
+                  <IconClock size={18} />
+                </span>
                 <div className="by-fact-text">
                   <span className="by-fact-label">Recommended Duration</span>
                   <strong className="by-fact-val">{data.duration}</strong>
                 </div>
               </div>
               <div className="by-dest-fact-pill">
-                <span className="by-fact-icon">☀️</span>
+                <span className="by-fact-icon">
+                  <IconSun size={18} />
+                </span>
                 <div className="by-fact-text">
                   <span className="by-fact-label">Best Time of Day</span>
                   <strong className="by-fact-val">{data.bestTimeOfDay}</strong>
                 </div>
               </div>
               <div className="by-dest-fact-pill">
-                <span className="by-fact-icon">📍</span>
+                <span className="by-fact-icon">
+                  <IconMapPin size={18} />
+                </span>
                 <div className="by-fact-text">
                   <span className="by-fact-label">Destination</span>
                   <strong className="by-fact-val">{data.destinationName}</strong>
@@ -242,7 +264,8 @@ export default async function AttractionDetailPage({ params }) {
               {/* Architecture & Overview */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">📖</span> About & Architecture
+                  <IconBookOpen size={22} className="by-sec-icon" />
+                  <span>About & Architecture</span>
                 </h2>
                 <div style={{ background: '#FFFFFF', padding: '1.75rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', lineHeight: 1.8, color: 'var(--text-primary)' }}>
                   <p style={{ margin: '0 0 1rem 0', fontSize: '1.05rem' }}>{data.architecture}</p>
@@ -255,12 +278,13 @@ export default async function AttractionDetailPage({ params }) {
               {/* Visitor Information */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">ℹ️</span> Visitor Information
+                  <IconInfoCircle size={22} className="by-sec-icon" />
+                  <span>Visitor Information</span>
                 </h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
                   <div style={{ background: 'var(--cream)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '1.2rem' }}>🕒</span>
+                      <IconClock size={18} style={{ color: 'var(--teal-primary)' }} />
                       <strong style={{ color: 'var(--teal-deep)' }}>Visiting Timings</strong>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{data.visitingHours}</p>
@@ -268,7 +292,7 @@ export default async function AttractionDetailPage({ params }) {
 
                   <div style={{ background: 'var(--cream)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '1.2rem' }}>🎟</span>
+                      <IconTicket size={18} style={{ color: 'var(--teal-primary)' }} />
                       <strong style={{ color: 'var(--teal-deep)' }}>Entry Fee & Tickets</strong>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{data.entryFeeNote}</p>
@@ -279,12 +303,14 @@ export default async function AttractionDetailPage({ params }) {
               {/* How to Reach */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">🚗</span> How to Reach
+                  <IconCar size={22} className="by-sec-icon" />
+                  <span>How to Reach</span>
                 </h2>
                 <div style={{ background: '#FFFFFF', padding: '1.75rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
                   <p style={{ margin: '0 0 1rem 0', lineHeight: 1.7, color: 'var(--text-primary)' }}>{data.howToReach}</p>
                   <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="btn-outline-teal" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.88rem' }}>
-                    Open Geographic Pin on Google Maps ↗
+                    <span>Open Geographic Pin on Google Maps</span>
+                    <IconExternalLink size={14} />
                   </a>
                 </div>
               </section>
@@ -293,7 +319,8 @@ export default async function AttractionDetailPage({ params }) {
               {data.nearby?.length > 0 && (
                 <section className="by-dest-section">
                   <h2 className="by-dest-sec-title">
-                    <span className="by-sec-icon">📍</span> Nearby Attractions
+                    <IconMapPin size={22} className="by-sec-icon" />
+                    <span>Nearby Attractions</span>
                   </h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                     {data.nearby.map((near) => (
@@ -310,13 +337,14 @@ export default async function AttractionDetailPage({ params }) {
               {/* Practical Tips */}
               <section className="by-dest-section">
                 <h2 className="by-dest-sec-title">
-                  <span className="by-sec-icon">💡</span> Practical Travel Tips
+                  <IconBulb size={22} className="by-sec-icon" />
+                  <span>Practical Travel Tips</span>
                 </h2>
                 <div className="by-tips-card">
                   <ul className="by-tips-two-col">
                     {data.travelTips.map((tip, idx) => (
-                      <li key={idx}>
-                        <span className="by-tip-check">✓</span>
+                      <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <IconCheck size={16} className="by-tip-check" style={{ flexShrink: 0, marginTop: '2px' }} />
                         <span>{tip}</span>
                       </li>
                     ))}
@@ -327,13 +355,14 @@ export default async function AttractionDetailPage({ params }) {
               {/* Sources */}
               {data.sources?.length > 0 && (
                 <section className="by-dest-section" style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-                    Official Tourism Source:{' '}
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0, display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                    <span>Official Tourism Source:</span>
                     {data.sources.map((src, i) => (
-                      <span key={i}>
+                      <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                         {src.url ? (
-                          <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)' }}>
-                            {src.name} ↗
+                          <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-secondary)', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                            <span>{src.name}</span>
+                            <IconExternalLink size={12} />
                           </a>
                         ) : (
                           src.name
@@ -349,8 +378,9 @@ export default async function AttractionDetailPage({ params }) {
             {/* CONTEXTUAL SIDEBAR */}
             <aside className="by-dest-sidebar-col">
               <div className="by-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">ℹ</span> Quick Information
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconInfoCircle size={18} className="by-sidebar-title-icon" />
+                  <span>Quick Information</span>
                 </h3>
                 <dl className="by-quick-info-list">
                   <div className="by-quick-info-row">
@@ -381,15 +411,17 @@ export default async function AttractionDetailPage({ params }) {
                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
                   Discover all forts, royal stays, street food, and day-by-day itineraries.
                 </p>
-                <Link href={`/destinations/${data.destinationSlug}`} className="btn-gold-pill" style={{ textDecoration: 'none', display: 'inline-block', fontSize: '0.88rem' }}>
-                  View {data.destinationName} Guide →
+                <Link href={`/destinations/${data.destinationSlug}`} className="btn-gold-pill" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.88rem' }}>
+                  <span>View {data.destinationName} Guide</span>
+                  <IconArrowRight size={14} />
                 </Link>
               </div>
 
               {/* Helpline */}
               <div className="by-sidebar-card">
-                <h3 className="by-sidebar-title">
-                  <span className="by-sidebar-title-icon">📞</span> Tourist Helpline
+                <h3 className="by-sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconPhoneCall size={18} className="by-sidebar-title-icon" />
+                  <span>Tourist Helpline</span>
                 </h3>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                   Ministry of Tourism 24x7 Multi-lingual toll-free helpline:

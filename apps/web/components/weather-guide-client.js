@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { IconCloudSun, IconArrowRight } from './icons.js';
 
 const monthsData = [
   {
@@ -146,7 +147,7 @@ export default function WeatherGuideClient() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
-          <span style={{ fontSize: '1.4rem' }}>⛅</span>
+          <IconCloudSun size={24} style={{ color: 'var(--gold-dark)', flexShrink: 0 }} />
           <span style={{ background: 'var(--cream)', color: 'var(--teal-deep)', fontWeight: 700, padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.8rem', border: '1px solid var(--border-color)' }}>
             {current.season.toUpperCase()}
           </span>
@@ -225,8 +226,9 @@ export default function WeatherGuideClient() {
               <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 {place.desc}
               </p>
-              <span style={{ display: 'inline-block', marginTop: '0.85rem', fontSize: '0.82rem', fontWeight: 600, color: 'var(--teal-secondary)' }}>
-                Explore Guide →
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '0.85rem', fontSize: '0.82rem', fontWeight: 600, color: 'var(--teal-secondary)' }}>
+                <span>Explore Guide</span>
+                <IconArrowRight size={14} />
               </span>
             </Link>
           ))}

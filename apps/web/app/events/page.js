@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { IconMapPin, IconCalendar, IconArrowRight } from '../../components/icons.js';
 
 export const metadata = {
   title: 'Cultural Events & Festivals in India | BharatYatra',
@@ -121,8 +122,14 @@ export default function EventsPage() {
 
               <div style={{ padding: '1.75rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '0.75rem' }}>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--gold-dark)', fontWeight: 600 }}>📍 {fest.location}</span>
-                  <span style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>🗓️ {fest.period}</span>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--gold-dark)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <IconMapPin size={13} />
+                    <span>{fest.location}</span>
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                    <IconCalendar size={13} />
+                    <span>{fest.period}</span>
+                  </span>
                 </div>
 
                 <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.35rem', margin: '0 0 0.75rem 0' }}>
@@ -141,9 +148,10 @@ export default function EventsPage() {
                   <Link
                     href={fest.destSlug ? `/destinations/${fest.destSlug}` : '/trip-planner'}
                     className="btn-outline-teal"
-                    style={{ textDecoration: 'none', fontSize: '0.85rem', display: 'inline-block' }}
+                    style={{ textDecoration: 'none', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
-                    Plan Trip for This Festival →
+                    <span>Plan Trip for This Festival</span>
+                    <IconArrowRight size={14} />
                   </Link>
                 </div>
               </div>

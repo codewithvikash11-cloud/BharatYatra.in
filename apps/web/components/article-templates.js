@@ -1,37 +1,54 @@
 import Link from 'next/link';
+import {
+  IconMap,
+  IconBuildingMonument,
+  IconFileText,
+  IconCompass,
+  IconSoup,
+  IconCalendarEvent,
+  IconMapPin,
+  IconSpeakerphone,
+  IconSparkles,
+  IconBookOpen,
+  IconClock,
+  IconTicket,
+  IconCamera,
+  IconCheck,
+  IconArrowRight,
+} from './icons';
 
 export function ContentTypeBadge({ category }) {
   const cat = (category || '').toLowerCase();
   let label = 'TRAVEL GUIDE';
-  let icon = '📖';
+  let IconComponent = IconBookOpen;
 
   if (cat.includes('destination')) {
     label = 'DESTINATION GUIDE';
-    icon = '🗺️';
+    IconComponent = IconMap;
   } else if (cat.includes('attraction')) {
     label = 'TOURIST ATTRACTION GUIDE';
-    icon = '🏛️';
+    IconComponent = IconBuildingMonument;
   } else if (cat.includes('heritage') || cat.includes('history')) {
     label = 'HISTORY & HERITAGE';
-    icon = '📜';
+    IconComponent = IconFileText;
   } else if (cat.includes('tip') || cat.includes('plan')) {
     label = 'TRAVEL PLANNING';
-    icon = '🧭';
+    IconComponent = IconCompass;
   } else if (cat.includes('food') || cat.includes('culture')) {
     label = 'FOOD & CULTURE';
-    icon = '🍲';
+    IconComponent = IconSoup;
   } else if (cat.includes('itinerar')) {
     label = 'CURATED ITINERARY';
-    icon = '🗓️';
+    IconComponent = IconCalendarEvent;
   } else if (cat.includes('near') || cat.includes('sight')) {
     label = 'NEARBY PLACES';
-    icon = '📍';
+    IconComponent = IconMapPin;
   } else if (cat.includes('update')) {
     label = 'TRAVEL UPDATE';
-    icon = '📢';
+    IconComponent = IconSpeakerphone;
   } else if (cat.includes('event') || cat.includes('festival')) {
     label = 'EVENTS & FESTIVALS';
-    icon = '🎉';
+    IconComponent = IconSparkles;
   }
 
   return (
@@ -39,7 +56,7 @@ export function ContentTypeBadge({ category }) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.4rem',
+        gap: '0.45rem',
         fontSize: '0.78rem',
         fontWeight: 700,
         textTransform: 'uppercase',
@@ -50,7 +67,8 @@ export function ContentTypeBadge({ category }) {
         borderRadius: '999px',
       }}
     >
-      <span>{icon}</span> {label}
+      <IconComponent size={14} />
+      <span>{label}</span>
     </span>
   );
 }
@@ -73,7 +91,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-            <span style={{ fontSize: '1.4rem' }}>🗺️</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconMap size={24} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
               Destination Overview & Practical Essentials
             </h3>
@@ -97,12 +117,14 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           </div>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {destination && (
-              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.88rem' }}>
-                Full {destination.name_en} Hub →
+              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span>Full {destination.name_en} Hub</span>
+                <IconArrowRight size={14} />
               </Link>
             )}
-            <Link href="/trip-planner" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.88rem' }}>
-              Add to Trip Planner →
+            <Link href="/trip-planner" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Add to Trip Planner</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -125,28 +147,40 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-            <span style={{ fontSize: '1.4rem' }}>🏛️</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconBuildingMonument size={24} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
               Visitor Guidance & Verified Details
             </h3>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
             <div style={{ background: 'var(--cream)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.4rem' }}>🕒 Typical Visiting Hours</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.4rem' }}>
+                <IconClock size={16} />
+                <span>Typical Visiting Hours</span>
+              </strong>
               <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>9:00 AM – 5:30 PM daily (Check seasonal sunset timings for fort ramparts).</p>
             </div>
             <div style={{ background: 'var(--cream)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.4rem' }}>🎟 Entry & Ticket Guidance</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.4rem' }}>
+                <IconTicket size={16} />
+                <span>Entry & Ticket Guidance</span>
+              </strong>
               <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Standard ASI / State Museum fees apply. Concessions available for Indian citizens & students.</p>
             </div>
             <div style={{ background: 'var(--cream)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.4rem' }}>📷 Photography & Etiquette</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.4rem' }}>
+                <IconCamera size={16} />
+                <span>Photography & Etiquette</span>
+              </strong>
               <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Mobile photography permitted; professional tripods or drones require ASI permission.</p>
             </div>
           </div>
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link href="/attractions" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.88rem' }}>
-              Explore Attractions Directory →
+            <Link href="/attractions" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Explore Attractions Directory</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -169,7 +203,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>📜</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconFileText size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.15rem' }}>
               Heritage & Architectural Context
             </h3>
@@ -222,7 +258,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🧭</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconCompass size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
               Travel Planning Checklist
             </h3>
@@ -230,29 +268,43 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
             <div style={{ background: 'var(--cream)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.35rem' }}>✓ Best Window for Travel</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.35rem' }}>
+                <IconCheck size={14} />
+                <span>Best Window for Travel</span>
+              </strong>
               <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>October to March brings pleasant daytime temperatures suitable for walking tours.</span>
             </div>
             <div style={{ background: 'var(--cream)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.35rem' }}>✓ Connectivity & Access</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.35rem' }}>
+                <IconCheck size={14} />
+                <span>Connectivity & Access</span>
+              </strong>
               <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Accessible by state highways, local express trains, and nearest domestic airports.</span>
             </div>
             <div style={{ background: 'var(--cream)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.35rem' }}>✓ Payments & Currency</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.35rem' }}>
+                <IconCheck size={14} />
+                <span>Payments & Currency</span>
+              </strong>
               <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>UPI QR codes widely accepted; keep modest cash reserves for local village vendors.</span>
             </div>
             <div style={{ background: 'var(--cream)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: 'var(--teal-deep)', display: 'block', marginBottom: '0.35rem' }}>✓ Essential Gear</strong>
+              <strong style={{ color: 'var(--teal-deep)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '0.35rem' }}>
+                <IconCheck size={14} />
+                <span>Essential Gear</span>
+              </strong>
               <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>Slip-on shoes for frequent temple/monument visits, cotton scarves, and sunscreen.</span>
             </div>
           </div>
 
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link href="/trip-planner" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
-              Open Interactive Trip Planner →
+            <Link href="/trip-planner" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Open Interactive Trip Planner</span>
+              <IconArrowRight size={14} />
             </Link>
-            <Link href="/budget-calculator" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
-              Estimate Budget →
+            <Link href="/budget-calculator" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Estimate Budget</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -274,7 +326,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🍲</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconSoup size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
               Regional Culinary & Cultural Guide
             </h3>
@@ -308,7 +362,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🗓️</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconCalendarEvent size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
               Itinerary Highlights & Route Pacing
             </h3>
@@ -317,8 +373,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
             Follow the curated day-by-day stops outlined in this guide. Allow buffer time between transit legs to accommodate local rail/road rhythms.
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link href="/itineraries" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
-              Browse Curated Itineraries →
+            <Link href="/itineraries" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Browse Curated Itineraries</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -340,7 +397,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>📍</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconMapPin size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
               Geographic Exploration Notes
             </h3>
@@ -350,12 +409,14 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             {destination && (
-              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
-                View All {destination.name_en} Attractions →
+              <Link href={`/destinations/${destination.slug}`} className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span>View All {destination.name_en} Attractions</span>
+                <IconArrowRight size={14} />
               </Link>
             )}
-            <Link href="/attractions" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
-              Browse Attractions Directory →
+            <Link href="/attractions" className="btn-outline-teal" style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Browse Attractions Directory</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
@@ -377,7 +438,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>📢</span>
+            <span style={{ color: '#963A2C', display: 'inline-flex' }}>
+              <IconSpeakerphone size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: '#963A2C', fontSize: '1.2rem' }}>
               Editorial Travel Advisory & Transit Notice
             </h3>
@@ -405,7 +468,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '1.3rem' }}>🎉</span>
+            <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+              <IconSparkles size={22} />
+            </span>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
               Festival Calendar & Cultural Participation
             </h3>
@@ -414,8 +479,9 @@ export function ContentTypeTemplateExtras({ category, destination, state, title 
             Indian fairs and festivals are vibrant living celebrations rooted in lunar calendars and regional traditions. Spectators are encouraged to observe sacred rituals reverently and secure heritage hotel bookings well in advance.
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link href="/events" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem' }}>
-              Explore All India Festivals →
+            <Link href="/events" className="btn-gold-pill" style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span>Explore All India Festivals</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         </div>

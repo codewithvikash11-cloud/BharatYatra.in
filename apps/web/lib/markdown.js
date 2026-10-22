@@ -1,4 +1,5 @@
 import React from 'react';
+import { IconList } from '../components/icons.js';
 
 export function isHTML(content) {
   if (!content || typeof content !== 'string') return false;
@@ -356,8 +357,8 @@ export function TableOfContents({ headings }) {
 
   return (
     <nav className="by-toc-card" aria-label="Table of Contents">
-      <div className="by-toc-header">
-        <span>📑</span>
+      <div className="by-toc-header" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <IconList size={18} />
         <span>Table of Contents</span>
       </div>
       <ol className="by-toc-list">

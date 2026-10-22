@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import prisma from '../../lib/db.js';
+import { IconClock, IconArrowRight, IconMap } from '../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,9 +98,13 @@ export default async function ItinerariesPage() {
                       fontWeight: 600,
                       padding: '0.25rem 0.65rem',
                       borderRadius: '999px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
                     }}
                   >
-                    ⏱ {item.duration_days ? `${item.duration_days} Days` : 'Multi-day'}
+                    <IconClock size={12} />
+                    <span>{item.duration_days ? `${item.duration_days} Days` : 'Multi-day'}</span>
                   </span>
                 </div>
 
@@ -121,9 +126,10 @@ export default async function ItinerariesPage() {
                     <Link
                       href={`/itineraries/${item.slug}`}
                       className="btn-gold-pill"
-                      style={{ textDecoration: 'none', fontSize: '0.85rem' }}
+                      style={{ textDecoration: 'none', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      View Day-by-Day Plan →
+                      <span>View Day-by-Day Plan</span>
+                      <IconArrowRight size={14} />
                     </Link>
                   </div>
                 </div>
@@ -142,7 +148,9 @@ export default async function ItinerariesPage() {
               boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🗺</div>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.75rem auto' }}>
+              <IconMap size={32} style={{ color: 'var(--teal-primary)' }} />
+            </div>
             <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>
               Curated Itineraries in Preparation
             </h2>
@@ -153,9 +161,10 @@ export default async function ItinerariesPage() {
             <Link
               href="/trip-planner"
               className="btn-gold-pill"
-              style={{ display: 'inline-block', textDecoration: 'none', fontSize: '0.95rem', padding: '0.65rem 1.4rem' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontSize: '0.95rem', padding: '0.65rem 1.4rem' }}
             >
-              Open Trip Planner →
+              <span>Open Trip Planner</span>
+              <IconArrowRight size={14} />
             </Link>
           </div>
         )}

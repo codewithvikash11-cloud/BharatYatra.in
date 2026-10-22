@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import {
+  IconHeart,
+  IconX,
+  IconCompass,
+  IconTrash,
+  IconArrowRight,
+} from './icons.js';
 
 export default function FavoritesDrawer({ isOpen, onClose }) {
   const [favorites, setFavorites] = useState([]);
@@ -31,27 +38,30 @@ export default function FavoritesDrawer({ isOpen, onClose }) {
     <div className="fav-drawer-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="Saved Destinations">
       <div className="fav-drawer-panel" onClick={(e) => e.stopPropagation()}>
         <div className="fav-drawer-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '1.25rem' }}>❤️</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <IconHeart size={22} stroke={2} color="#B9653F" style={{ fill: '#B9653F' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)' }}>
               Saved Places ({favorites.length})
             </h2>
           </div>
           <button type="button" className="fav-close-btn" onClick={onClose} aria-label="Close saved places">
-            ✕
+            <IconX size={18} stroke={2} />
           </button>
         </div>
 
         <div className="fav-drawer-body">
           {favorites.length === 0 ? (
             <div className="fav-empty-state">
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🧭</div>
+              <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                <IconCompass size={48} stroke={1.5} color="var(--gold-dark)" />
+              </div>
               <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--teal-deep)' }}>No saved places yet</h3>
               <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                 Click the &ldquo;Save&rdquo; heart on any destination or attraction to build your wishlist.
               </p>
-              <Link href="/destinations" className="btn-gold-pill" onClick={onClose} style={{ marginTop: '1.25rem', display: 'inline-block', fontSize: '0.85rem' }}>
-                Explore Destinations →
+              <Link href="/destinations" className="btn-gold-pill" onClick={onClose} style={{ marginTop: '1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' }}>
+                <span>Explore Destinations</span>
+                <IconArrowRight size={16} stroke={2} />
               </Link>
             </div>
           ) : (
@@ -74,7 +84,7 @@ export default function FavoritesDrawer({ isOpen, onClose }) {
                     title="Remove from saved"
                     aria-label={`Remove ${item.title}`}
                   >
-                    🗑
+                    <IconTrash size={16} stroke={1.8} color="#991B1B" />
                   </button>
                 </div>
               ))}

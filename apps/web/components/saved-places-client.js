@@ -2,6 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import {
+  IconHeartFilled,
+  IconShare,
+  IconTrash,
+  IconCheck,
+  IconCompass,
+  IconArrowRight,
+  IconX,
+} from './icons';
 
 export default function SavedPlacesClient() {
   const [favorites, setFavorites] = useState([]);
@@ -92,7 +101,7 @@ export default function SavedPlacesClient() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <span style={{ fontSize: '1.2rem' }}>❤️</span>
+          <IconHeartFilled size={22} color="#B9653F" />
           <strong style={{ color: 'var(--teal-deep)', fontSize: '1.05rem' }}>
             {favorites.length} {favorites.length === 1 ? 'Place' : 'Places'} in your Wishlist
           </strong>
@@ -112,9 +121,13 @@ export default function SavedPlacesClient() {
                 fontWeight: 600,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
               }}
             >
-              ↗ Share Wishlist
+              <IconShare size={16} />
+              <span>Share Wishlist</span>
             </button>
             <button
               type="button"
@@ -128,9 +141,13 @@ export default function SavedPlacesClient() {
                 fontWeight: 600,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
               }}
             >
-              Clear All
+              <IconTrash size={16} />
+              <span>Clear All</span>
             </button>
           </div>
         )}
@@ -148,16 +165,23 @@ export default function SavedPlacesClient() {
             marginBottom: '1.5rem',
             textAlign: 'center',
             boxShadow: 'var(--shadow-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
           }}
         >
-          ✓ Wishlist copied to clipboard! Share it with your friends.
+          <IconCheck size={16} />
+          <span>Wishlist copied to clipboard! Share it with your friends.</span>
         </div>
       )}
 
       {/* Empty State */}
       {favorites.length === 0 ? (
         <div className="empty-editorial-card" style={{ maxWidth: '640px', margin: '3rem auto', textAlign: 'center', padding: '3.5rem 2rem' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🧭</div>
+          <div style={{ color: 'var(--teal-primary)', marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}>
+            <IconCompass size={44} />
+          </div>
           <h2 style={{ fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.4rem', margin: '0 0 0.5rem 0' }}>
             Your Wishlist is Empty
           </h2>
@@ -165,8 +189,9 @@ export default function SavedPlacesClient() {
             Save destinations, monuments, and handcrafted itineraries by clicking the heart icon as you explore BharatYatra.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/destinations" className="btn-gold-pill" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
-              Explore Destinations →
+            <Link href="/destinations" className="btn-gold-pill" style={{ fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span>Explore Destinations</span>
+              <IconArrowRight size={16} />
             </Link>
             <Link href="/itineraries" className="button-link-secondary" style={{ fontSize: '0.85rem' }}>
               View Suggested Itineraries
@@ -213,13 +238,12 @@ export default function SavedPlacesClient() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    fontSize: '0.9rem',
                     color: '#DC2626',
                     boxShadow: 'var(--shadow-sm)',
                   }}
                   aria-label={`Remove ${item.title} from wishlist`}
                 >
-                  ✕
+                  <IconX size={16} />
                 </button>
               </div>
 
@@ -241,9 +265,10 @@ export default function SavedPlacesClient() {
                   <Link
                     href={item.url || `/destinations/${item.slug}`}
                     className="btn-gold-pill"
-                    style={{ fontSize: '0.82rem', textDecoration: 'none', flex: 1, textAlign: 'center' }}
+                    style={{ fontSize: '0.82rem', textDecoration: 'none', flex: 1, textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                   >
-                    Open Guide →
+                    <span>Open Guide</span>
+                    <IconArrowRight size={14} />
                   </Link>
                 </div>
               </div>

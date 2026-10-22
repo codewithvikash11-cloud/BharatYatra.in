@@ -1,10 +1,21 @@
 'use client';
 import { useState, useEffect } from 'react';
+import {
+  IconPassport,
+  IconPill,
+  IconShirt,
+  IconPlug,
+  IconBottle,
+  IconPrinter,
+  IconRefresh,
+  IconCheckbox,
+  IconSquare,
+} from './icons';
 
 const checklistCategories = [
   {
     category: 'Essential Documents & Finance',
-    icon: '🛂',
+    icon: IconPassport,
     items: [
       { id: 'doc-visa', text: 'Valid Passport & Indian Tourist Visa / e-Visa printout' },
       { id: 'doc-copies', text: 'Physical photocopies of passport photo page & visa (stored separately)' },
@@ -15,7 +26,7 @@ const checklistCategories = [
   },
   {
     category: 'Health & Pharmacy Essentials',
-    icon: '💊',
+    icon: IconPill,
     items: [
       { id: 'health-repellent', text: 'Mosquito repellent cream or spray (DEET / Odomos / Picaridin)' },
       { id: 'health-ors', text: 'Electrolyte rehydration powder sachets (ORS)' },
@@ -26,7 +37,7 @@ const checklistCategories = [
   },
   {
     category: 'Clothing & Cultural Modesty',
-    icon: '👕',
+    icon: IconShirt,
     items: [
       { id: 'cloth-shoes', text: 'Comfortable slip-on shoes or sandals (easy removal outside sanctums)' },
       { id: 'cloth-cotton', text: 'Lightweight breathable cotton or linen clothing covering shoulders & knees' },
@@ -37,7 +48,7 @@ const checklistCategories = [
   },
   {
     category: 'Electronics & Connectivity',
-    icon: '🔌',
+    icon: IconPlug,
     items: [
       { id: 'elec-adapter', text: 'Type D (three round pins) & Type C universal electrical adapter' },
       { id: 'elec-powerbank', text: 'High-capacity power bank (10000 – 20000 mAh) for long sightseeing days' },
@@ -47,7 +58,7 @@ const checklistCategories = [
   },
   {
     category: 'Hygiene & Travel Comfort',
-    icon: '🧴',
+    icon: IconBottle,
     items: [
       { id: 'hyg-sanitizer', text: 'Pocket alcohol-based hand sanitizer bottles' },
       { id: 'hyg-wipes', text: 'Biodegradable wet wipes & tissue packs' },
@@ -136,9 +147,13 @@ export default function TravelChecklistClient() {
               fontWeight: 600,
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
-            🖨️ Print Checklist
+            <IconPrinter size={16} />
+            <span>Print Checklist</span>
           </button>
           <button
             type="button"
@@ -151,66 +166,75 @@ export default function TravelChecklistClient() {
               color: 'var(--text-muted)',
               fontSize: '0.85rem',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
-            Reset
+            <IconRefresh size={15} />
+            <span>Reset</span>
           </button>
         </div>
       </div>
 
       {/* Categories */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginBottom: '3rem' }}>
-        {checklistCategories.map((cat) => (
-          <div
-            key={cat.category}
-            style={{
-              background: '#FFFFFF',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '2rem',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>{cat.icon}</span>
-              <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
-                {cat.category}
-              </h3>
-            </div>
+        {checklistCategories.map((cat) => {
+          const CatIcon = cat.icon;
+          return (
+            <div
+              key={cat.category}
+              style={{
+                background: '#FFFFFF',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '2rem',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+                <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+                  <CatIcon size={22} />
+                </span>
+                <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.25rem' }}>
+                  {cat.category}
+                </h3>
+              </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {cat.items.map((item) => {
-                const isChecked = !!checkedItems[item.id];
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => toggleItem(item.id)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.85rem',
-                      padding: '0.75rem 1rem',
-                      borderRadius: 'var(--radius-md)',
-                      background: isChecked ? '#F0FDF4' : 'var(--cream)',
-                      border: isChecked ? '1px solid #86EFAC' : '1px solid var(--border-color)',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                      textDecoration: isChecked ? 'line-through' : 'none',
-                      opacity: isChecked ? 0.75 : 1,
-                    }}
-                  >
-                    <span style={{ fontSize: '1.15rem', color: isChecked ? '#16A34A' : 'var(--gold-muted)' }}>
-                      {isChecked ? '☑' : '☐'}
-                    </span>
-                    <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)', flex: 1 }}>
-                      {item.text}
-                    </span>
-                  </div>
-                );
-              })}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {cat.items.map((item) => {
+                  const isChecked = !!checkedItems[item.id];
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => toggleItem(item.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.85rem',
+                        padding: '0.75rem 1rem',
+                        borderRadius: 'var(--radius-md)',
+                        background: isChecked ? '#F0FDF4' : 'var(--cream)',
+                        border: isChecked ? '1px solid #86EFAC' : '1px solid var(--border-color)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        textDecoration: isChecked ? 'line-through' : 'none',
+                        opacity: isChecked ? 0.75 : 1,
+                      }}
+                    >
+                      <span style={{ display: 'inline-flex', color: isChecked ? '#16A34A' : 'var(--text-muted)' }}>
+                        {isChecked ? <IconCheckbox size={20} color="#16A34A" /> : <IconSquare size={20} />}
+                      </span>
+                      <span style={{ fontSize: '0.95rem', color: 'var(--text-primary)', flex: 1 }}>
+                        {item.text}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

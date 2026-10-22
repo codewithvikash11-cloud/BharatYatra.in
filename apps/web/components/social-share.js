@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  IconLink,
+  IconCheck,
+  IconBrandWhatsapp,
+  IconBrandX,
+  IconBrandFacebook,
+} from './icons';
 
 export default function SocialShare({ title, url }) {
   const [copied, setCopied] = useState(false);
@@ -27,7 +34,7 @@ export default function SocialShare({ title, url }) {
         className="by-share-btn"
         title="Copy article link"
       >
-        <span>🔗</span>
+        {copied ? <IconCheck size={16} /> : <IconLink size={16} />}
         <span>{copied ? 'Link Copied!' : 'Copy Link'}</span>
       </button>
 
@@ -38,7 +45,7 @@ export default function SocialShare({ title, url }) {
         className="by-share-btn"
         title="Share on WhatsApp"
       >
-        <span>💬</span>
+        <IconBrandWhatsapp size={16} />
         <span>WhatsApp</span>
       </a>
 
@@ -49,7 +56,7 @@ export default function SocialShare({ title, url }) {
         className="by-share-btn"
         title="Share on X"
       >
-        <span>🐦</span>
+        <IconBrandX size={16} />
         <span>X / Twitter</span>
       </a>
 
@@ -60,7 +67,7 @@ export default function SocialShare({ title, url }) {
         className="by-share-btn"
         title="Share on Facebook"
       >
-        <span>📘</span>
+        <IconBrandFacebook size={16} />
         <span>Facebook</span>
       </a>
     </div>

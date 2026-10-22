@@ -1,6 +1,14 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import {
+  IconDeviceFloppy,
+  IconPrinter,
+  IconCheckbox,
+  IconSquare,
+  IconClock,
+  IconArrowRight,
+} from './icons';
 
 const sampleItineraries = {
   'jaipur': {
@@ -302,12 +310,13 @@ export default function TripPlannerClient() {
               fontWeight: 700,
               fontSize: '0.88rem',
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.4rem',
+              gap: '0.5rem',
             }}
           >
-            💾 {savedSuccess ? 'Plan Saved!' : 'Save Plan'}
+            <IconDeviceFloppy size={18} />
+            <span>{savedSuccess ? 'Plan Saved!' : 'Save Plan'}</span>
           </button>
           <button
             type="button"
@@ -321,9 +330,13 @@ export default function TripPlannerClient() {
               fontWeight: 600,
               fontSize: '0.88rem',
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
             }}
           >
-            🖨️ Print / PDF
+            <IconPrinter size={18} />
+            <span>Print / PDF</span>
           </button>
         </div>
       </div>
@@ -371,12 +384,15 @@ export default function TripPlannerClient() {
                       opacity: isChecked ? 0.75 : 1,
                     }}
                   >
-                    <span style={{ fontSize: '1.2rem', marginTop: '0.1rem', color: isChecked ? '#16A34A' : 'var(--gold-muted)' }}>
-                      {isChecked ? '☑' : '☐'}
+                    <span style={{ marginTop: '0.15rem', color: isChecked ? '#16A34A' : 'var(--text-muted)', display: 'inline-flex' }}>
+                      {isChecked ? <IconCheckbox size={20} color="#16A34A" /> : <IconSquare size={20} />}
                     </span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--teal-primary)' }}>{act.time}</span>
+                      <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--teal-primary)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                          <IconClock size={13} />
+                          {act.time}
+                        </span>
                         <strong style={{ fontSize: '0.98rem', color: 'var(--text-primary)' }}>{act.title}</strong>
                       </div>
                       <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
@@ -417,9 +433,10 @@ export default function TripPlannerClient() {
         <Link
           href={destination === 'jaipur' ? '/destinations/jaipur' : `/destinations/${destination}`}
           className="btn-gold-pill"
-          style={{ textDecoration: 'none' }}
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          View Full Guide →
+          <span>View Full Guide</span>
+          <IconArrowRight size={16} />
         </Link>
       </div>
     </div>

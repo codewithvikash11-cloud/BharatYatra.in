@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  IconMapPin,
+  IconCalendar,
+  IconRoute,
+  IconCategory,
+  IconSearch,
+} from './icons.js';
 
 export default function HeroSearchWidget() {
   const [activeTab, setActiveTab] = useState('explore');
@@ -98,7 +105,7 @@ export default function HeroSearchWidget() {
             setSuggestions([]);
           }}
         >
-          <span className="hero-tab-icon">📍</span>
+          <IconMapPin size={18} stroke={1.8} className="hero-tab-icon" />
           <span>Explore Destinations</span>
         </button>
 
@@ -112,7 +119,7 @@ export default function HeroSearchWidget() {
             setSuggestions([]);
           }}
         >
-          <span className="hero-tab-icon">📅</span>
+          <IconCalendar size={18} stroke={1.8} className="hero-tab-icon" />
           <span>Plan a Trip</span>
         </button>
 
@@ -126,7 +133,7 @@ export default function HeroSearchWidget() {
             setSuggestions([]);
           }}
         >
-          <span className="hero-tab-icon">🚗</span>
+          <IconRoute size={18} stroke={1.8} className="hero-tab-icon" />
           <span>Find Routes</span>
         </button>
 
@@ -140,7 +147,7 @@ export default function HeroSearchWidget() {
             setSuggestions([]);
           }}
         >
-          <span className="hero-tab-icon">⊞</span>
+          <IconCategory size={18} stroke={1.8} className="hero-tab-icon" />
           <span>Search by Interest</span>
         </button>
       </div>
@@ -148,21 +155,12 @@ export default function HeroSearchWidget() {
       {/* 2. Search Input Row with Orange Button */}
       <form onSubmit={handleSearchSubmit} className="hero-search-input-form" role="search">
         <div className="hero-search-field-wrap">
-          <svg
+          <IconSearch
             className="hero-search-field-icon"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#87938F"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+            size={20}
+            stroke={2}
+            color="#87938F"
+          />
 
           <input
             type="search"
@@ -183,7 +181,7 @@ export default function HeroSearchWidget() {
                   className="hero-search-suggestion-item"
                   onClick={() => selectSuggestion(item)}
                 >
-                  <span className="sugg-pin">📍</span>
+                  <IconMapPin size={16} stroke={1.8} className="sugg-pin" color="var(--gold-dark)" />
                   <span className="sugg-name">{item.name}</span>
                   <span className="sugg-state">{item.state}</span>
                 </button>
@@ -193,20 +191,10 @@ export default function HeroSearchWidget() {
         </div>
 
         <button type="submit" className="hero-search-submit-btn">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <IconSearch
+            size={18}
+            stroke={2.2}
+          />
           <span>Search</span>
         </button>
       </form>

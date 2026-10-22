@@ -2,6 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import {
+  IconHeart,
+  IconHeartFilled,
+  IconShare,
+  IconPrinter,
+  IconCheck,
+  IconCheckbox,
+  IconSquare,
+  IconClock,
+  IconCar,
+  IconCalculator,
+  IconChecklist,
+  IconTrain,
+  IconArrowRight,
+} from './icons';
 
 export default function ItineraryInteractiveClient({ itinerary }) {
   const [activeDay, setActiveDay] = useState(1);
@@ -130,7 +145,7 @@ export default function ItineraryInteractiveClient({ itinerary }) {
             }}
             aria-label={isSaved ? 'Remove from saved trips' : 'Save to my trips'}
           >
-            <span>{isSaved ? '❤️' : '♡'}</span>
+            {isSaved ? <IconHeartFilled size={18} /> : <IconHeart size={18} />}
             <span>{isSaved ? 'Saved to Wishlist' : 'Save Itinerary'}</span>
           </button>
 
@@ -153,7 +168,7 @@ export default function ItineraryInteractiveClient({ itinerary }) {
             }}
             aria-label="Share this itinerary"
           >
-            <span>↗</span>
+            <IconShare size={18} />
             <span>Share</span>
           </button>
 
@@ -176,7 +191,7 @@ export default function ItineraryInteractiveClient({ itinerary }) {
             }}
             aria-label="Print this itinerary"
           >
-            <span>🖨️</span>
+            <IconPrinter size={18} />
             <span>Print</span>
           </button>
         </div>
@@ -194,9 +209,14 @@ export default function ItineraryInteractiveClient({ itinerary }) {
             marginBottom: '1.5rem',
             textAlign: 'center',
             boxShadow: 'var(--shadow-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
           }}
         >
-          ✓ Link copied to clipboard! Share with your travel companions.
+          <IconCheck size={16} />
+          <span>Link copied to clipboard! Share with your travel companions.</span>
         </div>
       )}
 
@@ -284,14 +304,15 @@ export default function ItineraryInteractiveClient({ itinerary }) {
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '1.4rem',
-                      color: isDone ? '#16A34A' : 'var(--text-muted)',
                       padding: 0,
                       alignSelf: 'flex-start',
+                      color: isDone ? '#16A34A' : 'var(--text-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
                     }}
                     aria-label={isDone ? `Mark ${act.title} as uncompleted` : `Mark ${act.title} as completed`}
                   >
-                    {isDone ? '☑' : '☐'}
+                    {isDone ? <IconCheckbox size={22} color="#16A34A" /> : <IconSquare size={22} />}
                   </button>
 
                   {/* Details */}
@@ -306,9 +327,13 @@ export default function ItineraryInteractiveClient({ itinerary }) {
                           padding: '0.2rem 0.55rem',
                           borderRadius: '4px',
                           border: '1px solid var(--border-color)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
                         }}
                       >
-                        ⏱ {act.time}
+                        <IconClock size={13} />
+                        <span>{act.time}</span>
                       </span>
                       <h3
                         style={{
@@ -334,7 +359,7 @@ export default function ItineraryInteractiveClient({ itinerary }) {
 
                     {act.transport && (
                       <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>🚗</span>
+                        <IconCar size={16} />
                         <span><strong>Transit note:</strong> {act.transport}</span>
                       </div>
                     )}
@@ -359,38 +384,44 @@ export default function ItineraryInteractiveClient({ itinerary }) {
         }}
       >
         <div>
-          <h3 style={{ margin: '0 0 0.4rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.1rem' }}>
-            💰 Estimate Trip Budget
+          <h3 style={{ margin: '0 0 0.4rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <IconCalculator size={20} />
+            <span>Estimate Trip Budget</span>
           </h3>
           <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
             Calculate stay, meals, monument tickets, and cab costs for this {itinerary.days} itinerary.
           </p>
-          <Link href={`/budget-calculator`} className="button-link-secondary" style={{ fontSize: '0.82rem' }}>
-            Open Budget Calculator →
+          <Link href={`/budget-calculator`} className="button-link-secondary" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span>Open Budget Calculator</span>
+            <IconArrowRight size={14} />
           </Link>
         </div>
 
         <div>
-          <h3 style={{ margin: '0 0 0.4rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.1rem' }}>
-            📋 Preparation Checklist
+          <h3 style={{ margin: '0 0 0.4rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <IconChecklist size={20} />
+            <span>Preparation Checklist</span>
           </h3>
           <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
             Verify your temple footwear, UPI apps, travel medical insurance, and electrical adapters.
           </p>
-          <Link href="/checklist" className="button-link-secondary" style={{ fontSize: '0.82rem' }}>
-            View Packing Checklist →
+          <Link href="/checklist" className="button-link-secondary" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span>View Packing Checklist</span>
+            <IconArrowRight size={14} />
           </Link>
         </div>
 
         <div>
-          <h3 style={{ margin: '0 0 0.4rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.1rem' }}>
-            🚆 Transit & Trains
+          <h3 style={{ margin: '0 0 0.4rem 0', fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <IconTrain size={20} />
+            <span>Transit & Trains</span>
           </h3>
           <p style={{ margin: '0 0 1rem 0', fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
             Check Vande Bharat trains, expressways, and official IRCTC booking guidelines.
           </p>
-          <Link href="/routes" className="button-link-secondary" style={{ fontSize: '0.82rem' }}>
-            Compare Transit Options →
+          <Link href="/routes" className="button-link-secondary" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span>Compare Transit Options</span>
+            <IconArrowRight size={14} />
           </Link>
         </div>
       </div>

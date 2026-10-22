@@ -1,6 +1,15 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import {
+  IconCompass,
+  IconTrain,
+  IconPlane,
+  IconCar,
+  IconBus,
+  IconExternalLink,
+  IconBulb,
+} from './icons';
 
 const corridorData = {
   'delhi-jaipur': {
@@ -145,33 +154,37 @@ export default function RouteFinderClient() {
       {/* Mode Filters */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {[
-          { id: 'all', label: 'All Transport Modes', icon: '🧭' },
-          { id: 'train', label: 'By Train (IRCTC)', icon: '🚆' },
-          { id: 'air', label: 'By Air', icon: '✈️' },
-          { id: 'road', label: 'By Road / Expressways', icon: '🚗' },
-          { id: 'bus', label: 'By State Buses', icon: '🚌' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '0.55rem 1.1rem',
-              borderRadius: '999px',
-              border: activeTab === tab.id ? '1px solid var(--teal-deep)' : '1px solid var(--border-color)',
-              background: activeTab === tab.id ? 'var(--teal-deep)' : '#FFFFFF',
-              color: activeTab === tab.id ? '#FFFDF8' : 'var(--text-primary)',
-              fontWeight: 600,
-              fontSize: '0.88rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-            }}
-          >
-            <span>{tab.icon}</span> {tab.label}
-          </button>
-        ))}
+          { id: 'all', label: 'All Transport Modes', icon: IconCompass },
+          { id: 'train', label: 'By Train (IRCTC)', icon: IconTrain },
+          { id: 'air', label: 'By Air', icon: IconPlane },
+          { id: 'road', label: 'By Road / Expressways', icon: IconCar },
+          { id: 'bus', label: 'By State Buses', icon: IconBus },
+        ].map((tab) => {
+          const TabIcon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '0.55rem 1.1rem',
+                borderRadius: '999px',
+                border: activeTab === tab.id ? '1px solid var(--teal-deep)' : '1px solid var(--border-color)',
+                background: activeTab === tab.id ? 'var(--teal-deep)' : '#FFFFFF',
+                color: activeTab === tab.id ? '#FFFDF8' : 'var(--text-primary)',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <TabIcon size={16} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Corridor Details Grid */}
@@ -180,8 +193,10 @@ export default function RouteFinderClient() {
         {(activeTab === 'all' || activeTab === 'train') && (
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <span style={{ fontSize: '1.4rem' }}>🚆</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+                  <IconTrain size={28} />
+                </span>
                 <div>
                   <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
                     Indian Railways (Fastest & Scenic Option)
@@ -194,9 +209,10 @@ export default function RouteFinderClient() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-gold-pill"
-                style={{ textDecoration: 'none', fontSize: '0.85rem' }}
+                style={{ textDecoration: 'none', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                Book on IRCTC Official Portal ↗
+                <span>Book on IRCTC Official Portal</span>
+                <IconExternalLink size={14} />
               </a>
             </div>
 
@@ -224,8 +240,10 @@ export default function RouteFinderClient() {
         {/* Flight Card */}
         {(activeTab === 'all' || activeTab === 'air') && (
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.4rem' }}>✈️</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+                <IconPlane size={28} />
+              </span>
               <div>
                 <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
                   Domestic Flights
@@ -239,8 +257,9 @@ export default function RouteFinderClient() {
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
               <strong>Airlines:</strong> {corridor.air.airlines}
             </p>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-              💡 {corridor.air.note} Use DigiYatra app for facial recognition biometric entry at major Indian airports.
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <IconBulb size={16} />
+              <span>{corridor.air.note} Use DigiYatra app for facial recognition biometric entry at major Indian airports.</span>
             </p>
           </div>
         )}
@@ -248,8 +267,10 @@ export default function RouteFinderClient() {
         {/* Road & Expressway Card */}
         {(activeTab === 'all' || activeTab === 'road') && (
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.4rem' }}>🚗</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+                <IconCar size={28} />
+              </span>
               <div>
                 <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
                   Road & Expressways (Self-Drive / Private Cab)
@@ -269,8 +290,10 @@ export default function RouteFinderClient() {
         {/* Bus Card */}
         {(activeTab === 'all' || activeTab === 'bus') && (
           <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '2rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.4rem' }}>🚌</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <span style={{ color: 'var(--teal-deep)', display: 'inline-flex' }}>
+                <IconBus size={28} />
+              </span>
               <div>
                 <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--teal-deep)', fontSize: '1.3rem' }}>
                   Inter-State Bus Services
