@@ -3207,7 +3207,7 @@ textarea:focus-visible {
    ========================================================================== */
 .by-cinematic-hero {
   position: relative;
-  min-height: clamp(580px, 72vh, 780px);
+  min-height: clamp(440px, 62vh, 720px);
   width: 100%;
   display: flex;
   align-items: center;
@@ -3217,6 +3217,10 @@ textarea:focus-visible {
   background-image: url('/hero.jpg');
   background-position: center 35%;
   background-size: cover;
+}
+
+.by-cinematic-hero-pure {
+  min-height: clamp(420px, 58vh, 680px);
 }
 
 .by-hero-video {
@@ -3247,6 +3251,16 @@ textarea:focus-visible {
   );
   z-index: 2;
   pointer-events: none;
+}
+
+.by-cinematic-hero-pure .by-hero-video-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 47, 44, 0.18) 0%,
+    rgba(16, 47, 44, 0) 25%,
+    rgba(16, 47, 44, 0) 75%,
+    rgba(16, 47, 44, 0.32) 100%
+  );
 }
 
 .by-hero-video-vignette {
@@ -3570,20 +3584,19 @@ textarea:focus-visible {
   transform: scale(1.02);
 }
 
-/* Responsive Styles for Cinematic Hero */
 @media (max-width: 1024px) {
   .by-cinematic-hero {
-    min-height: 560px;
+    min-height: 400px;
   }
-  .by-hero-shell {
-    padding-top: 3.5rem;
-    padding-bottom: 4rem;
+  .by-cinematic-hero-pure {
+    min-height: 380px;
   }
 }
 
 @media (max-width: 768px) {
   .by-cinematic-hero {
-    min-height: auto;
+    min-height: 260px;
+    height: 46vh;
     padding: 0;
   }
   .by-hero-shell {
