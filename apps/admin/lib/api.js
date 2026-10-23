@@ -23,7 +23,11 @@ export async function adminApiFetch(path, options = {}) {
     } catch {}
   }
 
-  const base = env.ADMIN_API_URL || env.NEXT_PUBLIC_API_BASE_URL || (env.NODE_ENV === 'development' ? 'http://localhost:4000/api/v1' : 'https://bharat-yatra-in-bc-api.vercel.app/api/v1');
+  const base =
+    env.ADMIN_API_URL ||
+    (env.NODE_ENV === 'development'
+      ? 'http://localhost:4000/api/v1'
+      : (env.NEXT_PUBLIC_API_BASE_URL || 'https://bharat-yatra-in-bc-api.vercel.app/api/v1'));
   if (!base) throw new Error('Admin API unavailable');
 
   return fetch(`${base.replace(/\/$/, '')}/admin/${path}`, {

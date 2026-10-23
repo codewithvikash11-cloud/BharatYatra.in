@@ -25,7 +25,11 @@ async function handleProxy(request, { params }) {
     } catch {}
   }
 
-  const base = env.ADMIN_API_URL || env.NEXT_PUBLIC_API_BASE_URL || (env.NODE_ENV === 'development' ? 'http://localhost:4000/api/v1' : DEFAULT_API_BASE);
+  const base =
+    env.ADMIN_API_URL ||
+    (env.NODE_ENV === 'development'
+      ? 'http://localhost:4000/api/v1'
+      : (env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE));
   const targetUrl = new URL(`${base.replace(/\/$/, '')}/admin/${subPath}`);
   const requestUrl = new URL(request.url);
   requestUrl.searchParams.forEach((val, key) => targetUrl.searchParams.set(key, val));
@@ -70,6 +74,7 @@ async function handleProxy(request, { params }) {
       headers: responseHeaders,
     });
   } catch (err) {
+    console.error('[API Proxy Error]', targetUrl.toString(), err);
     return NextResponse.json({ error: 'Backend API connection failed', details: err.message }, { status: 502 });
   }
 }

@@ -29,6 +29,12 @@ import {
   IconArrowRight,
 } from './icons.js';
 
+const defaultAdminUrl =
+  process.env.NEXT_PUBLIC_ADMIN_URL ||
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001'
+    : 'https://bharat-yatra-admin.vercel.app');
+
 export default function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [destDropdownOpen, setDestDropdownOpen] = useState(false);
@@ -36,6 +42,17 @@ export default function SiteHeader() {
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [favCount, setFavCount] = useState(0);
   const [navSearch, setNavSearch] = useState('');
+  const [adminUrl, setAdminUrl] = useState(defaultAdminUrl);
+
+  useEffect(() => {
+    if (
+      !process.env.NEXT_PUBLIC_ADMIN_URL &&
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ) {
+      setAdminUrl('http://localhost:3001');
+    }
+  }, []);
   const pathname = usePathname();
   const router = useRouter();
   const dropdownRef = useRef(null);
@@ -271,11 +288,12 @@ export default function SiteHeader() {
                     <span>Packing Checklist</span>
                   </Link>
                   <a
-                    href={process.env.NEXT_PUBLIC_ADMIN_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://bharat-yatra-admin.vercel.app')}
+                    href={adminUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="by-account-link by-admin-link"
                     role="menuitem"
+                    suppressHydrationWarning
                   >
                     <IconSettings size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--gold-dark)' }} />
                     <span>Admin Studio ↗</span>

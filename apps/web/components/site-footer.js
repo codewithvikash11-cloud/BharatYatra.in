@@ -1,20 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import BrandLogo from './brand-logo.js';
 import { IconArrowRight, IconCheck } from './icons.js';
+
+const defaultAdminUrl =
+  process.env.NEXT_PUBLIC_ADMIN_URL ||
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001'
+    : 'https://bharat-yatra-admin.vercel.app');
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
   const [subscribed, setSubscribed] = useState(false);
   const [email, setEmail] = useState('');
+  const [adminUrl, setAdminUrl] = useState(defaultAdminUrl);
 
-  const adminUrl =
-    process.env.NEXT_PUBLIC_ADMIN_URL ||
-    (typeof window !== 'undefined' && window.location.hostname === 'localhost'
-      ? 'http://localhost:3001'
-      : 'https://bharat-yatra-admin.vercel.app');
+  useEffect(() => {
+    if (
+      !process.env.NEXT_PUBLIC_ADMIN_URL &&
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ) {
+      setAdminUrl('http://localhost:3001');
+    }
+  }, []);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -116,7 +127,7 @@ export default function SiteFooter() {
               <li><Link href="/contact">Editorial Inquiries</Link></li>
               <li><Link href="/privacy">Privacy Policy</Link></li>
               <li><Link href="/terms">Terms of Service</Link></li>
-              <li><a href={adminUrl} target="_blank" rel="noopener noreferrer">Content Studio (Admin) ↗</a></li>
+              <li><a href={adminUrl} target="_blank" rel="noopener noreferrer" suppressHydrationWarning>Content Studio (Admin) ↗</a></li>
             </ul>
           </div>
         </div>
