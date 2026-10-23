@@ -2,25 +2,25 @@
   color-scheme: light;
 
   /* BharatYatra Brand Color Palette */
-  --teal-primary: #153E3A;
-  --teal-secondary: #247A72;
-  --teal-deep: #102F2C;
-  --gold-muted: #C58B32;
-  --gold-dark: #A86F20;
-  --terracotta: #B9653F;
-  --forest-green: #496B55;
-  --soft-blue: #6E9CA0;
+  --teal-primary: #0F3D36;
+  --teal-secondary: #0F766E;
+  --teal-deep: #0F3D36;
+  --gold-muted: #E99A24;
+  --gold-dark: #D97706;
+  --terracotta: #C85A32;
+  --forest-green: #0F766E;
+  --soft-blue: #5C959E;
 
   /* Backgrounds & Text */
-  --cream-main: #F7F3E8;
-  --cream-bg: #F7F3E8;
-  --sand-bg: #E9E0CF;
-  --white-bg: #FFFDF8;
+  --cream-main: #F8F6EF;
+  --cream-bg: #F8F6EF;
+  --sand-bg: #EDE9DF;
+  --white-bg: #FFFFFF;
   --card-white: #FFFFFF;
-  --text-primary: #173633;
-  --text-secondary: #64736F;
-  --text-muted: #87938F;
-  --border-color: #DCE4DC;
+  --text-primary: #17312D;
+  --text-secondary: #64716C;
+  --text-muted: #828F8A;
+  --border-color: #E4E7DF;
 
   /* Aliases & Semantic Mappings */
   --ink: var(--text-primary);
@@ -34,11 +34,11 @@
   --soft-bg: var(--sand-bg);
 
   /* Gradients & Shadows */
-  --gradient-brand: linear-gradient(135deg, #153E3A 0%, #247A72 100%);
-  --gradient-gold: linear-gradient(135deg, #C58B32 0%, #A86F20 100%);
-  --gradient-accent: linear-gradient(135deg, #B9653F 0%, #C58B32 100%);
-  --gradient-dark: linear-gradient(135deg, #102F2C 0%, #153E3A 100%);
-  --gradient-warm: linear-gradient(180deg, #F7F3E8 0%, #FFFDF8 100%);
+  --gradient-brand: linear-gradient(135deg, #0F3D36 0%, #0F766E 100%);
+  --gradient-gold: linear-gradient(135deg, #E99A24 0%, #D97706 100%);
+  --gradient-accent: linear-gradient(135deg, #C85A32 0%, #E99A24 100%);
+  --gradient-dark: linear-gradient(135deg, #0A2B26 0%, #0F3D36 100%);
+  --gradient-warm: linear-gradient(180deg, #F8F6EF 0%, #FFFFFF 100%);
 
   --glass-bg: rgba(255, 255, 255, 0.94);
   --glass-border: rgba(220, 228, 220, 0.85);

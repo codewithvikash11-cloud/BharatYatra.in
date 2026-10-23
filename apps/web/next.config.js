@@ -3,6 +3,7 @@ const path = require('node:path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: false, quiet: true });
 
 const nextConfig = {
+  devIndicators: false,
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [360, 430, 768, 1024, 1280, 1536],

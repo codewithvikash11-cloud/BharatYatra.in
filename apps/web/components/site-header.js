@@ -270,7 +270,13 @@ export default function SiteHeader() {
                     <IconClipboardCheck size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                     <span>Packing Checklist</span>
                   </Link>
-                  <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer" className="by-account-link by-admin-link" role="menuitem">
+                  <a
+                    href={process.env.NEXT_PUBLIC_ADMIN_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://bharat-yatra-admin.vercel.app')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="by-account-link by-admin-link"
+                    role="menuitem"
+                  >
                     <IconSettings size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--gold-dark)' }} />
                     <span>Admin Studio ↗</span>
                   </a>

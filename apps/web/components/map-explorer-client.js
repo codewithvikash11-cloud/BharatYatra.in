@@ -9,17 +9,15 @@ import {
 } from './icons';
 
 const mapPins = [
-  { id: 'jaipur', name: 'Jaipur', state: 'Rajasthan', region: 'west', lat: 26.9124, lng: 75.7873, tag: 'Forts & Royal Palaces', slug: 'jaipur' },
-  { id: 'udaipur', name: 'Udaipur', state: 'Rajasthan', region: 'west', lat: 24.5854, lng: 73.7125, tag: 'Lakes & Heritage', slug: 'jaipur' },
-  { id: 'varanasi', name: 'Varanasi', state: 'Uttar Pradesh', region: 'north', lat: 25.3176, lng: 82.9739, tag: 'Spiritual Ganges & Ghats', slug: 'articles' },
-  { id: 'manali', name: 'Manali', state: 'Himachal Pradesh', region: 'north', lat: 32.2432, lng: 77.1892, tag: 'Himalayan Valleys', slug: 'destinations' },
-  { id: 'rishikesh', name: 'Rishikesh', state: 'Uttarakhand', region: 'north', lat: 30.0869, lng: 78.2676, tag: 'Yoga & River Rafting', slug: 'destinations' },
-  { id: 'goa', name: 'Goa', state: 'Goa', region: 'west', lat: 15.2993, lng: 74.1240, tag: 'Beaches & Heritage Churches', slug: 'destinations' },
-  { id: 'kerala', name: 'Alleppey (Alappuzha)', state: 'Kerala', region: 'south', lat: 9.4981, lng: 76.3388, tag: 'Backwaters & Lagoons', slug: 'destinations' },
-  { id: 'nawalgarh', name: 'Nawalgarh', state: 'Rajasthan', region: 'west', lat: 27.8483, lng: 75.2677, tag: 'Shekhawati Painted Havelis', slug: 'nawalgarh-rajasthan' },
-  { id: 'khajuraho', name: 'Khajuraho', state: 'Madhya Pradesh', region: 'central', lat: 24.8318, lng: 79.9199, tag: 'UNESCO Temples & Carvings', slug: 'destinations' },
-  { id: 'hampi', name: 'Hampi', state: 'Karnataka', region: 'south', lat: 15.3350, lng: 76.4600, tag: 'Vijayanagara Ruins & Boulders', slug: 'destinations' },
-  { id: 'kaziranga', name: 'Kaziranga', state: 'Assam', region: 'northeast', lat: 26.5775, lng: 93.1711, tag: 'One-Horned Rhinoceros', slug: 'destinations' },
+  { id: 'nawalgarh', name: 'Nawalgarh', state: 'Rajasthan', stateSlug: 'rajasthan', region: 'west', lat: 27.8483, lng: 75.2677, tag: 'Shekhawati Painted Havelis', href: '/destinations/nawalgarh-rajasthan', isPublished: true },
+  { id: 'rajasthan', name: 'Rajasthan Heritage Circuit', state: 'Rajasthan', stateSlug: 'rajasthan', region: 'west', lat: 26.9124, lng: 75.7873, tag: 'Forts, Havelis & Thar Desert', href: '/states/rajasthan', isPublished: false },
+  { id: 'kerala', name: 'Kerala Backwaters & Hills', state: 'Kerala', stateSlug: 'kerala', region: 'south', lat: 9.4981, lng: 76.3388, tag: 'Lagoons, Backwaters & Tea Gardens', href: '/states/kerala', isPublished: false },
+  { id: 'himachal', name: 'Himachal Himalayan Valleys', state: 'Himachal Pradesh', stateSlug: 'himachal-pradesh', region: 'north', lat: 32.2432, lng: 77.1892, tag: 'Alpine Meadows & Cedar Valleys', href: '/states/himachal-pradesh', isPublished: false },
+  { id: 'ladakh', name: 'Ladakh High-Altitude Passes', state: 'Ladakh', stateSlug: 'ladakh', region: 'north', lat: 34.1526, lng: 77.5771, tag: 'Monasteries & Sacred High Valleys', href: '/states/ladakh', isPublished: false },
+  { id: 'goa', name: 'Goan Coastal Heritage', state: 'Goa', stateSlug: 'goa', region: 'west', lat: 15.2993, lng: 74.1240, tag: 'Beaches & Portuguese Architecture', href: '/states/goa', isPublished: false },
+  { id: 'karnataka', name: 'Karnataka Heritage Circuit', state: 'Karnataka', stateSlug: 'karnataka', region: 'south', lat: 15.3350, lng: 76.4600, tag: 'Vijayanagara Ruins & Western Ghats', href: '/states/karnataka', isPublished: false },
+  { id: 'madhyapradesh', name: 'Central India Heritage & Wilds', state: 'Madhya Pradesh', stateSlug: 'madhya-pradesh', region: 'central', lat: 24.8318, lng: 79.9199, tag: 'UNESCO Temples & Tiger Reserves', href: '/states/madhya-pradesh', isPublished: false },
+  { id: 'northeast', name: 'Meghalaya Living Root Forests', state: 'Meghalaya', stateSlug: 'meghalaya', region: 'northeast', lat: 25.5788, lng: 91.8933, tag: 'Living Root Bridges & Cloud Valleys', href: '/states/meghalaya', isPublished: false },
 ];
 
 export default function MapExplorerClient() {
@@ -148,11 +146,11 @@ export default function MapExplorerClient() {
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <Link
-              href={activePin.id === 'jaipur' ? '/destinations/jaipur' : `/destinations/${activePin.slug}`}
+              href={activePin.href || '/destinations'}
               className="btn-gold-pill"
               style={{ textDecoration: 'none', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              <span>Explore {activePin.name} Guide</span>
+              <span>Explore {activePin.name}</span>
               <IconArrowRight size={16} />
             </Link>
             <a

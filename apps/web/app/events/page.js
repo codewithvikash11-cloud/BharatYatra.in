@@ -14,7 +14,7 @@ const festivals = [
     category: 'Cultural Fair & Livestock',
     description: 'One of the world’s largest camel and livestock fairs. Hundreds of thousands of pastoralists gather in the Thar Desert dunes for camel beauty contests, folk music, Ferris wheels, and sacred ritual dips in holy Pushkar Lake.',
     etiquette: 'Be respectful when photographing sadhus and villagers. Wear sunglasses and scarves for desert dust.',
-    destSlug: 'jaipur',
+    destSlug: null,
     cover: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80',
   },
   {

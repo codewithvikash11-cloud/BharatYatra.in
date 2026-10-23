@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -15,26 +15,48 @@ export default function HeroSearchWidget() {
   const [activeTab, setActiveTab] = useState('explore');
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const widgetRef = useRef(null);
   const router = useRouter();
 
-  const destinationSuggestions = [
-    { name: 'Jaipur', state: 'Rajasthan', slug: 'jaipur' },
-    { name: 'Varanasi', state: 'Uttar Pradesh', slug: 'varanasi' },
-    { name: 'Manali', state: 'Himachal Pradesh', slug: 'manali' },
-    { name: 'Goa', state: 'Goa', slug: 'goa' },
-    { name: 'Udaipur', state: 'Rajasthan', slug: 'udaipur' },
-    { name: 'Rishikesh', state: 'Uttarakhand', slug: 'rishikesh' },
-    { name: 'Nawalgarh', state: 'Rajasthan', slug: 'nawalgarh-rajasthan' },
-    { name: 'Kerala Backwaters', state: 'Kerala', slug: 'kerala' },
-    { name: 'Leh Ladakh', state: 'Ladakh', slug: 'ladakh' },
-    { name: 'Darjeeling', state: 'West Bengal', slug: 'darjeeling' },
+  // Real verified destinations and states with functional routes
+  const verifiedLocations = [
+    { name: 'Nawalgarh', state: 'Rajasthan', href: '/destinations/nawalgarh-rajasthan', tag: 'Destination' },
+    { name: 'Rajasthan', state: 'West India', href: '/states/rajasthan', tag: 'State' },
+    { name: 'Kerala', state: 'South India', href: '/states/kerala', tag: 'State' },
+    { name: 'Himachal Pradesh', state: 'North India', href: '/states/himachal-pradesh', tag: 'State' },
+    { name: 'Goa', state: 'West India', href: '/states/goa', tag: 'State' },
+    { name: 'Uttarakhand', state: 'North India', href: '/states/uttarakhand', tag: 'State' },
+    { name: 'Ladakh', state: 'North India', href: '/states/ladakh', tag: 'Union Territory' },
+    { name: 'Tamil Nadu', state: 'South India', href: '/states/tamil-nadu', tag: 'State' },
+    { name: 'Karnataka', state: 'South India', href: '/states/karnataka', tag: 'State' },
+    { name: 'Madhya Pradesh', state: 'Central India', href: '/states/madhya-pradesh', tag: 'State' },
   ];
+
+  // Close suggestions when clicking outside or pressing Escape
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (widgetRef.current && !widgetRef.current.contains(e.target)) {
+        setSuggestions([]);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSuggestions([]);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const handleInputChange = (e) => {
     const val = e.target.value;
     setQuery(val);
     if (val.trim().length > 0) {
-      const filtered = destinationSuggestions.filter(
+      const filtered = verifiedLocations.filter(
         (d) =>
           d.name.toLowerCase().includes(val.toLowerCase()) ||
           d.state.toLowerCase().includes(val.toLowerCase())
@@ -59,23 +81,19 @@ export default function HeroSearchWidget() {
     setSuggestions([]);
   };
 
-  const selectSuggestion = (dest) => {
-    router.push(`/destinations/${dest.slug}`);
+  const selectSuggestion = (loc) => {
+    router.push(loc.href);
     setQuery('');
     setSuggestions([]);
   };
 
   const popularPills = [
-    { label: 'Jaipur', href: '/destinations/jaipur' },
-    { label: 'Udaipur', href: '/search?q=Udaipur' },
-    { label: 'Goa', href: '/search?q=Goa' },
-    { label: 'Varanasi', href: '/search?q=Varanasi' },
-    { label: 'Rishikesh', href: '/search?q=Rishikesh' },
-    { label: 'Kerala', href: '/search?q=Kerala' },
-    { label: 'Kashmir', href: '/search?q=Kashmir' },
-    { label: 'Leh Ladakh', href: '/search?q=Ladakh' },
-    { label: 'Ayodhya', href: '/search?q=Ayodhya' },
-    { label: 'Mysore', href: '/search?q=Mysore' },
+    { label: 'Nawalgarh (Shekhawati)', href: '/destinations/nawalgarh-rajasthan' },
+    { label: 'Rajasthan', href: '/states/rajasthan' },
+    { label: 'North India', href: '/destinations?region=north' },
+    { label: 'South India', href: '/destinations?region=south' },
+    { label: 'All 36 States & UTs', href: '/states' },
+    { label: 'Travel Guides', href: '/articles' },
   ];
 
   const getPlaceholder = () => {
@@ -85,14 +103,14 @@ export default function HeroSearchWidget() {
       case 'routes':
         return 'Enter destination to find train, bus, and flight routes...';
       case 'interest':
-        return 'Search by interest (e.g. Forts & Palaces, Ghats, Beaches, Wildlife...)';
+        return 'Search by interest (e.g. Forts & Palaces, Havelis, Beaches, Wildlife...)';
       default:
-        return 'Where do you want to go? (e.g. Jaipur, Kerala, Varanasi...)';
+        return 'Where do you want to go? (e.g. Nawalgarh, Rajasthan, Kerala...)';
     }
   };
 
   return (
-    <div className="hero-search-card">
+    <div className="hero-search-card" ref={widgetRef}>
       {/* 1. Four Header Tabs */}
       <div className="hero-search-tabs" role="tablist">
         <button

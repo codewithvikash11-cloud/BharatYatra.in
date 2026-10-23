@@ -1,10 +1,28 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import BrandLogo from './brand-logo.js';
+import { IconArrowRight, IconCheck } from './icons.js';
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
+  const [subscribed, setSubscribed] = useState(false);
+  const [email, setEmail] = useState('');
+
+  const adminUrl =
+    process.env.NEXT_PUBLIC_ADMIN_URL ||
+    (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+      ? 'http://localhost:3001'
+      : 'https://bharat-yatra-admin.vercel.app');
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      setEmail('');
+    }
+  };
 
   return (
     <footer className="footer-v0">
@@ -21,24 +39,41 @@ export default function SiteFooter() {
           {/* Newsletter Right */}
           <div className="newsletter-box">
             <h3 className="newsletter-title">A little inspiration for your inbox.</h3>
-            <form
-              className="newsletter-form-row"
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert('Thank you for subscribing to BharatYatra stories!');
-              }}
-            >
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="newsletter-input"
-                aria-label="Your email address"
-                required
-              />
-              <button type="submit" className="newsletter-btn">
-                Subscribe →
-              </button>
-            </form>
+            {subscribed ? (
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(233, 154, 36, 0.15)',
+                  border: '1px solid var(--gold-muted)',
+                  borderRadius: '999px',
+                  padding: '0.65rem 1.25rem',
+                  color: '#FFFDF8',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                }}
+              >
+                <IconCheck size={18} color="var(--gold-muted)" stroke={2.2} />
+                <span>Thank you for subscribing to BharatYatra stories!</span>
+              </div>
+            ) : (
+              <form className="newsletter-form-row" onSubmit={handleSubscribe}>
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  className="newsletter-input"
+                  aria-label="Your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <button type="submit" className="newsletter-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <span>Subscribe</span>
+                  <IconArrowRight size={14} />
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
@@ -81,7 +116,7 @@ export default function SiteFooter() {
               <li><Link href="/contact">Editorial Inquiries</Link></li>
               <li><Link href="/privacy">Privacy Policy</Link></li>
               <li><Link href="/terms">Terms of Service</Link></li>
-              <li><a href="http://localhost:3001" target="_blank" rel="noopener noreferrer">Content Studio (Admin) ↗</a></li>
+              <li><a href={adminUrl} target="_blank" rel="noopener noreferrer">Content Studio (Admin) ↗</a></li>
             </ul>
           </div>
         </div>
