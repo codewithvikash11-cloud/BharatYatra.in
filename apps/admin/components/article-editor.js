@@ -375,6 +375,16 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
           ? '🎉 Article published live to BharatYatra!'
           : `Article status changed to ${targetStatus}.`
       );
+
+      // Automatic IndexNow discovery notification for search engines
+      try {
+        const canonicalUrl = form.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${form.slug}`;
+        fetch('/api/admin/indexnow', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ url: canonicalUrl }),
+        }).catch(() => {});
+      } catch {}
     } catch (err) {
       setSaveStatus('error');
       setErrorMessage(err.message || 'Status transition failed');

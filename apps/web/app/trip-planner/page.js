@@ -1,9 +1,27 @@
 import Link from 'next/link';
 import TripPlannerClient from '../../components/trip-planner-client.js';
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
+
 export const metadata = {
   title: 'Trip Planner | Plan Your India Journey | BharatYatra',
   description: 'Create customized day-by-day travel itineraries for destinations across India with practical timings, verified attractions, and local tips.',
+  alternates: {
+    canonical: `${siteUrl}/trip-planner`,
+  },
+  openGraph: {
+    title: 'Trip Planner | Plan Your India Journey | BharatYatra',
+    description: 'Create customized day-by-day travel itineraries for destinations across India with practical timings, verified attractions, and local tips.',
+    url: `${siteUrl}/trip-planner`,
+    siteName: 'BharatYatra',
+    images: [{ url: `${siteUrl}/image.png`, width: 1200, height: 630, alt: 'BharatYatra Trip Planner' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Trip Planner | BharatYatra',
+    description: 'Build practical day-by-day itineraries across India.',
+    images: [`${siteUrl}/image.png`],
+  },
 };
 
 export default function TripPlannerPage() {

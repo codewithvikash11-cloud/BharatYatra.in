@@ -38,6 +38,7 @@ export default async function StudioLayout({ children }) {
           <Link href="/content/itineraries">Itineraries</Link>
           <Link href="/media">Media library</Link>
           <Link href="/appearance">Appearance</Link>
+          <Link href="/seo">SEO &amp; Indexing</Link>
           <Link href="/audit">Audit history</Link>
         </nav>
         <div className="sidebar-bottom">

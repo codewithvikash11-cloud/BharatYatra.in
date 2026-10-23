@@ -458,6 +458,19 @@ export default function ContentManager({ type, role }) {
       if (!res.ok) throw new Error(result.error || 'Status change failed');
       setSelected(result.data);
       setNotice(`Status successfully changed to ${next.toLowerCase()}.`);
+
+      if (next === 'PUBLISHED' && selected.slug) {
+        try {
+          const path = type === 'articles' ? 'articles' : 'destinations';
+          const targetUrl = `https://bharat-yatra-in.vercel.app/${path}/${selected.slug}`;
+          fetch('/api/admin/indexnow', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ url: targetUrl }),
+          }).catch(() => {});
+        } catch {}
+      }
+
       await refresh();
     } catch (err) {
       setError(err.message || 'Status change failed');

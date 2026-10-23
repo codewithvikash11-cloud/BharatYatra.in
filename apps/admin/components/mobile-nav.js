@@ -27,6 +27,7 @@ export default function MobileNav() {
   ];
 
   const moreMenu = [
+    { label: 'SEO & Indexing', href: '/seo' },
     { label: 'Audit History', href: '/audit' }
   ];
 

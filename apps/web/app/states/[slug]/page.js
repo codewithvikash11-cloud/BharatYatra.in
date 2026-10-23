@@ -6,11 +6,37 @@ import { getDictionary, getLanguage } from '../../../lib/i18n.js';
 
 export const dynamic = 'force-dynamic';
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const result = await getContent('states', [slug]);
-  if (result.state !== 'success') return {};
-  return { title: `${result.payload.data.name_en} | BharatYatra` };
+  if (result.state !== 'success' || !result.payload?.data) {
+    return { title: 'State Not Found | BharatYatra' };
+  }
+  const state = result.payload.data;
+  const title = `${state.name_en} Travel Guide · Heritage, Districts & Destinations | BharatYatra`;
+  const description = state.description_en || `Discover historic monuments, authentic travel circuits, and cultural experiences across ${state.name_en}.`;
+  const canonicalUrl = `${siteUrl}/states/${encodeURIComponent(slug)}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: 'BharatYatra',
+      images: [{ url: `${siteUrl}/image.png`, width: 1200, height: 630, alt: state.name_en }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${siteUrl}/image.png`],
+    },
+  };
 }
 
 export default async function StateDetailPage({ params }) {
@@ -28,8 +54,32 @@ export default async function StateDetailPage({ params }) {
   const districtsResult = await getCollection('districts', { state: slug, limit: 20 });
   const destinationsResult = await getCollection('destinations', { state: slug, limit: 20 });
 
+  const stateUrl = `${siteUrl}/states/${encodeURIComponent(slug)}`;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AdministrativeArea',
+    name: state.name_en,
+    alternateName: state.name_hi || undefined,
+    description: state.description_en || `Travel and heritage guide to ${state.name_en}, India.`,
+    url: stateUrl,
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'States & UTs', item: `${siteUrl}/states` },
+      { '@type': 'ListItem', position: 3, name: state.name_en, item: stateUrl },
+    ],
+  };
+
   return (
-    <main className="detail-page page-shell">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
+      <main className="detail-page page-shell">
       <nav className="breadcrumb" style={{ marginBottom: '2rem', fontSize: '0.85rem' }}>
         <Link href="/" className="text-link">{dict.common.home}</Link> &rsaquo;{' '}
         <Link href="/states" className="text-link">{dict.nav.states}</Link> &rsaquo;{' '}
@@ -74,5 +124,6 @@ export default async function StateDetailPage({ params }) {
         </section>
       )}
     </main>
+    </>
   );
 }
