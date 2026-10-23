@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ApiState, ContentSearch, DestinationCard, PageHeading, Pagination } from '../../components/content.js';
 import { getCollection, parsePage, parseSearchTerm } from '../../lib/content-api.mjs';
 import { getDictionary, getLanguage } from '../../lib/i18n.js';
-import { getRegionIcon, IconX, IconMapPin } from '../../components/icons.js';
+import { RegionIcon, IconX, IconMapPin } from '../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -129,7 +129,7 @@ export default async function DestinationsPage({ searchParams }) {
                   transition: 'all 0.15s ease',
                 }}
               >
-                {getRegionIcon(r.id, { size: 16 })}
+                <RegionIcon regionId={r.id} size={16} />
                 <span>{r.label}</span>
               </Link>
             );

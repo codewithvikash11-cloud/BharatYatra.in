@@ -194,9 +194,9 @@ export const IconBrandFacebook = wrapIcon(Tabler.IconBrandFacebook);
 export const IconBrandInstagram = wrapIcon(Tabler.IconBrandInstagram);
 export const IconBrandYoutube = wrapIcon(Tabler.IconBrandYoutube);
 
-// Regional Mapping Helper
-export function getRegionIcon(regionId, props = {}) {
-  const normalized = (regionId || '').toLowerCase();
+// Regional Mapping Component & Helper
+export function RegionIcon({ regionId, region, ...props }) {
+  const normalized = (regionId || region || '').toLowerCase().trim();
   switch (normalized) {
     case 'north':
       return <IconMountain {...props} />;
@@ -215,8 +215,12 @@ export function getRegionIcon(regionId, props = {}) {
   }
 }
 
-// Travel Category Mapping Helper
-export function getCategoryIcon(category, props = {}) {
+export function getRegionIcon(regionId, props = {}) {
+  return <RegionIcon regionId={regionId} {...props} />;
+}
+
+// Travel Category Mapping Component & Helper
+export function CategoryIcon({ category, ...props }) {
   const norm = (category || '').toLowerCase();
   if (norm.includes('fort') || norm.includes('palace') || norm.includes('heritage') || norm.includes('castle')) {
     return <IconBuildingCastle {...props} />;
@@ -261,4 +265,8 @@ export function getCategoryIcon(category, props = {}) {
     return <IconCalculator {...props} />;
   }
   return <IconMapPin {...props} />;
+}
+
+export function getCategoryIcon(category, props = {}) {
+  return <CategoryIcon category={category} {...props} />;
 }

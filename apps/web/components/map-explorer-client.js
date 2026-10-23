@@ -5,7 +5,7 @@ import {
   IconMapPin,
   IconArrowRight,
   IconExternalLink,
-  getRegionIcon,
+  RegionIcon,
 } from './icons';
 
 const mapPins = [
@@ -58,7 +58,7 @@ export default function MapExplorerClient() {
               gap: '6px',
             }}
           >
-            {getRegionIcon(r.id, { size: 16 })}
+            <RegionIcon regionId={r.id} size={16} />
             <span>{r.label}</span>
           </button>
         ))}
