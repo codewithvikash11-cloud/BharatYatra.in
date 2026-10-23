@@ -81,17 +81,6 @@ const verifiedPlaces = [
     summary: 'Portuguese heritage churches, spice plantations, and golden sandy coastlines.',
     href: '/destinations/goa',
   },
-  {
-    type: 'destination',
-    slug: 'nawalgarh-rajasthan',
-    name: 'Nawalgarh (Shekhawati)',
-    state: 'Rajasthan',
-    lat: 27.8489,
-    lng: 75.2711,
-    cover: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80',
-    summary: 'Open-air art gallery of Rajasthan, renowned for frescoed merchant havelis.',
-    href: '/destinations/nawalgarh-rajasthan',
-  },
 
   // Key Verified Monuments & Attractions
   {

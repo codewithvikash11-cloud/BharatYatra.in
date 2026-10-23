@@ -260,7 +260,7 @@ export default async function HomePage() {
       {/* ========================================================
           1. CINEMATIC VIDEO HERO SECTION
           ======================================================== */}
-      <CinematicHero poster={heroImage} />
+      <CinematicHero />
 
       {/* ========================================================
           2. EIGHT TRAVEL-TOOL PILLS WITH PROFESSIONAL SVG ICONS
@@ -287,23 +287,23 @@ export default async function HomePage() {
       {/* ========================================================
           3. FEATURED EDITORIAL STORIES & RECENT JOURNAL POSTS
           ======================================================== */}
-      <section className="by-section">
-        <div className="by-container">
-          <div className="by-section-header">
-            <div>
-              <p className="section-eyebrow">EDITORIAL TRAVEL JOURNAL</p>
-              <h2 className="by-section-title">Stories for the Road</h2>
-              <p className="by-section-desc">In-depth guides, living traditions, and cultural journeys written by BharatYatra editors.</p>
+      {dbArticles.length > 0 && (
+        <section className="by-section">
+          <div className="by-container">
+            <div className="by-section-header">
+              <div>
+                <p className="section-eyebrow">EDITORIAL TRAVEL JOURNAL</p>
+                <h2 className="by-section-title">Stories for the Road</h2>
+                <p className="by-section-desc">In-depth guides, living traditions, and cultural journeys written by BharatYatra editors.</p>
+              </div>
+              <Link href="/articles" className="by-section-more-link">
+                <span>All Articles</span>
+                <IconArrowRight size={16} />
+              </Link>
             </div>
-            <Link href="/articles" className="by-section-more-link">
-              <span>All Articles</span>
-              <IconArrowRight size={16} />
-            </Link>
-          </div>
 
-          <div className="by-articles-grid">
-            {dbArticles.length > 0 ? (
-              dbArticles.slice(0, 6).map((art, idx) => {
+            <div className="by-articles-grid">
+              {dbArticles.slice(0, 6).map((art, idx) => {
                 const articleImage = getEditorialImage(art, idx % 2 === 0 ? 'haveli' : 'food');
                 return (
                   <Link key={art.slug} href={`/articles/${art.slug}`} className="by-article-card">
@@ -333,38 +333,32 @@ export default async function HomePage() {
                     </div>
                   </Link>
                 );
-              })
-            ) : (
-              <div className="by-empty-state-box">
-                <IconBookOpen size={36} color="#247A72" />
-                <p className="empty-title">Curated Stories in Preparation</p>
-                <p className="empty-desc">Our editors are documenting verified destinations across India.</p>
-              </div>
-            )}
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ========================================================
           4. POPULAR DESTINATIONS
           ======================================================== */}
-      <section className="by-section by-section-cream">
-        <div className="by-container">
-          <div className="by-section-header">
-            <div>
-              <p className="section-eyebrow">CURATED DISCOVERY</p>
-              <h2 className="by-section-title">Living Heritage &amp; Destinations</h2>
-              <p className="by-section-desc">Sacred monuments, living heritage enclaves, and timeless landscapes across India.</p>
+      {dbDestinations.length > 0 && (
+        <section className="by-section by-section-cream">
+          <div className="by-container">
+            <div className="by-section-header">
+              <div>
+                <p className="section-eyebrow">CURATED DISCOVERY</p>
+                <h2 className="by-section-title">Living Heritage &amp; Destinations</h2>
+                <p className="by-section-desc">Sacred monuments, living heritage enclaves, and timeless landscapes across India.</p>
+              </div>
+              <Link href="/destinations" className="by-section-more-link">
+                <span>View All Destinations</span>
+                <IconArrowRight size={16} />
+              </Link>
             </div>
-            <Link href="/destinations" className="by-section-more-link">
-              <span>View All Destinations</span>
-              <IconArrowRight size={16} />
-            </Link>
-          </div>
 
-          <div className="by-destinations-grid">
-            {dbDestinations.length > 0 ? (
-              dbDestinations.map((dest, idx) => {
+            <div className="by-destinations-grid">
+              {dbDestinations.map((dest, idx) => {
                 const destImage = getEditorialImage(dest, idx === 0 ? 'haveli' : 'heritage');
                 return (
                   <Link key={dest.slug} href={`/destinations/${dest.slug}`} className="by-dest-card">
@@ -389,17 +383,11 @@ export default async function HomePage() {
                     </div>
                   </Link>
                 );
-              })
-            ) : (
-              <div className="by-empty-state-box">
-                <IconMapPin size={36} color="#247A72" />
-                <p className="empty-title">Published Destinations</p>
-                <p className="empty-desc">Verified destinations published through the BharatYatra Studio will appear here.</p>
-              </div>
-            )}
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ========================================================
           5. PLAN YOUR TRIP SUITE (6 CARDS WITH PROFESSIONAL SVGS)

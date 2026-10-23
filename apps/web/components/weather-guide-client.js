@@ -34,7 +34,7 @@ const monthsData = [
     topPlaces: [
       { name: 'Udaipur', state: 'Rajasthan', desc: 'Lakeside palaces under gentle afternoon sunlight.', href: '/destinations' },
       { name: 'Hampi', state: 'Karnataka', desc: 'Explore boulders and Vijayanagara ruins before summer heat arrives.', href: '/destinations' },
-      { name: 'Nawalgarh', state: 'Rajasthan', desc: 'Open-air art gallery havelis in Shekhawati.', href: '/destinations/nawalgarh-rajasthan' },
+      { name: 'Jaisalmer', state: 'Rajasthan', desc: 'Golden sandstone fort and Thar desert camp evenings.', href: '/destinations' },
       { name: 'Rishikesh', state: 'Uttarakhand', desc: 'Comfortable rafting temperatures and evening Ganga Aarti.', href: '/destinations' },
     ],
   },

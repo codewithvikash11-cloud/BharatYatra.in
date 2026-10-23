@@ -9,7 +9,6 @@ import {
 } from './icons';
 
 const mapPins = [
-  { id: 'nawalgarh', name: 'Nawalgarh', state: 'Rajasthan', stateSlug: 'rajasthan', region: 'west', lat: 27.8483, lng: 75.2677, tag: 'Shekhawati Painted Havelis', href: '/destinations/nawalgarh-rajasthan', isPublished: true },
   { id: 'rajasthan', name: 'Rajasthan Heritage Circuit', state: 'Rajasthan', stateSlug: 'rajasthan', region: 'west', lat: 26.9124, lng: 75.7873, tag: 'Forts, Havelis & Thar Desert', href: '/states/rajasthan', isPublished: false },
   { id: 'kerala', name: 'Kerala Backwaters & Hills', state: 'Kerala', stateSlug: 'kerala', region: 'south', lat: 9.4981, lng: 76.3388, tag: 'Lagoons, Backwaters & Tea Gardens', href: '/states/kerala', isPublished: false },
   { id: 'himachal', name: 'Himachal Himalayan Valleys', state: 'Himachal Pradesh', stateSlug: 'himachal-pradesh', region: 'north', lat: 32.2432, lng: 77.1892, tag: 'Alpine Meadows & Cedar Valleys', href: '/states/himachal-pradesh', isPublished: false },

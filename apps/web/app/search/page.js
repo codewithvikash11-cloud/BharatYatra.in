@@ -175,7 +175,7 @@ export default async function SearchPage({ searchParams }) {
           {/* Quick Filter Suggestions */}
           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', alignSelf: 'center' }}>Popular:</span>
-            {['Jaipur', 'Nawalgarh Rajasthan', 'Kerala Itinerary', 'Amer Fort', 'Havelis'].map((term) => (
+            {['Jaipur', 'Rajasthan', 'Kerala Itinerary', 'Amer Fort', 'Varanasi'].map((term) => (
               <Link
                 key={term}
                 href={`/search?q=${encodeURIComponent(term)}`}
@@ -420,7 +420,7 @@ export default async function SearchPage({ searchParams }) {
                   </div>
                   <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                     <Link
-                      href={`/attractions/${attr.destinations?.slug || 'nawalgarh-rajasthan'}/${attr.slug}`}
+                      href={attr.destinations?.slug ? `/attractions/${attr.destinations.slug}/${attr.slug}` : `/destinations`}
                       style={{ color: 'var(--teal-primary)', fontWeight: 600, fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
                       <span>View Attraction Details</span>

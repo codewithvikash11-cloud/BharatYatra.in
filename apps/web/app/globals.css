@@ -3224,40 +3224,17 @@ textarea:focus-visible {
 /* ==========================================================================
    HOMEPAGE CINEMATIC VIDEO HERO SECTION (PURE 16:9 FULL-WIDTH RESPONSIVE)
    ========================================================================== */
-.by-cinematic-hero {
+.by-cinematic-hero,
+.by-cinematic-hero-pure {
   position: relative;
   width: 100%;
-  min-height: 580px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  aspect-ratio: 16 / 9;
+  max-height: 74vh;
   margin: 0;
-  padding: 4.5rem 1.5rem 4rem;
+  padding: 0;
   overflow: hidden;
-  background-color: #0b1a18;
-  background-image: url('/hero.jpg');
-  background-position: center center;
-  background-size: cover;
-}
-
-.by-hero-video-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(11, 26, 24, 0.45) 0%, rgba(11, 26, 24, 0.82) 100%);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.by-hero-content {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  max-width: 920px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  background-color: #050d0c;
+  display: block;
 }
 
 .by-hero-video {
@@ -3266,66 +3243,56 @@ textarea:focus-visible {
   left: 0;
   width: 100%;
   height: 100%;
-  display: block;
+  display: block !important;
   object-fit: cover;
   object-position: center center;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.by-hero-video.loaded {
+  z-index: 2;
   opacity: 1;
 }
 
-/* Responsive Scaling for Cinematic Hero */
+/* Responsive Scaling: Preserves exact 16:9 across tablet and mobile devices */
 @media (max-width: 1024px) {
-  .by-cinematic-hero {
-    min-height: 560px;
-    padding: 4rem 1.25rem 3.5rem;
+  .by-cinematic-hero,
+  .by-cinematic-hero-pure {
+    aspect-ratio: 16 / 9;
+    max-height: none;
+    height: auto;
   }
 }
 
 @media (max-width: 768px) {
-  .by-cinematic-hero {
-    min-height: 520px;
-    padding: 3.5rem 1rem 3rem;
-  }
-
-  .by-hero-title {
-    font-size: 2.2rem;
-  }
-
-  .hero-search-card {
-    padding: 0.85rem;
-  }
-
-  .hero-search-input-form {
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .hero-search-submit-btn {
+  .by-cinematic-hero,
+  .by-cinematic-hero-pure {
     width: 100%;
-    justify-content: center;
-    height: 48px;
+    aspect-ratio: 16 / 9;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .by-hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block !important;
   }
 }
 
 @media (max-width: 480px) {
-  .by-cinematic-hero {
-    min-height: 480px;
-    padding: 3rem 0.85rem 2.5rem;
-  }
-
-  .by-hero-title {
-    font-size: 1.85rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .by-hero-video {
-    display: none !important;
+  .by-cinematic-hero,
+  .by-cinematic-hero-pure {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
 

@@ -91,7 +91,7 @@ export async function DestinationCard({ item }) {
     item.states?.name_en || item.state_name
   ].filter(Boolean).join(' · ') || 'India';
 
-  const coverUrl = item.cover_image_url || await getCoverImage('destinations', item.slug) || (item.slug?.includes('nawalgarh') ? 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80' : null);
+  const coverUrl = item.cover_image_url || await getCoverImage('destinations', item.slug) || null;
 
   return (
     <article className="destination-card-item">

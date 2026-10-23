@@ -20,7 +20,7 @@ export default function HeroSearchWidget() {
 
   // Real verified destinations and states with functional routes
   const verifiedLocations = [
-    { name: 'Nawalgarh', state: 'Rajasthan', href: '/destinations/nawalgarh-rajasthan', tag: 'Destination' },
+    { name: 'Jaipur', state: 'Rajasthan', href: '/states/rajasthan', tag: 'State Capital' },
     { name: 'Rajasthan', state: 'West India', href: '/states/rajasthan', tag: 'State' },
     { name: 'Kerala', state: 'South India', href: '/states/kerala', tag: 'State' },
     { name: 'Himachal Pradesh', state: 'North India', href: '/states/himachal-pradesh', tag: 'State' },
@@ -88,8 +88,8 @@ export default function HeroSearchWidget() {
   };
 
   const popularPills = [
-    { label: 'Nawalgarh (Shekhawati)', href: '/destinations/nawalgarh-rajasthan' },
     { label: 'Rajasthan', href: '/states/rajasthan' },
+    { label: 'Kerala', href: '/states/kerala' },
     { label: 'North India', href: '/destinations?region=north' },
     { label: 'South India', href: '/destinations?region=south' },
     { label: 'All 36 States & UTs', href: '/states' },
@@ -105,7 +105,7 @@ export default function HeroSearchWidget() {
       case 'interest':
         return 'Search by interest (e.g. Forts & Palaces, Havelis, Beaches, Wildlife...)';
       default:
-        return 'Where do you want to go? (e.g. Nawalgarh, Rajasthan, Kerala...)';
+        return 'Where do you want to go? (e.g. Rajasthan, Kerala, Goa...)';
     }
   };
 
