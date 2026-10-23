@@ -374,16 +374,35 @@ export async function generateMetadata({ params }) {
 
   // Database destination
   try {
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
     const dest = await prisma.destinations.findFirst({
       where: { slug, status: 'PUBLISHED' },
       include: { states: true },
     });
     if (!dest) return { title: 'Destination Not Found | BharatYatra' };
     const stateStr = dest.states?.name_en || dest.state_name || 'India';
+    const title = `${dest.name_en}, ${stateStr} Travel Guide | BharatYatra`;
+    const description = dest.summary_en || dest.description_en || `Explore ${dest.name_en}, ${stateStr} on BharatYatra with heritage circuits, timings, and local food.`;
+    const canonicalUrl = `${siteUrl}/destinations/${encodeURIComponent(slug)}`;
+    const coverUrl = dest.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
+
     return {
-      title: `${dest.name_en}, ${stateStr} Travel Guide | BharatYatra`,
-      description: dest.summary_en || `Explore ${dest.name_en}, ${stateStr} on BharatYatra.`,
-      alternates: { canonical: `https://bharat-yatra-in.vercel.app/destinations/${encodeURIComponent(slug)}` },
+      title,
+      description,
+      alternates: { canonical: canonicalUrl },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        siteName: 'BharatYatra',
+        images: [{ url: coverUrl, width: 1200, height: 630, alt: dest.name_en }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [coverUrl],
+      },
     };
   } catch {
     return { title: 'Destination Guide | BharatYatra' };
@@ -954,8 +973,48 @@ function renderDatabaseDestinationView(dest) {
     { label: 'State', value: stateName, icon: IconMapPin },
   ];
 
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
+  const destUrl = `${siteUrl}/destinations/${encodeURIComponent(dest.slug)}`;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristDestination',
+    name: dest.name_en,
+    description: dest.summary_en || dest.description_en || `Explore ${dest.name_en}, ${stateName} on BharatYatra.`,
+    image: coverUrl,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: dest.name_en,
+      addressRegion: stateName,
+      addressCountry: 'IN',
+    },
+    ...(dest.latitude && dest.longitude
+      ? {
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: dest.latitude,
+            longitude: dest.longitude,
+          },
+        }
+      : {}),
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: `${siteUrl}/destinations` },
+      ...(dest.states?.slug ? [{ '@type': 'ListItem', position: 3, name: stateName, item: `${siteUrl}/states/${dest.states.slug}` }] : []),
+      { '@type': 'ListItem', position: dest.states?.slug ? 4 : 3, name: dest.name_en, item: destUrl },
+    ],
+  };
+
   return (
-    <main className="by-dest-page-root">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
+      <main className="by-dest-page-root">
       <div className="by-dest-breadcrumb-bar">
         <div className="by-container">
           <nav className="by-breadcrumbs" aria-label="Breadcrumb">
@@ -1170,5 +1229,6 @@ function renderDatabaseDestinationView(dest) {
         </div>
       </div>
     </main>
+    </>
   );
 }

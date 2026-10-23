@@ -6,9 +6,27 @@ import { getSiteAppearance } from '../../lib/appearance.js';
 import { IconArrowRight, IconMapPin } from '../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
+
 export const metadata = {
   title: 'भारत के राज्य और केंद्र शासित प्रदेश | States and Union Territories of India | BharatYatra',
   description: 'Explore authentic cultural heritage, monuments, itineraries, and travel guides across all 36 States and Union Territories of India.',
+  alternates: {
+    canonical: `${siteUrl}/states`,
+  },
+  openGraph: {
+    title: 'States and Union Territories of India | BharatYatra Directory',
+    description: 'Explore authentic cultural heritage, monuments, itineraries, and travel guides across all 36 States and Union Territories of India.',
+    url: `${siteUrl}/states`,
+    siteName: 'BharatYatra',
+    images: [{ url: `${siteUrl}/image.png`, width: 1200, height: 630, alt: 'States of India BharatYatra' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'States and Union Territories of India | BharatYatra',
+    description: 'Explore authentic cultural heritage, monuments, and travel guides across all 36 States and UTs.',
+    images: [`${siteUrl}/image.png`],
+  },
 };
 
 const DEFAULT_STATE_IMAGES = {
@@ -41,8 +59,28 @@ export default async function StatesPage() {
     getSiteAppearance(),
   ]);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'States and Union Territories of India | BharatYatra',
+    description: 'Explore authentic cultural heritage, monuments, and travel guides across all 36 States and Union Territories of India.',
+    url: `${siteUrl}/states`,
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'States & UTs', item: `${siteUrl}/states` },
+    ],
+  };
+
   return (
-    <main className="list-page page-shell" style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.25rem 4rem' }}>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
+      <main className="list-page page-shell" style={{ maxWidth: '1240px', margin: '0 auto', padding: '2.5rem 1.25rem 4rem' }}>
       <PageHeading
         eyebrow={dict.content.exploreIndia}
         title={dict.content.statesAndUTs}
@@ -100,6 +138,7 @@ export default async function StatesPage() {
         </div>
       )}
     </main>
+    </>
   );
 }
 

@@ -23,7 +23,7 @@ export const viewport = {
   themeColor: '#153E3A',
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app';
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
 
 export const metadata = {
   title: {
@@ -32,21 +32,42 @@ export const metadata = {
   },
   description: 'Discover authentic destinations, sacred monuments, cultural heritage, and curated travel guides across every state of India.',
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: './',
+  },
   openGraph: {
     type: 'website',
     siteName: 'BharatYatra',
     title: 'BharatYatra — India, through every journey',
     description: 'Discover authentic destinations, sacred monuments, cultural heritage, and curated travel guides across every state of India.',
+    url: siteUrl,
+    images: [
+      {
+        url: `${siteUrl}/image.png`,
+        width: 1200,
+        height: 630,
+        alt: 'BharatYatra — India Cultural Heritage and Travel Guide',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'BharatYatra — India, through every journey',
     description: 'Discover authentic destinations, sacred monuments, cultural heritage, and curated travel guides across every state of India.',
+    images: [`${siteUrl}/image.png`],
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    other: {
+      ...(process.env.BING_SITE_VERIFICATION || process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+        ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION || process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
+        : {}),
+    },
   },
 };
 
 export default function RootLayout({ children }) {
-  const jsonLd = {
+  const jsonLdWebsite = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'BharatYatra',
@@ -62,12 +83,28 @@ export default function RootLayout({ children }) {
     },
   };
 
+  const jsonLdOrg = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'BharatYatra',
+    url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
+    sameAs: [
+      'https://twitter.com/bharatyatra',
+      'https://www.instagram.com/bharatyatra.in',
+    ],
+  };
+
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
         />
       </head>
       <body>

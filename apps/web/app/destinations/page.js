@@ -6,9 +6,27 @@ import { getRegionIcon, IconX, IconMapPin } from '../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
+
 export const metadata = {
   title: 'Destinations in India | Browse by Region | BharatYatra',
   description: 'Explore verified travel guides across India by region: North India, South India, East India, West India, Central India, and Northeast India.',
+  alternates: {
+    canonical: `${siteUrl}/destinations`,
+  },
+  openGraph: {
+    title: 'Destinations in India | Browse by Region | BharatYatra',
+    description: 'Explore verified travel guides across India by region: North India, South India, East India, West India, Central India, and Northeast India.',
+    url: `${siteUrl}/destinations`,
+    siteName: 'BharatYatra',
+    images: [{ url: `${siteUrl}/image.png`, width: 1200, height: 630, alt: 'India Destinations BharatYatra' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Destinations in India | BharatYatra',
+    description: 'Explore verified travel guides across India by region.',
+    images: [`${siteUrl}/image.png`],
+  },
 };
 
 const regionsList = [
@@ -49,8 +67,28 @@ export default async function DestinationsPage({ searchParams }) {
 
   const selectedRegion = regionsList.find((r) => r.id === (region || 'all')) || regionsList[0];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'India Travel Destinations | BharatYatra',
+    description: 'Explore verified travel guides across India by region: North, South, East, West, Central, and Northeast India.',
+    url: `${siteUrl}/destinations`,
+  };
+
+  const breadcrumbsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Destinations', item: `${siteUrl}/destinations` },
+    ],
+  };
+
   return (
-    <main className="page-shell list-page" style={{ paddingBottom: '5rem' }}>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
+      <main className="page-shell list-page" style={{ paddingBottom: '5rem' }}>
       <PageHeading
         eyebrow={dict.content.destinations}
         title={showHi ? 'स्थान खोजें' : 'Explore India’s Destinations'}
@@ -152,5 +190,6 @@ export default async function DestinationsPage({ searchParams }) {
         />
       ) : null}
     </main>
+    </>
   );
 }
