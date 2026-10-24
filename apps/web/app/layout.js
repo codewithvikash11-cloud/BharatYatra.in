@@ -99,6 +99,11 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <script
+          dangerouslySetInnerHTML={{
+            __html: "try{var t=localStorage.getItem('bharatyatra-theme');document.documentElement.dataset.theme=['light','dark','system'].includes(t)?t:'system'}catch(e){document.documentElement.dataset.theme='system'}",
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
         />

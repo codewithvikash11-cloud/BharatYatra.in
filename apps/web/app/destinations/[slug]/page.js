@@ -958,7 +958,7 @@ function renderJaipurReferenceView() {
 }
 
 // -------------------------------------------------------------
-// RENDER DYNAMIC DATABASE DESTINATION (FOR NAWALGARH ETC.)
+// RENDER DYNAMIC DATABASE DESTINATION (FOR DATABASE-PUBLISHED HUBS)
 // -------------------------------------------------------------
 function renderDatabaseDestinationView(dest) {
   const stateName = dest.states?.name_en || dest.state_name || 'India';

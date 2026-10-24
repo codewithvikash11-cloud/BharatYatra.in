@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import BrandLogo from './brand-logo.js';
-import { IconArrowRight, IconCheck } from './icons.js';
+import { IconArrowRight } from './icons.js';
 
 const defaultAdminUrl =
   process.env.NEXT_PUBLIC_ADMIN_URL ||
@@ -13,8 +13,6 @@ const defaultAdminUrl =
 
 export default function SiteFooter() {
   const currentYear = new Date().getFullYear();
-  const [subscribed, setSubscribed] = useState(false);
-  const [email, setEmail] = useState('');
   const [adminUrl, setAdminUrl] = useState(defaultAdminUrl);
 
   useEffect(() => {
@@ -26,14 +24,6 @@ export default function SiteFooter() {
       setAdminUrl('http://localhost:3001');
     }
   }, []);
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setEmail('');
-    }
-  };
 
   return (
     <footer className="footer-v0">
@@ -49,42 +39,12 @@ export default function SiteFooter() {
 
           {/* Newsletter Right */}
           <div className="newsletter-box">
-            <h3 className="newsletter-title">A little inspiration for your inbox.</h3>
-            {subscribed ? (
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(233, 154, 36, 0.15)',
-                  border: '1px solid var(--gold-muted)',
-                  borderRadius: '999px',
-                  padding: '0.65rem 1.25rem',
-                  color: '#FFFDF8',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                }}
-              >
-                <IconCheck size={18} color="var(--gold-muted)" stroke={2.2} />
-                <span>Thank you for subscribing to BharatYatra stories!</span>
-              </div>
-            ) : (
-              <form className="newsletter-form-row" onSubmit={handleSubscribe}>
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="newsletter-input"
-                  aria-label="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <button type="submit" className="newsletter-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  <span>Subscribe</span>
-                  <IconArrowRight size={14} />
-                </button>
-              </form>
-            )}
+            <h3 className="newsletter-title">A little inspiration for the road.</h3>
+            <p className="footer-inspiration-copy">Browse thoughtful destination guides, stories and journeys from across India.</p>
+            <Link href="/articles" className="footer-inspiration-action">
+              <span>Explore travel guides</span>
+              <IconArrowRight size={15} />
+            </Link>
           </div>
         </div>
 
@@ -94,6 +54,7 @@ export default function SiteFooter() {
             <h4>Discover</h4>
             <ul>
               <li><Link href="/destinations">All Destinations</Link></li>
+              <li><Link href="/articles">Travel Guides</Link></li>
               <li><Link href="/states">36 States &amp; UTs</Link></li>
               <li><Link href="/attractions">Historic Monuments</Link></li>
               <li><Link href="/itineraries">Suggested Itineraries</Link></li>

@@ -49,7 +49,7 @@ const configs = {
       ['title_en', 'Article Title (English)', 'text', true],
       ['slug', 'URL slug (auto-generated or custom)', 'text', true],
       ['category', 'Category (e.g. Travel Guide, Heritage, Culture, Food, Planning)', 'text', false],
-      ['tags', 'Tags (comma-separated, e.g. nawalgarh, shekhawati, demo)', 'text', false],
+      ['tags', 'Tags (comma-separated, e.g. heritage, temple, culture)', 'text', false],
       ['author_name', 'Author Name', 'text', false],
       ['state_id', 'State / UT (Location Association)', 'state_select', false],
       ['destination_id', 'Related Destination', 'destination_select', false],
@@ -1153,10 +1153,7 @@ export default function ContentManager({ type, role }) {
         ) : (
           <div className="record-list">
             {displayedRows.map((row) => {
-              const isDemo =
-                row.tags?.includes('demo') ||
-                row.title_en?.includes('Nawalgarh') ||
-                row.category === 'Demo Guide';
+              const isDemo = false;
               return (
                 <button
                   key={row.id}

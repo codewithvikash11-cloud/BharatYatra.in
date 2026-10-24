@@ -7,7 +7,6 @@ import {
   IconMapPin,
   IconCalendar,
   IconRoute,
-  IconUtensils,
   IconSparkles,
   IconShield,
   IconCreditCard,
@@ -37,64 +36,64 @@ const travelTools = [
     title: 'Destinations',
     sub: 'Heritage Towns & Cities',
     href: '/destinations',
-    bg: '#EBF4F6',
-    color: '#247A72',
+    bg: 'var(--icon-surface-teal)',
+    color: 'var(--icon-color-teal)',
   },
   {
     Icon: IconCalendar,
     title: 'Trip Planner',
     sub: 'Day-Wise Itineraries',
     href: '/trip-planner',
-    bg: '#FEF6E8',
-    color: '#C58B32',
+    bg: 'var(--icon-surface-gold)',
+    color: 'var(--icon-color-gold)',
   },
   {
     Icon: IconRoute,
     title: 'Routes & Transport',
     sub: 'Rail, Bus, Air & Roads',
     href: '/routes',
-    bg: '#EAF3F5',
-    color: '#153E3A',
+    bg: 'var(--icon-surface-blue)',
+    color: 'var(--icon-color-blue)',
   },
   {
-    Icon: IconUtensils,
-    title: 'Food & Stay',
-    sub: 'Regional Flavors & Stays',
-    href: '/destinations',
-    bg: '#FDF0EC',
-    color: '#B9653F',
+    Icon: IconBookOpen,
+    title: 'Travel Guides',
+    sub: 'Stories & Local Tips',
+    href: '/articles',
+    bg: 'var(--icon-surface-terracotta)',
+    color: 'var(--icon-color-terracotta)',
   },
   {
     Icon: IconSparkles,
     title: 'Fairs & Festivals',
     sub: 'Living Celebrations',
     href: '/events',
-    bg: '#FBEAF0',
-    color: '#B33951',
+    bg: 'var(--icon-surface-pink)',
+    color: 'var(--icon-color-pink)',
   },
   {
     Icon: IconChecklist,
     title: 'Travel Checklist',
     sub: 'Monsoon & Heritage Gear',
     href: '/checklist',
-    bg: '#EDF5F0',
-    color: '#496B55',
+    bg: 'var(--icon-surface-green)',
+    color: 'var(--icon-color-green)',
   },
   {
     Icon: IconMap,
     title: 'Interactive Map',
-    sub: '36 States & Union Territories',
-    href: '/states',
-    bg: '#EAF1F7',
-    color: '#2D68C4',
+    sub: 'Explore India Visually',
+    href: '/map',
+    bg: 'var(--icon-surface-indigo)',
+    color: 'var(--icon-color-indigo)',
   },
   {
     Icon: IconCalculator,
     title: 'Budget Planner',
     sub: 'Real Trip Cost Calculator',
     href: '/budget-calculator',
-    bg: '#FFF5E6',
-    color: '#D97706',
+    bg: 'var(--icon-surface-gold)',
+    color: 'var(--icon-color-gold)',
   },
 ];
 
@@ -104,48 +103,48 @@ const planTripTools = [
     title: 'Interactive Trip Planner',
     desc: 'Generate day-wise, optimized travel schedules for family, solo, or heritage circuits.',
     href: '/trip-planner',
-    iconColor: '#247A72',
-    iconBg: '#EBF4F6',
+    iconColor: 'var(--icon-color-teal)',
+    iconBg: 'var(--icon-surface-teal)',
   },
   {
     Icon: IconRoute,
     title: 'Multimodal Route Finder',
     desc: 'Compare Indian Railways (IRCTC), state roadways buses, flights, and highway drives.',
     href: '/routes',
-    iconColor: '#C58B32',
-    iconBg: '#FEF6E8',
+    iconColor: 'var(--icon-color-gold)',
+    iconBg: 'var(--icon-surface-gold)',
   },
   {
     Icon: IconCalculator,
     title: 'Trip Budget Calculator',
     desc: 'Calculate real-time lodging, local transport, dining, monument tickets, and contingencies.',
     href: '/budget-calculator',
-    iconColor: '#10B981',
-    iconBg: '#ECFDF5',
+    iconColor: 'var(--icon-color-emerald)',
+    iconBg: 'var(--icon-surface-emerald)',
   },
   {
     Icon: IconChecklist,
     title: 'Mindful Packing Checklist',
     desc: 'Temple dress codes, monsoon essentials, mountain layering, and regional gear recommendations.',
     href: '/checklist',
-    iconColor: '#059669',
-    iconBg: '#ECFDF5',
+    iconColor: 'var(--icon-color-emerald)',
+    iconBg: 'var(--icon-surface-emerald)',
   },
   {
     Icon: IconMapPin,
     title: 'Nearby Heritage & Local Sights',
     desc: 'Discover uncrowded stepwells, historic cenotaphs, and artisan workshops around you.',
     href: '/nearby',
-    iconColor: '#B9653F',
-    iconBg: '#FDF0EC',
+    iconColor: 'var(--icon-color-terracotta)',
+    iconBg: 'var(--icon-surface-terracotta)',
   },
   {
     Icon: IconSun,
     title: 'Seasonal Weather Guide',
     desc: 'Month-by-month temperature, rainfall, and festival calendars for all 36 Indian regions.',
     href: '/weather',
-    iconColor: '#D97706',
-    iconBg: '#FFFBEB',
+    iconColor: 'var(--icon-color-amber)',
+    iconBg: 'var(--icon-surface-amber)',
   },
 ];
 
@@ -155,55 +154,64 @@ const essentialInfoCards = [
     title: 'Visa & Entry Protocols',
     desc: 'Official e-Visa eligibility, Indian immigration rules, and entry guidelines for foreign guests.',
     href: '/travel-help#visa',
-    iconColor: '#247A72',
-    iconBg: '#EBF4F6',
+    iconColor: 'var(--icon-color-teal)',
+    iconBg: 'var(--icon-surface-teal)',
   },
   {
     Icon: IconPhoneCall,
     title: '24/7 National Emergency & Helplines',
     desc: 'Unified Emergency (112) • Ministry of Tourism 24x7 Multi-lingual Tourist Helpline (1363).',
     href: '/travel-help#emergency',
-    iconColor: '#B33951',
-    iconBg: '#FBEAF0',
+    iconColor: 'var(--icon-color-pink)',
+    iconBg: 'var(--icon-surface-pink)',
   },
   {
     Icon: IconLandmark,
     title: 'Official State Tourism Portals',
     desc: 'Direct, authentic links to state government tourism departments and booking facilities.',
     href: '/travel-help#tourism-portals',
-    iconColor: '#2D68C4',
-    iconBg: '#EAF1F7',
+    iconColor: 'var(--icon-color-indigo)',
+    iconBg: 'var(--icon-surface-indigo)',
   },
   {
     Icon: IconCreditCard,
     title: 'Currency, UPI & Digital Payments',
     desc: 'How international cards, ATMs, forex exchange, and instant UPI QR payments work across India.',
     href: '/travel-help#currency',
-    iconColor: '#D97706',
-    iconBg: '#FFF5E6',
+    iconColor: 'var(--icon-color-gold)',
+    iconBg: 'var(--icon-surface-gold)',
   },
   {
     Icon: IconSun,
     title: 'Monsoon & Climate Advisory',
     desc: 'Real-time seasonal weather, high-altitude acclimatization, and best months to visit.',
     href: '/weather',
-    iconColor: '#C58B32',
-    iconBg: '#FEF6E8',
+    iconColor: 'var(--icon-color-gold)',
+    iconBg: 'var(--icon-surface-gold)',
   },
   {
     Icon: IconShield,
     title: 'Safe Travel & Cultural Etiquette',
     desc: 'Verified safety guidance, temple customs, authorized guide verification, and mindful travel tips.',
     href: '/travel-help#safety',
-    iconColor: '#496B55',
-    iconBg: '#EDF5F0',
+    iconColor: 'var(--icon-color-green)',
+    iconBg: 'var(--icon-surface-green)',
   },
 ];
+
+const sacredDestinations = [
+  'Prayagraj', 'Ayodhya', 'Varanasi', 'Vrindavan', 'Ujjain', 'Jagannath Puri',
+  'Kedarnath', 'Tirupati', 'Rishikesh', 'Somnath', 'Badrinath', 'Mathura',
+  'Haridwar', 'Vaishno Devi', 'Amritsar', 'Shirdi', 'Dwarka', 'Yamunotri',
+  'Gangotri', 'Pushkar', 'Nashik', 'Palani',
+];
+
+const destinationImage = '/hero.jpg';
 
 export default async function HomePage() {
   // Fetch real articles, destinations, itineraries, and live appearance settings
   const [destRes, articleRes, itinRes, appearance] = await Promise.all([
-    getCollection('destinations', { limit: 6 }),
+    getCollection('destinations', { limit: 100 }),
     getCollection('articles', { limit: 6 }),
     getCollection('itineraries', { limit: 4 }),
     getSiteAppearance(),
@@ -215,6 +223,14 @@ export default async function HomePage() {
 
   const heroImage = appearance['site/home/hero'] || DEFAULT_APPEARANCE['site/home/hero'];
   const ctaBgImage = appearance['site/home/cta-bg'] || DEFAULT_APPEARANCE['site/home/cta-bg'];
+  const searchDestinations = dbDestinations
+    .filter((destination) => destination.slug && destination.name_en)
+    .slice(0, 24)
+    .map((destination) => ({
+      slug: destination.slug,
+      name: destination.name_en,
+      state: destination.states?.name_en || destination.state_name || 'India',
+    }));
 
   const regions = [
     {
@@ -258,14 +274,14 @@ export default async function HomePage() {
   return (
     <main className="by-home-root">
       {/* ========================================================
-          1. CINEMATIC VIDEO HERO SECTION
+          1. PHOTO HERO WITH FUNCTIONAL SEARCH
           ======================================================== */}
-      <CinematicHero />
+      <CinematicHero image={heroImage} destinations={searchDestinations} />
 
       {/* ========================================================
           2. EIGHT TRAVEL-TOOL PILLS WITH PROFESSIONAL SVG ICONS
           ======================================================== */}
-      <section className="by-tools-strip-section">
+      <section className="by-tools-strip-section" aria-label="Explore travel categories">
         <div className="by-container">
           <div className="by-tools-grid">
             {travelTools.map((tool) => {
@@ -342,14 +358,13 @@ export default async function HomePage() {
       {/* ========================================================
           4. POPULAR DESTINATIONS
           ======================================================== */}
-      {dbDestinations.length > 0 && (
-        <section className="by-section by-section-cream">
+      <section className="by-section by-section-cream by-sacred-section">
           <div className="by-container">
             <div className="by-section-header">
               <div>
                 <p className="section-eyebrow">CURATED DISCOVERY</p>
-                <h2 className="by-section-title">Living Heritage &amp; Destinations</h2>
-                <p className="by-section-desc">Sacred monuments, living heritage enclaves, and timeless landscapes across India.</p>
+                <h2 className="by-section-title">Journeys to remember</h2>
+                <p className="by-section-desc">Explore India’s sacred cities, mountain shrines, and living heritage towns.</p>
               </div>
               <Link href="/destinations" className="by-section-more-link">
                 <span>View All Destinations</span>
@@ -357,37 +372,23 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="by-destinations-grid">
-              {dbDestinations.map((dest, idx) => {
-                const destImage = getEditorialImage(dest, idx === 0 ? 'haveli' : 'heritage');
+            <div className="by-sacred-destinations" aria-label="Popular destinations">
+              {sacredDestinations.map((name) => {
+                const published = dbDestinations.find((destination) =>
+                  destination.name_en?.trim().toLocaleLowerCase() === name.toLocaleLowerCase()
+                  || destination.slug === name.toLocaleLowerCase().replaceAll(' ', '-'));
+                const href = published ? `/destinations/${published.slug}` : `/destinations?q=${encodeURIComponent(name)}`;
+                const image = published?.cover_image_url || destinationImage;
                 return (
-                  <Link key={dest.slug} href={`/destinations/${dest.slug}`} className="by-dest-card">
-                    <div className="by-dest-img-wrap">
-                      <img
-                        src={destImage}
-                        alt={dest.name_en}
-                        width="600"
-                        height="400"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="by-dest-gradient" />
-                    </div>
-                    <div className="by-dest-overlay-info">
-                      <h3 className="by-dest-name">{dest.name_en}</h3>
-                      <p className="by-dest-state">{dest.states?.name_en || dest.state_name || 'Rajasthan, India'}</p>
-                      <span className="by-dest-tags">{dest.summary_en || 'Merchant Havelis · Fresco Murals · Living Heritage'}</span>
-                    </div>
-                    <div className="by-dest-circle-arrow" aria-hidden="true">
-                      <IconArrowRight size={16} color="#153E3A" />
-                    </div>
+                  <Link key={name} href={href} className="by-sacred-destination">
+                    <img src={image} alt="" width="112" height="112" loading="lazy" decoding="async" />
+                    <span>{name}</span>
                   </Link>
                 );
               })}
             </div>
           </div>
-        </section>
-      )}
+      </section>
 
       {/* ========================================================
           5. PLAN YOUR TRIP SUITE (6 CARDS WITH PROFESSIONAL SVGS)
@@ -556,7 +557,42 @@ export default async function HomePage() {
       </section>
 
       {/* ========================================================
-          9. EDITORIAL BOTTOM TRIP-PLANNING CTA
+          9. WHY BHARATYATRA
+          ======================================================== */}
+      <section className="by-section by-why-section">
+        <div className="by-container">
+          <div className="by-section-header">
+            <div>
+              <p className="section-eyebrow">TRAVEL WITH CONTEXT</p>
+              <h2 className="by-section-title">A more thoughtful way to explore</h2>
+              <p className="by-section-desc">Useful local detail and inspiration for every stage of your journey.</p>
+            </div>
+          </div>
+          <div className="by-why-grid">
+            <Link href="/articles" className="by-why-card">
+              <IconBookOpen size={24} aria-hidden="true" />
+              <h3>Stories with a sense of place</h3>
+              <p>Read editor-curated guides to India’s living heritage, food and culture.</p>
+              <span>Read travel guides <IconArrowRight size={15} aria-hidden="true" /></span>
+            </Link>
+            <Link href="/trip-planner" className="by-why-card">
+              <IconRoute size={24} aria-hidden="true" />
+              <h3>Practical tools for the road</h3>
+              <p>Bring routes, day plans and trip budgets together before you set out.</p>
+              <span>Plan your journey <IconArrowRight size={15} aria-hidden="true" /></span>
+            </Link>
+            <Link href="/states" className="by-why-card">
+              <IconCompass size={24} aria-hidden="true" />
+              <h3>Room to find your own India</h3>
+              <p>Explore destinations and distinctive regional circuits from coast to hills.</p>
+              <span>Explore the regions <IconArrowRight size={15} aria-hidden="true" /></span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          10. EDITORIAL BOTTOM TRIP-PLANNING CTA
           ======================================================== */}
       <section
         className="by-bottom-cta-section"
@@ -567,22 +603,24 @@ export default async function HomePage() {
         }}
       >
         <div className="by-container">
+          <div className="by-cta-panel">
           <div className="by-cta-content">
             <span className="by-cta-eyebrow">YOUR JOURNEY AWAITS</span>
-            <h2 className="by-cta-title">Start Planning Your India Journey Today</h2>
+            <h2 className="by-cta-title">Your next great story starts in India</h2>
             <p className="by-cta-desc">
-              Discover authentic heritage monuments, craft optimized day-by-day itineraries, check verified train &amp; bus routes, and travel with mindful local knowledge.
+              Find a place that moves you, then make the journey your own with trusted guides and practical planning tools.
             </p>
             <div className="by-cta-actions">
               <Link href="/trip-planner" className="by-cta-btn primary">
                 <span>Plan Your Trip Now</span>
                 <IconArrowRight size={16} />
               </Link>
-              <Link href="/articles" className="by-cta-btn secondary">
-                <span>Read Travel Guides</span>
-                <IconBookOpen size={16} />
+              <Link href="/destinations" className="by-cta-btn secondary">
+                <span>Explore destinations</span>
+                <IconCompass size={16} />
               </Link>
             </div>
+          </div>
           </div>
         </div>
       </section>

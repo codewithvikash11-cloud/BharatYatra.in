@@ -1,17 +1,28 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { setLanguage } from '../app/actions.js';
 
-export default function LanguageSwitcher({ currentLang }) {
+export default function LanguageSwitcher({ currentLang: initialLang = 'en' }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [currentLang, setCurrentLang] = useState(initialLang);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=(hi|en)(?:;|$)/);
+    if (match) {
+      setCurrentLang(match[1]);
+      document.documentElement.lang = match[1];
+    }
+  }, []);
 
   const toggleLanguage = () => {
     const nextLang = currentLang === 'hi' ? 'en' : 'hi';
+    document.documentElement.lang = nextLang;
     startTransition(async () => {
       await setLanguage(nextLang);
+      setCurrentLang(nextLang);
       router.refresh();
     });
   };
@@ -21,22 +32,11 @@ export default function LanguageSwitcher({ currentLang }) {
       onClick={toggleLanguage} 
       disabled={isPending}
       className="language-toggle"
-      aria-label="Toggle language"
+      aria-label={currentLang === 'hi' ? 'Switch language to English' : 'भाषा हिंदी में बदलें'}
       title={currentLang === 'hi' ? 'Switch to English' : 'हिंदी में बदलें'}
-      style={{
-        background: 'transparent',
-        border: '1px solid var(--line)',
-        padding: '4px 10px',
-        borderRadius: '99px',
-        fontSize: '0.75rem',
-        fontWeight: '600',
-        color: 'var(--ink)',
-        cursor: isPending ? 'wait' : 'pointer',
-        opacity: isPending ? 0.7 : 1,
-        marginLeft: '12px'
-      }}
+      aria-busy={isPending}
     >
-      {currentLang === 'hi' ? 'EN' : 'हिंदी'}
+      {currentLang === 'hi' ? 'EN' : 'हिं'}
     </button>
   );
 }

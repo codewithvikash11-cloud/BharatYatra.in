@@ -91,6 +91,7 @@ export const IconBuildingArch = wrapIcon(Tabler.IconBuildingArch);
 export const IconClipboardCheck = wrapIcon(Tabler.IconClipboardCheck);
 export const IconRipple = wrapIcon(Tabler.IconRipple);
 export const IconSun = wrapIcon(Tabler.IconSun);
+export const IconMoon = wrapIcon(Tabler.IconMoon);
 export const IconCloudSun = wrapIcon(Tabler.IconSunHigh);
 export const IconSunHigh = wrapIcon(Tabler.IconSunHigh);
 export const IconCloudRain = wrapIcon(Tabler.IconCloudRain);

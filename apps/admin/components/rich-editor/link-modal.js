@@ -175,7 +175,7 @@ export default function LinkModal({ isOpen, onClose, onApply, initialUrl = '', i
               <input
                 type="search"
                 className="link-search-input"
-                placeholder="Type destination, attraction, or article title (e.g. Nawalgarh)..."
+                placeholder="Type destination, attraction, or article title (e.g. Jaipur)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus

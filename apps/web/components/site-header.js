@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import BrandLogo from './brand-logo.js';
 import FavoritesDrawer from './favorites-drawer.js';
+import LanguageSwitcher from './language-switcher.js';
 import {
   IconChevronDown,
   IconSearch,
@@ -27,6 +28,9 @@ import {
   IconPaw,
   IconLeaf,
   IconArrowRight,
+  IconSun,
+  IconMoon,
+  IconAdjustments,
 } from './icons.js';
 
 const defaultAdminUrl =
@@ -43,6 +47,22 @@ export default function SiteHeader() {
   const [favCount, setFavCount] = useState(0);
   const [navSearch, setNavSearch] = useState('');
   const [adminUrl, setAdminUrl] = useState(defaultAdminUrl);
+  const [theme, setTheme] = useState('system');
+
+  useEffect(() => {
+    let savedTheme = 'system';
+    try { savedTheme = localStorage.getItem('bharatyatra-theme') || 'system'; } catch {}
+    const nextTheme = ['light', 'dark', 'system'].includes(savedTheme) ? savedTheme : 'system';
+    setTheme(nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+  }, []);
+
+  const cycleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+    setTheme(nextTheme);
+    try { localStorage.setItem('bharatyatra-theme', nextTheme); } catch {}
+    document.documentElement.dataset.theme = nextTheme;
+  };
 
   useEffect(() => {
     if (
@@ -56,6 +76,8 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const dropdownRef = useRef(null);
+  const dropdownButtonRef = useRef(null);
+  const mobileMenuButtonRef = useRef(null);
 
   // Sync favorites count
   const syncFavCount = () => {
@@ -118,10 +140,10 @@ export default function SiteHeader() {
   };
 
   const navLinks = [
-    { href: '/trip-planner', label: 'Trip Planner' },
-    { href: '/travel-help', label: 'Travel Help' },
-    { href: '/events', label: 'Events' },
-    { href: '/articles', label: 'Blog' },
+    { href: '/articles', label: 'Travel Guides' },
+    { href: '/events', label: 'Experiences' },
+    { href: '/trip-planner', label: 'Plan Your Trip' },
+    { href: '/about', label: 'About' },
   ];
 
   return (
@@ -130,53 +152,69 @@ export default function SiteHeader() {
         <div className="by-navbar-container">
           {/* 1. Left: Brand Logo */}
           <div className="by-navbar-brand">
-            <BrandLogo size="default" showSubtitle={true} />
+            <BrandLogo size="default" showSubtitle={true} priority />
           </div>
 
           {/* 2. Center: Primary Navigation */}
           <nav className="by-navbar-links" aria-label="Main Navigation">
+            <Link href="/" className={`by-nav-item ${pathname === '/' ? 'active' : ''}`} aria-current={pathname === '/' ? 'page' : undefined}>
+              Home
+            </Link>
             {/* Destinations Dropdown */}
-            <div className="by-nav-dropdown-wrapper" ref={dropdownRef}>
-              <button
-                type="button"
-                className={`by-nav-item by-nav-dropdown-btn ${pathname?.startsWith('/destinations') || pathname?.startsWith('/states') ? 'active' : ''}`}
-                onClick={() => setDestDropdownOpen(!destDropdownOpen)}
-                aria-expanded={destDropdownOpen}
-                aria-haspopup="true"
+              <div
+                className="by-nav-dropdown-wrapper"
+                ref={dropdownRef}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape' && destDropdownOpen) {
+                    setDestDropdownOpen(false);
+                    dropdownButtonRef.current?.focus();
+                  }
+                }}
               >
-                <span>Destinations</span>
-                <IconChevronDown
-                  className={`by-dropdown-chevron ${destDropdownOpen ? 'rotated' : ''}`}
-                  size={14}
-                  stroke={2.2}
-                />
+              <Link
+                href="/destinations"
+                className={`by-nav-item ${pathname?.startsWith('/destinations') || pathname?.startsWith('/states') ? 'active' : ''}`}
+                aria-current={pathname === '/destinations' ? 'page' : undefined}
+              >
+                Destinations
+              </Link>
+              <button
+                ref={dropdownButtonRef}
+                type="button"
+                className="by-nav-region-toggle"
+                onClick={() => setDestDropdownOpen((open) => !open)}
+                aria-label="Browse destinations by region"
+                aria-expanded={destDropdownOpen}
+                aria-controls="by-destination-region-list"
+              >
+                <IconChevronDown className={`by-dropdown-chevron ${destDropdownOpen ? 'rotated' : ''}`} size={14} stroke={2.2} />
               </button>
 
               {destDropdownOpen && (
-                <div className="by-nav-dropdown-menu" role="menu">
+                <div className="by-nav-dropdown-menu" id="by-destination-region-list" role="region" aria-label="Browse destinations by region">
                   <div className="by-dropdown-col">
                     <span className="by-dropdown-header">Explore by Region</span>
-                    <Link href="/destinations?region=north" className="by-dropdown-link" role="menuitem">
+                    <Link href="/destinations?region=north" className="by-dropdown-link">
                       <IconMountain size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                       <span>North India <small>Himalayas &amp; Heritage</small></span>
                     </Link>
-                    <Link href="/destinations?region=south" className="by-dropdown-link" role="menuitem">
+                    <Link href="/destinations?region=south" className="by-dropdown-link">
                       <IconBeach size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                       <span>South India <small>Beaches &amp; Temples</small></span>
                     </Link>
-                    <Link href="/destinations?region=west" className="by-dropdown-link" role="menuitem">
+                    <Link href="/destinations?region=west" className="by-dropdown-link">
                       <IconBuildingCastle size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                       <span>West India <small>Rajasthan &amp; Deserts</small></span>
                     </Link>
-                    <Link href="/destinations?region=east" className="by-dropdown-link" role="menuitem">
+                    <Link href="/destinations?region=east" className="by-dropdown-link">
                       <IconBuildingMonument size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                       <span>East India <small>Temples &amp; Culture</small></span>
                     </Link>
-                    <Link href="/destinations?region=central" className="by-dropdown-link" role="menuitem">
+                    <Link href="/destinations?region=central" className="by-dropdown-link">
                       <IconPaw size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                       <span>Central India <small>Wildife &amp; Ancient Sites</small></span>
                     </Link>
-                    <Link href="/destinations?region=northeast" className="by-dropdown-link" role="menuitem">
+                    <Link href="/destinations?region=northeast" className="by-dropdown-link">
                       <IconLeaf size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                       <span>North East India <small>Living Roots &amp; Valleys</small></span>
                     </Link>
@@ -201,6 +239,7 @@ export default function SiteHeader() {
                   key={link.href}
                   href={link.href}
                   className={`by-nav-item ${isActive ? 'active' : ''}`}
+                  aria-current={pathname === link.href ? 'page' : undefined}
                 >
                   {link.label}
                 </Link>
@@ -210,12 +249,23 @@ export default function SiteHeader() {
 
           {/* 3. Right: Header Search, Favorites, and Account */}
           <div className="by-navbar-actions">
+            <LanguageSwitcher />
+            <button
+              type="button"
+              className="by-navbar-theme-btn"
+              onClick={cycleTheme}
+              aria-label={`Color theme: ${theme}. Activate to change theme.`}
+              title={`Color theme: ${theme}`}
+            >
+              {theme === 'dark' ? <IconMoon size={17} /> : theme === 'light' ? <IconSun size={17} /> : <IconAdjustments size={17} />}
+              <span className="by-theme-label">{theme}</span>
+            </button>
             {/* Header Search Box */}
             <form onSubmit={handleNavSearchSubmit} className="by-navbar-search-form" role="search">
               <IconSearch
                 size={16}
                 stroke={2.2}
-                color="#87938F"
+                color="var(--text-muted)"
                 className="by-navbar-search-icon"
               />
               <input
@@ -239,8 +289,8 @@ export default function SiteHeader() {
               <IconHeart
                 size={20}
                 stroke={1.8}
-                color={favCount > 0 ? '#B9653F' : '#153E3A'}
-                style={{ fill: favCount > 0 ? '#B9653F' : 'none' }}
+                color={favCount > 0 ? 'var(--terracotta)' : 'currentColor'}
+                style={{ fill: favCount > 0 ? 'var(--terracotta)' : 'none' }}
               />
               {favCount > 0 && <span className="by-favorites-badge">{favCount}</span>}
             </button>
@@ -257,17 +307,17 @@ export default function SiteHeader() {
                 <IconUser
                   size={20}
                   stroke={1.8}
-                  color="#153E3A"
+                  color="currentColor"
                 />
               </button>
 
               {accountModalOpen && (
-                <div className="by-account-menu" role="menu">
+                <div className="by-account-menu" role="group" aria-label="Account actions">
                   <div className="by-account-menu-header">
                     <strong>BharatYatra Travel Club</strong>
                     <span>Plan &amp; save your journeys</span>
                   </div>
-                  <Link href="/trip-planner" className="by-account-link" role="menuitem">
+                  <Link href="/trip-planner" className="by-account-link">
                     <IconCalendar size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                     <span>My Saved Itineraries</span>
                   </Link>
@@ -278,12 +328,11 @@ export default function SiteHeader() {
                       setAccountModalOpen(false);
                       setFavDrawerOpen(true);
                     }}
-                    role="menuitem"
                   >
-                    <IconHeart size={16} stroke={1.8} style={{ marginRight: '8px', color: '#B9653F' }} />
+                    <IconHeart size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--terracotta)' }} />
                     <span>Wishlist ({favCount})</span>
                   </button>
-                  <Link href="/checklist" className="by-account-link" role="menuitem">
+                  <Link href="/checklist" className="by-account-link">
                     <IconClipboardCheck size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--teal-primary)' }} />
                     <span>Packing Checklist</span>
                   </Link>
@@ -292,7 +341,6 @@ export default function SiteHeader() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="by-account-link by-admin-link"
-                    role="menuitem"
                     suppressHydrationWarning
                   >
                     <IconSettings size={16} stroke={1.8} style={{ marginRight: '8px', color: 'var(--gold-dark)' }} />
@@ -304,10 +352,12 @@ export default function SiteHeader() {
 
             {/* Mobile Hamburger Toggle */}
             <button
+              ref={mobileMenuButtonRef}
               type="button"
               className="by-mobile-hamburger"
               aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileMenuOpen}
+              aria-controls="by-mobile-navigation"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className={`by-hamburger-line ${mobileMenuOpen ? 'open' : ''}`} />
@@ -319,12 +369,19 @@ export default function SiteHeader() {
 
         {/* Mobile Menu Drawer */}
         {mobileMenuOpen && (
-          <div className="by-mobile-drawer">
+          <div
+            className="by-mobile-drawer"
+            id="by-mobile-navigation"
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') mobileMenuButtonRef.current?.focus();
+            }}
+          >
             <div className="by-mobile-search-row">
               <form onSubmit={handleNavSearchSubmit} className="by-mobile-search-form">
                 <input
                   type="search"
                   placeholder="Search destinations, states..."
+                  aria-label="Search destinations and states"
                   value={navSearch}
                   onChange={(e) => setNavSearch(e.target.value)}
                 />
@@ -332,14 +389,17 @@ export default function SiteHeader() {
               </form>
             </div>
 
-            <div className="by-mobile-nav-list">
+            <nav className="by-mobile-nav-list" aria-label="Mobile navigation">
+              <Link href="/" className="by-mobile-link" aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setMobileMenuOpen(false)}>
+                <span>Home</span>
+              </Link>
               <Link href="/destinations" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                 <IconMapPin size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
                 <span>Destinations</span>
               </Link>
               <Link href="/trip-planner" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                 <IconCalendar size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
-                <span>Trip Planner</span>
+                <span>Plan Your Trip</span>
               </Link>
               <Link href="/routes" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                 <IconRoute size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
@@ -355,17 +415,20 @@ export default function SiteHeader() {
               </Link>
               <Link href="/events" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                 <IconSparkles size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
-                <span>Events &amp; Festivals</span>
+                <span>Experiences</span>
               </Link>
               <Link href="/articles" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                 <IconBookOpen size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
-                <span>Blog &amp; Travel Guides</span>
+                <span>Travel Guides</span>
               </Link>
               <Link href="/states" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
                 <IconMap size={18} stroke={1.8} style={{ marginRight: '10px', color: 'var(--teal-primary)' }} />
                 <span>36 States &amp; UTs</span>
               </Link>
-            </div>
+              <Link href="/about" className="by-mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                <span>About BharatYatra</span>
+              </Link>
+            </nav>
 
             <div className="by-mobile-footer-action">
               <button
@@ -376,7 +439,7 @@ export default function SiteHeader() {
                   setFavDrawerOpen(true);
                 }}
               >
-                <IconHeart size={18} stroke={1.8} style={{ marginRight: '8px', color: '#B9653F' }} />
+                <IconHeart size={18} stroke={1.8} style={{ marginRight: '8px', color: 'var(--terracotta)' }} />
                 <span>Saved Places ({favCount})</span>
               </button>
               <Link href="/trip-planner" className="btn-gold-pill" style={{ display: 'block', textAlign: 'center', marginTop: '0.75rem' }} onClick={() => setMobileMenuOpen(false)}>

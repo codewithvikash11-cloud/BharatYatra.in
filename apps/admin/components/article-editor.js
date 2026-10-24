@@ -1222,7 +1222,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
                       type="text"
                       value={form.focus_keyword}
                       onChange={(e) => handleFieldChange('focus_keyword', e.target.value)}
-                      placeholder="e.g. Nawalgarh travel guide"
+                      placeholder="e.g. Jaipur travel guide"
                     />
                   </label>
 
@@ -1232,7 +1232,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
                       type="text"
                       value={form.secondary_keywords}
                       onChange={(e) => handleFieldChange('secondary_keywords', e.target.value)}
-                      placeholder="e.g. Shekhawati havelis, Poddar museum timings"
+                      placeholder="e.g. Amer fort, Hawa mahal timings"
                     />
                   </label>
 
