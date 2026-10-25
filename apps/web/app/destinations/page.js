@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ApiState, ContentSearch, DestinationCard, PageHeading, Pagination } from '../../components/content.js';
+import { ApiState, ContentSearch, DestinationCard, getCoverImages, PageHeading, Pagination } from '../../components/content.js';
 import { getCollection, parsePage, parseSearchTerm } from '../../lib/content-api.mjs';
 import { getDictionary, getLanguage } from '../../lib/i18n.js';
 import { RegionIcon, IconX, IconMapPin } from '../../components/icons.js';
@@ -64,6 +64,9 @@ export default async function DestinationsPage({ searchParams }) {
     q: search.value,
     region: region && region !== 'all' ? region : undefined,
   });
+  const coverImages = result.state === 'success'
+    ? await getCoverImages('destinations', result.data.filter((item) => !item.cover_image_url).map((item) => item.slug))
+    : {};
 
   const selectedRegion = regionsList.find((r) => r.id === (region || 'all')) || regionsList[0];
 
@@ -174,7 +177,7 @@ export default async function DestinationsPage({ searchParams }) {
       ) : (
         <div className="card-grid">
           {result.data.map((item) => (
-            <DestinationCard key={item.slug} item={item} />
+            <DestinationCard key={item.slug} item={item} coverImage={coverImages[item.slug]} />
           ))}
         </div>
       )}

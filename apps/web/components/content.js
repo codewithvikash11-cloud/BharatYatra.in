@@ -15,6 +15,24 @@ export async function getCoverImage(type, slug) {
   }
 }
 
+export async function getCoverImages(type, slugs) {
+  const uniqueSlugs = [...new Set(slugs.filter((slug) => typeof slug === 'string' && slug.length > 0))];
+  if (!uniqueSlugs.length) return {};
+
+  try {
+    const assets = await prisma.media_assets.findMany({
+      where: { storage_path: { in: uniqueSlugs.map((slug) => `content/${type}/${slug}/cover`) } },
+      select: { storage_path: true, public_url: true, license: true },
+    });
+    return Object.fromEntries(assets.filter((asset) => asset.public_url && asset.license?.trim()).map((asset) => [
+      asset.storage_path.slice(`content/${type}/`.length, -'/cover'.length),
+      asset.public_url,
+    ]));
+  } catch {
+    return {};
+  }
+}
+
 export async function ApiState({ state, label }) {
   const dict = await getDictionary();
   if (state === 'empty') return <div className="empty-editorial-card"><p>No published {label.toLowerCase()} available at the moment. Check back soon as our travel editors publish new guides.</p></div>;
@@ -85,13 +103,13 @@ export async function Pagination({ pagination, pathname, extra = {} }) {
   );
 }
 
-export async function DestinationCard({ item }) {
+export function DestinationCard({ item, coverImage }) {
   const location = [
     item.districts?.name_en || item.district_name,
     item.states?.name_en || item.state_name
   ].filter(Boolean).join(' · ') || 'India';
 
-  const coverUrl = item.cover_image_url || await getCoverImage('destinations', item.slug) || null;
+  const coverUrl = item.cover_image_url || coverImage || null;
 
   return (
     <article className="destination-card-item">
@@ -184,8 +202,8 @@ export async function AttractionCard({ item }) {
   );
 }
 
-export async function ArticleCard({ item }) {
-  const coverUrl = item.cover_image_url || await getCoverImage('articles', item.slug);
+export function ArticleCard({ item, coverImage }) {
+  const coverUrl = item.cover_image_url || coverImage || null;
   const wordCount = (item.body_en || item.excerpt_en || '').split(/\s+/).length;
   const readingTime = Math.max(2, Math.ceil(wordCount / 200));
 

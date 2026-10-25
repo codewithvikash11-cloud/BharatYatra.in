@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import prisma from '../../../lib/db.js';
 import { getContent } from '../../../lib/content-api.mjs';
@@ -40,6 +41,41 @@ import {
 } from '../../../components/icons.js';
 
 export const dynamic = 'force-dynamic';
+
+const getPublishedDestination = cache(async (slug) => {
+  const apiResult = await getContent('destinations', [slug]);
+  const apiDestination = apiResult.state === 'success' ? apiResult.payload?.data : null;
+
+  try {
+    const [databaseDestination, coverAsset] = await Promise.all([
+      prisma.destinations.findFirst({
+        where: { slug, status: 'PUBLISHED' },
+        include: {
+          states: true,
+          districts: true,
+          tehsils: true,
+          attractions: { where: { status: 'PUBLISHED' }, orderBy: { name_en: 'asc' } },
+          articles: { where: { status: 'PUBLISHED' }, orderBy: { published_at: 'desc' } },
+        },
+      }),
+      prisma.media_assets.findUnique({
+        where: { storage_path: `content/destinations/${slug}/cover` },
+        select: { public_url: true, alt_en: true, license: true },
+      }),
+    ]);
+    const destination = databaseDestination || apiDestination;
+    if (destination && !destination.cover_image_url && coverAsset?.public_url && coverAsset.license?.trim()) {
+      destination.cover_image_url = coverAsset.public_url;
+      destination.cover_image_alt = coverAsset.alt_en || destination.name_en;
+    }
+
+    // The API provides the public record; the optional direct query enriches it
+    // with related guides, attractions, and a verified stored image.
+    return destination;
+  } catch {
+    return apiDestination;
+  }
+});
 
 // Curated verified data for Jaipur (matching reference screenshot 2)
 const jaipurData = {
@@ -355,39 +391,18 @@ const jaipurData = {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const isJaipur = slug === 'jaipur' || slug === 'jaipur-rajasthan';
-
-  if (isJaipur) {
-    return {
-      title: 'Jaipur — The Pink City of India Travel Guide | BharatYatra',
-      description:
-        "Complete Jaipur travel guide: Amer Fort, Hawa Mahal, City Palace, best time to visit, itineraries, Rajasthani food, stays, and practical advice.",
-      alternates: { canonical: `https://bharat-yatra-in.vercel.app/destinations/${slug}` },
-      openGraph: {
-        title: 'Jaipur Travel Guide — The Pink City | BharatYatra',
-        description:
-          "Discover Jaipur's majestic forts, royal palaces, vibrant bazaars, itineraries, and authentic food.",
-        images: [{ url: jaipurData.coverUrl, width: 1200, height: 630, alt: 'Jaipur Hawa Mahal' }],
-      },
-    };
-  }
-
-  // Database destination
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
   try {
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bharat-yatra-in.vercel.app').replace(/\/+$/, '');
-    const dest = await prisma.destinations.findFirst({
-      where: { slug, status: 'PUBLISHED' },
-      include: { states: true },
-    });
-    if (!dest) return { title: 'Destination Not Found | BharatYatra' };
+    const dest = await getPublishedDestination(slug);
+    if (!dest) return { title: { absolute: 'Destination Not Found | BharatYatra' }, robots: { index: false, follow: false } };
     const stateStr = dest.states?.name_en || dest.state_name || 'India';
     const title = `${dest.name_en}, ${stateStr} Travel Guide | BharatYatra`;
-    const description = dest.summary_en || dest.description_en || `Explore ${dest.name_en}, ${stateStr} on BharatYatra with heritage circuits, timings, and local food.`;
+    const description = dest.summary_en || dest.description_en || `${dest.name_en} travel information and practical details from BharatYatra.`;
     const canonicalUrl = `${siteUrl}/destinations/${encodeURIComponent(slug)}`;
-    const coverUrl = dest.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
+    const coverUrl = dest.cover_image_url || null;
 
     return {
-      title,
+      title: { absolute: title },
       description,
       alternates: { canonical: canonicalUrl },
       openGraph: {
@@ -395,48 +410,25 @@ export async function generateMetadata({ params }) {
         description,
         url: canonicalUrl,
         siteName: 'BharatYatra',
-        images: [{ url: coverUrl, width: 1200, height: 630, alt: dest.name_en }],
+        ...(coverUrl ? { images: [{ url: coverUrl, width: 1200, height: 630, alt: dest.name_en }] } : {}),
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: [coverUrl],
+        ...(coverUrl ? { images: [coverUrl] } : {}),
       },
     };
   } catch {
-    return { title: 'Destination Guide | BharatYatra' };
+    return { title: { absolute: 'Destination Not Found | BharatYatra' }, robots: { index: false, follow: false } };
   }
 }
 
 export default async function DestinationDetailPage({ params }) {
   const { slug } = await params;
-  const isJaipur = slug === 'jaipur' || slug === 'jaipur-rajasthan';
-
-  // 1. If Jaipur is requested, render the exact reference specification
-  if (isJaipur) {
-    return renderJaipurReferenceView();
-  }
-
-  // 2. Otherwise load from database
-  try {
-    const dbItem = await prisma.destinations.findFirst({
-      where: { slug, status: 'PUBLISHED' },
-      include: {
-        states: true,
-        districts: true,
-        tehsils: true,
-        attractions: { where: { status: 'PUBLISHED' }, orderBy: { name_en: 'asc' } },
-        articles: { where: { status: 'PUBLISHED' }, orderBy: { published_at: 'desc' } },
-      },
-    });
-
-    if (!dbItem) notFound();
-    return renderDatabaseDestinationView(dbItem);
-  } catch (err) {
-    console.error('Error fetching destination:', err);
-    notFound();
-  }
+  const destination = await getPublishedDestination(slug);
+  if (!destination) notFound();
+  return renderDatabaseDestinationView(destination);
 }
 
 // -------------------------------------------------------------
@@ -963,13 +955,12 @@ function renderJaipurReferenceView() {
 function renderDatabaseDestinationView(dest) {
   const stateName = dest.states?.name_en || dest.state_name || 'India';
   const districtName = dest.districts?.name_en || dest.district_name || null;
-  const coverUrl = dest.cover_image_url || 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1600&q=85';
+  const coverUrl = dest.cover_image_url || null;
   const mapUrl = getMapPinUrl(dest.latitude, dest.longitude);
 
   const keyFacts = [
-    ...(dest.attractions?.length ? [{ label: 'Monuments', value: `${dest.attractions.length}+`, icon: IconBuildingMonument }] : []),
+    ...(dest.attractions?.length ? [{ label: 'Published Attractions', value: String(dest.attractions.length), icon: IconBuildingMonument }] : []),
     ...(dest.best_time_en ? [{ label: 'Best Time', value: dest.best_time_en, icon: IconSun }] : []),
-    { label: 'Ideal Duration', value: '1 – 2 Days', icon: IconClock },
     { label: 'State', value: stateName, icon: IconMapPin },
   ];
 
@@ -980,15 +971,15 @@ function renderDatabaseDestinationView(dest) {
     '@context': 'https://schema.org',
     '@type': 'TouristDestination',
     name: dest.name_en,
-    description: dest.summary_en || dest.description_en || `Explore ${dest.name_en}, ${stateName} on BharatYatra.`,
-    image: coverUrl,
+    ...(dest.summary_en || dest.description_en ? { description: dest.summary_en || dest.description_en } : {}),
+    ...(coverUrl ? { image: coverUrl } : {}),
     address: {
       '@type': 'PostalAddress',
       addressLocality: dest.name_en,
       addressRegion: stateName,
       addressCountry: 'IN',
     },
-    ...(dest.latitude && dest.longitude
+    ...(Number.isFinite(dest.latitude) && Number.isFinite(dest.longitude)
       ? {
           geo: {
             '@type': 'GeoCoordinates',
@@ -1012,8 +1003,8 @@ function renderDatabaseDestinationView(dest) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd).replace(/</g, '\\u003c') }} />
       <main className="by-dest-page-root">
       <div className="by-dest-breadcrumb-bar">
         <div className="by-container">
@@ -1033,7 +1024,7 @@ function renderDatabaseDestinationView(dest) {
 
       <section
         className="by-dest-hero-banner"
-        style={{ backgroundImage: `url(${coverUrl})` }}
+        style={coverUrl ? { backgroundImage: `url(${coverUrl})` } : { backgroundColor: 'var(--teal-deep)' }}
         aria-labelledby="dest-hero-title"
       >
         <div className="by-dest-hero-gradient" aria-hidden="true" />
@@ -1057,7 +1048,7 @@ function renderDatabaseDestinationView(dest) {
           <div className="by-dest-hero-title-block">
             <h1 id="dest-hero-title" className="by-dest-title">{dest.name_en}</h1>
             {dest.summary_en && <p className="by-dest-subtitle">{dest.summary_en}</p>}
-            {dest.description_en && <p className="by-dest-overview-text">{dest.description_en.slice(0, 220)}...</p>}
+            {dest.description_en && <p className="by-dest-overview-text">{dest.description_en.slice(0, 220)}{dest.description_en.length > 220 ? '…' : ''}</p>}
           </div>
 
           <div className="by-dest-facts-row">
@@ -1082,10 +1073,10 @@ function renderDatabaseDestinationView(dest) {
       <nav className="by-dest-subnav" aria-label="Section navigation">
         <div className="by-container">
           <div className="by-subnav-scroll">
-            <a href="#overview" className="by-subnav-link active">Overview</a>
-            <a href="#places" className="by-subnav-link">Places to Visit ({dest.attractions?.length || 0})</a>
-            <a href="#articles" className="by-subnav-link">Travel Guides</a>
-            <a href="#map" className="by-subnav-link">Location</a>
+            {(dest.description_en || dest.summary_en) && <a href="#overview" className="by-subnav-link active">Overview</a>}
+            {dest.attractions?.length > 0 && <a href="#places" className="by-subnav-link">Places to Visit ({dest.attractions.length})</a>}
+            {dest.articles?.length > 0 && <a href="#articles" className="by-subnav-link">Travel Guides</a>}
+            {mapUrl && <a href="#map" className="by-subnav-link">Location</a>}
           </div>
         </div>
       </nav>
@@ -1093,7 +1084,7 @@ function renderDatabaseDestinationView(dest) {
       <div className="by-dest-body-layout">
         <div className="by-container by-dest-grid">
           <div className="by-dest-main-col">
-            <section id="overview" className="by-dest-section">
+            {(dest.description_en || dest.summary_en) && <section id="overview" className="by-dest-section">
               <h2 className="by-dest-sec-title">
                 <IconBookOpen size={22} className="by-sec-icon" />
                 <span>About {dest.name_en}</span>
@@ -1101,14 +1092,14 @@ function renderDatabaseDestinationView(dest) {
               <div className="by-about-row">
                 <p className="by-about-p">{dest.description_en || dest.summary_en}</p>
               </div>
-            </section>
+            </section>}
 
             {/* Attractions */}
-            <section id="places" className="by-dest-section">
+            {dest.attractions?.length > 0 && <section id="places" className="by-dest-section">
               <div className="by-dest-sec-header-row">
                 <h2 className="by-dest-sec-title">
                   <IconMapPin size={22} className="by-sec-icon" />
-                  <span>Verified Attractions in {dest.name_en}</span>
+                  <span>Attractions in {dest.name_en}</span>
                 </h2>
                 <span className="by-sec-count">{dest.attractions?.length || 0} Listed</span>
               </div>
@@ -1118,14 +1109,14 @@ function renderDatabaseDestinationView(dest) {
                   {dest.attractions.map((attr) => (
                     <article key={attr.slug} className="by-place-card">
                       <div className="by-place-info" style={{ padding: '1.25rem' }}>
-                        <span className="by-place-tag">{attr.category || 'Historic Monument'}</span>
+                        {attr.category && <span className="by-place-tag">{attr.category}</span>}
                         <h3 className="by-place-name" style={{ marginTop: '0.4rem' }}>{attr.name_en}</h3>
                         {attr.description_en && (
                           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                            {attr.description_en.slice(0, 140)}...
+                            {attr.description_en.slice(0, 140)}{attr.description_en.length > 140 ? '…' : ''}
                           </p>
                         )}
-                        {attr.visiting_hours && (
+                        {attr.visiting_hours && attr.verified_at && (
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <IconClock size={14} />
                             <span><strong>Hours:</strong> {attr.visiting_hours}</span>
@@ -1143,12 +1134,8 @@ function renderDatabaseDestinationView(dest) {
                     </article>
                   ))}
                 </div>
-              ) : (
-                <div className="by-empty-notice">
-                  <p>Attractions for {dest.name_en} are currently undergoing editorial verification.</p>
-                </div>
-              )}
-            </section>
+              ) : null}
+            </section>}
 
             {/* Published Articles */}
             {dest.articles?.length > 0 && (
@@ -1167,7 +1154,7 @@ function renderDatabaseDestinationView(dest) {
                         <h3 className="by-article-title">{art.title_en}</h3>
                         {art.excerpt_en && (
                           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0.4rem 0' }}>
-                            {art.excerpt_en.slice(0, 120)}...
+                            {art.excerpt_en.slice(0, 120)}{art.excerpt_en.length > 120 ? '…' : ''}
                           </p>
                         )}
                         <div className="by-article-footer">
