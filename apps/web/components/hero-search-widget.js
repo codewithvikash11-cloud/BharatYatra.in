@@ -11,26 +11,26 @@ import {
   IconSearch,
 } from './icons.js';
 
-const popularDestinationNames = ['Varanasi', 'Jaipur', 'Goa', 'Kedarnath', 'Prayagraj'];
-
-export default function HeroSearchWidget({ destinations = [] }) {
+export default function HeroSearchWidget() {
   const [activeTab, setActiveTab] = useState('explore');
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [activeSuggestion, setActiveSuggestion] = useState(-1);
   const widgetRef = useRef(null);
   const router = useRouter();
-  const verifiedLocations = destinations.map((destination) => ({
-    ...destination,
-    href: `/destinations/${destination.slug}`,
-  }));
-  const popularPills = popularDestinationNames.map((name) => {
-    const destination = destinations.find((item) => item.name.toLowerCase() === name.toLowerCase());
-    return {
-      label: name,
-      href: destination ? `/destinations/${destination.slug}` : `/destinations?q=${encodeURIComponent(name)}`,
-    };
-  });
+
+  // Real verified destinations and states with functional routes
+  const verifiedLocations = [
+    { name: 'Jaipur', state: 'Rajasthan', href: '/states/rajasthan', tag: 'State Capital' },
+    { name: 'Rajasthan', state: 'West India', href: '/states/rajasthan', tag: 'State' },
+    { name: 'Kerala', state: 'South India', href: '/states/kerala', tag: 'State' },
+    { name: 'Himachal Pradesh', state: 'North India', href: '/states/himachal-pradesh', tag: 'State' },
+    { name: 'Goa', state: 'West India', href: '/states/goa', tag: 'State' },
+    { name: 'Uttarakhand', state: 'North India', href: '/states/uttarakhand', tag: 'State' },
+    { name: 'Ladakh', state: 'North India', href: '/states/ladakh', tag: 'Union Territory' },
+    { name: 'Tamil Nadu', state: 'South India', href: '/states/tamil-nadu', tag: 'State' },
+    { name: 'Karnataka', state: 'South India', href: '/states/karnataka', tag: 'State' },
+    { name: 'Madhya Pradesh', state: 'Central India', href: '/states/madhya-pradesh', tag: 'State' },
+  ];
 
   // Close suggestions when clicking outside or pressing Escape
   useEffect(() => {
@@ -42,7 +42,6 @@ export default function HeroSearchWidget({ destinations = [] }) {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setSuggestions([]);
-        setActiveSuggestion(-1);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -56,7 +55,6 @@ export default function HeroSearchWidget({ destinations = [] }) {
   const handleInputChange = (e) => {
     const val = e.target.value;
     setQuery(val);
-    setActiveSuggestion(-1);
     if (val.trim().length > 0) {
       const filtered = verifiedLocations.filter(
         (d) =>
@@ -73,11 +71,6 @@ export default function HeroSearchWidget({ destinations = [] }) {
     e.preventDefault();
     if (!query.trim()) return;
 
-    if (activeSuggestion >= 0 && suggestions[activeSuggestion]) {
-      selectSuggestion(suggestions[activeSuggestion]);
-      return;
-    }
-
     if (activeTab === 'plan') {
       router.push(`/trip-planner?destination=${encodeURIComponent(query.trim())}`);
     } else if (activeTab === 'routes') {
@@ -92,19 +85,16 @@ export default function HeroSearchWidget({ destinations = [] }) {
     router.push(loc.href);
     setQuery('');
     setSuggestions([]);
-    setActiveSuggestion(-1);
   };
 
-  const handleSuggestionKeyDown = (event) => {
-    if (!suggestions.length) return;
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setActiveSuggestion((index) => (index + 1) % suggestions.length);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setActiveSuggestion((index) => index <= 0 ? suggestions.length - 1 : index - 1);
-    }
-  };
+  const popularPills = [
+    { label: 'Rajasthan', href: '/states/rajasthan' },
+    { label: 'Kerala', href: '/states/kerala' },
+    { label: 'North India', href: '/destinations?region=north' },
+    { label: 'South India', href: '/destinations?region=south' },
+    { label: 'All 36 States & UTs', href: '/states' },
+    { label: 'Travel Guides', href: '/articles' },
+  ];
 
   const getPlaceholder = () => {
     switch (activeTab) {
@@ -122,15 +112,15 @@ export default function HeroSearchWidget({ destinations = [] }) {
   return (
     <div className="hero-search-card" ref={widgetRef}>
       {/* 1. Four Header Tabs */}
-      <div className="hero-search-tabs" role="group" aria-label="Search mode">
+      <div className="hero-search-tabs" role="tablist">
         <button
           type="button"
-          aria-pressed={activeTab === 'explore'}
+          role="tab"
+          aria-selected={activeTab === 'explore'}
           className={`hero-tab-btn ${activeTab === 'explore' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('explore');
             setSuggestions([]);
-            setActiveSuggestion(-1);
           }}
         >
           <IconMapPin size={18} stroke={1.8} className="hero-tab-icon" />
@@ -139,12 +129,12 @@ export default function HeroSearchWidget({ destinations = [] }) {
 
         <button
           type="button"
-          aria-pressed={activeTab === 'plan'}
+          role="tab"
+          aria-selected={activeTab === 'plan'}
           className={`hero-tab-btn ${activeTab === 'plan' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('plan');
             setSuggestions([]);
-            setActiveSuggestion(-1);
           }}
         >
           <IconCalendar size={18} stroke={1.8} className="hero-tab-icon" />
@@ -153,12 +143,12 @@ export default function HeroSearchWidget({ destinations = [] }) {
 
         <button
           type="button"
-          aria-pressed={activeTab === 'routes'}
+          role="tab"
+          aria-selected={activeTab === 'routes'}
           className={`hero-tab-btn ${activeTab === 'routes' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('routes');
             setSuggestions([]);
-            setActiveSuggestion(-1);
           }}
         >
           <IconRoute size={18} stroke={1.8} className="hero-tab-icon" />
@@ -167,12 +157,12 @@ export default function HeroSearchWidget({ destinations = [] }) {
 
         <button
           type="button"
-          aria-pressed={activeTab === 'interest'}
+          role="tab"
+          aria-selected={activeTab === 'interest'}
           className={`hero-tab-btn ${activeTab === 'interest' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('interest');
             setSuggestions([]);
-            setActiveSuggestion(-1);
           }}
         >
           <IconCategory size={18} stroke={1.8} className="hero-tab-icon" />
@@ -197,26 +187,16 @@ export default function HeroSearchWidget({ destinations = [] }) {
             onChange={handleInputChange}
             placeholder={getPlaceholder()}
             aria-label="Search destinations in India"
-            role="combobox"
-            aria-autocomplete="list"
-            aria-expanded={suggestions.length > 0}
-            aria-controls="hero-search-suggestion-list"
-            aria-activedescendant={activeSuggestion >= 0 ? `hero-search-option-${activeSuggestion}` : undefined}
-            onKeyDown={handleSuggestionKeyDown}
           />
 
           {/* Autocomplete suggestions dropdown */}
           {suggestions.length > 0 && (
-            <div className="hero-search-suggestions-dropdown" id="hero-search-suggestion-list" role="listbox" aria-label="Search suggestions">
-              {suggestions.map((item, index) => (
+            <div className="hero-search-suggestions-dropdown" role="listbox">
+              {suggestions.map((item) => (
                 <button
-                  key={item.href}
-                  id={`hero-search-option-${index}`}
+                  key={item.slug}
                   type="button"
-                  className={`hero-search-suggestion-item ${activeSuggestion === index ? 'active' : ''}`}
-                  role="option"
-                  aria-selected={activeSuggestion === index}
-                  tabIndex={-1}
+                  className="hero-search-suggestion-item"
                   onClick={() => selectSuggestion(item)}
                 >
                   <IconMapPin size={16} stroke={1.8} className="sugg-pin" color="var(--gold-dark)" />
@@ -239,7 +219,7 @@ export default function HeroSearchWidget({ destinations = [] }) {
 
       {/* 3. Popular Destinations Pills */}
       <div className="hero-popular-row">
-      <span className="hero-popular-label">Explore:</span>
+        <span className="hero-popular-label">Popular:</span>
         <div className="hero-popular-pills">
           {popularPills.map((pill) => (
             <Link key={pill.label} href={pill.href} className="hero-popular-pill">

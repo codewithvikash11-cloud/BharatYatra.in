@@ -1,58 +1,44 @@
 import Link from 'next/link';
-import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { getContent, getCollection } from '../../../lib/content-api.mjs';
 import { MarkdownContent, TableOfContents, extractHeadings } from '../../../lib/markdown.js';
 import prisma from '../../../lib/db.js';
 import { ContentTypeBadge, ContentTypeTemplateExtras } from '../../../components/article-templates.js';
-import { getCoverImages } from '../../../components/content.js';
 import SocialShare from '../../../components/social-share.js';
 import { IconMapPin, IconClock, IconBookOpen, IconArrowRight } from '../../../components/icons.js';
-import { getSiteUrl } from '../../../lib/seo-config.mjs';
 
 export const dynamic = 'force-dynamic';
 
-const getPublishedArticle = cache(async (slug) => {
-  const result = await getContent('articles', [slug]);
-  const apiArticle = result.state === 'success' ? result.payload?.data : null;
-  try {
-    const databaseArticle = await prisma.articles.findFirst({
-      where: { slug, status: 'PUBLISHED' },
-      include: {
-        destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
-        states: { select: { id: true, slug: true, name_en: true } },
-      },
-    });
-    const article = databaseArticle || apiArticle;
-    if (article && !article.cover_image_url) {
-      const coverAsset = await prisma.media_assets.findUnique({
-        where: { storage_path: `content/articles/${slug}/cover` },
-        select: { public_url: true, alt_en: true, license: true },
-      });
-      if (coverAsset?.public_url && coverAsset.license?.trim()) article.cover_image_url = coverAsset.public_url;
-      if (!article.cover_image_alt && coverAsset?.alt_en) article.cover_image_alt = coverAsset.alt_en;
-    }
-    return article;
-  } catch {
-    return apiArticle;
-  }
-});
-
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const item = await getPublishedArticle(slug);
+  let item = null;
+
+  // 1. Check API first (fast, reliable on serverless)
+  try {
+    const result = await getContent('articles', [slug]);
+    if (result.state === 'success' && result.payload?.data) {
+      item = result.payload.data;
+    }
+  } catch {}
+
+  // 2. Fallback to direct DB query if API did not return it
+  if (!item) {
+    try {
+      item = await prisma.articles.findFirst({ where: { slug, status: 'PUBLISHED' } });
+    } catch {}
+  }
 
   if (!item) {
-    return { title: { absolute: 'Article Not Found | BharatYatra' }, robots: { index: false, follow: false } };
+    return { title: 'Article Not Found | BharatYatra' };
   }
 
   const title = item.seo_title_en || item.title_en || 'Travel Story';
   const description = item.seo_description_en || item.excerpt_en || title;
-  const canonicalUrl = item.canonical_url || `${getSiteUrl()}/articles/${encodeURIComponent(slug)}`;
-  const coverUrl = item.cover_image_url || null;
+  const canonicalUrl = item.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${encodeURIComponent(slug)}`;
+  const coverUrl = item.cover_image_url || '/hero.jpg';
 
   return {
-    title: { absolute: `${title} | BharatYatra Travel Journal` },
+    title: `${title} | BharatYatra Travel Journal`,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -61,22 +47,43 @@ export async function generateMetadata({ params }) {
       url: canonicalUrl,
       type: 'article',
       publishedTime: item.published_at || undefined,
-      ...(item.author_name ? { authors: [item.author_name] } : {}),
+      authors: [item.author_name || 'BharatYatra Editorial'],
       siteName: 'BharatYatra',
-      ...(coverUrl ? { images: [{ url: coverUrl, width: 1200, height: 630, alt: item.cover_image_alt || title }] } : {}),
+      images: [{ url: coverUrl, width: 1200, height: 630, alt: item.cover_image_alt || title }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      ...(coverUrl ? { images: [coverUrl] } : {}),
+      images: [coverUrl],
     },
   };
 }
 
 export default async function ArticleDetailPage({ params }) {
   const { slug } = await params;
-  const item = await getPublishedArticle(slug);
+  let item = null;
+
+  // 1. Check API first (fast, reliable on serverless)
+  try {
+    const result = await getContent('articles', [slug]);
+    if (result.state === 'success' && result.payload?.data) {
+      item = result.payload.data;
+    }
+  } catch {}
+
+  // 2. Direct database query fallback for published records if API missed it or for extra relations
+  if (!item) {
+    try {
+      item = await prisma.articles.findFirst({
+        where: { slug, status: 'PUBLISHED' },
+        include: {
+          destinations: { select: { id: true, slug: true, name_en: true, state_name: true } },
+          states: { select: { id: true, slug: true, name_en: true } },
+        },
+      });
+    } catch {}
+  }
 
   if (!item) {
     notFound();
@@ -109,10 +116,6 @@ export default async function ArticleDetailPage({ params }) {
       });
     } catch {}
   }
-  const relatedCoverImages = await getCoverImages(
-    'articles',
-    relatedArticles.filter((article) => !article.cover_image_url).map((article) => article.slug),
-  );
 
   // Fetch related attractions if destination relation exists
   let relatedAttractions = [];
@@ -136,16 +139,16 @@ export default async function ArticleDetailPage({ params }) {
     } catch {}
   }
 
-  const coverUrl = item.cover_image_url || null;
+  const coverUrl = item.cover_image_url || '/hero.jpg';
   const wordCount = (item.body_en || item.excerpt_en || '').split(/\s+/).length;
   const readingTime = Math.max(2, Math.ceil(wordCount / 200));
   const publishDate = item.published_at
     ? new Date(item.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-    : null;
+    : 'Recent';
 
   const destination = item.destinations || null;
   const state = item.states || null;
-  const articleUrl = item.canonical_url || `${getSiteUrl()}/articles/${encodeURIComponent(slug)}`;
+  const articleUrl = item.canonical_url || `https://bharat-yatra-in.vercel.app/articles/${encodeURIComponent(slug)}`;
   const headings = extractHeadings(item.body_en || '');
 
   const jsonLd = {
@@ -153,16 +156,19 @@ export default async function ArticleDetailPage({ params }) {
     '@type': 'Article',
     headline: item.title_en,
     description: item.excerpt_en || item.seo_description_en || item.title_en,
-    ...(coverUrl ? { image: coverUrl } : {}),
+    image: coverUrl,
     datePublished: item.published_at || undefined,
-    ...(item.author_name ? { author: { '@type': 'Person', name: item.author_name } } : {}),
+    author: {
+      '@type': 'Person',
+      name: item.author_name || 'BharatYatra Editorial',
+    },
     publisher: {
       '@type': 'Organization',
       name: 'BharatYatra',
-      url: getSiteUrl(),
+      url: 'https://bharat-yatra-in.vercel.app',
       logo: {
         '@type': 'ImageObject',
-        url: `${getSiteUrl()}/image.png`,
+        url: 'https://bharat-yatra-in.vercel.app/image.png',
       },
     },
     mainEntityOfPage: {
@@ -175,17 +181,17 @@ export default async function ArticleDetailPage({ params }) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: getSiteUrl() },
-    { '@type': 'ListItem', position: 2, name: 'Travel Guides', item: `${getSiteUrl()}/articles` },
-    ...(item.category ? [{ '@type': 'ListItem', position: 3, name: item.category, item: `${getSiteUrl()}/articles` }] : []),
-    { '@type': 'ListItem', position: item.category ? 4 : 3, name: item.title_en, item: articleUrl },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://bharat-yatra-in.vercel.app' },
+      { '@type': 'ListItem', position: 2, name: 'Travel Guides', item: 'https://bharat-yatra-in.vercel.app/articles' },
+      { '@type': 'ListItem', position: 3, name: item.category || 'Culture', item: 'https://bharat-yatra-in.vercel.app/articles' },
+      { '@type': 'ListItem', position: 4, name: item.title_en, item: articleUrl },
     ],
   };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd) }} />
 
       <main className="article-page-root">
         {/* ====================================================
@@ -197,7 +203,12 @@ export default async function ArticleDetailPage({ params }) {
               <li><Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Home</Link></li>
               <li>/</li>
               <li><Link href="/articles" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Travel Guides</Link></li>
-              {item.category && <><li>/</li><li>{item.category}</li></>}
+              {item.category && (
+                <>
+                  <li>/</li>
+                  <li><Link href={`/articles?category=${encodeURIComponent(item.category)}`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>{item.category}</Link></li>
+                </>
+              )}
               <li>/</li>
               <li style={{ color: 'var(--teal-primary)', fontWeight: 600 }}>{item.title_en}</li>
             </ol>
@@ -237,24 +248,24 @@ export default async function ArticleDetailPage({ params }) {
 
           {/* Byline / Metadata */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '1rem 0', margin: '1.5rem 0 1rem 0', fontSize: '0.9rem', color: 'var(--text-muted)', flexWrap: 'wrap', gap: '1rem' }}>
-            {(item.author_name || publishDate) && <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--teal-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFDF8', fontWeight: 700, fontSize: '0.95rem' }}>
-                {item.author_name ? item.author_name.slice(0, 2).toUpperCase() : 'BY'}
+                BY
               </div>
               <div>
-                {item.author_name && <strong style={{ display: 'block', color: 'var(--text-primary)' }}>{item.author_name}</strong>}
-                {publishDate && <span style={{ fontSize: '0.82rem' }}>Published {publishDate}</span>}
+                <strong style={{ display: 'block', color: 'var(--text-primary)' }}>{item.author_name || 'BharatYatra Editorial'}</strong>
+                <span style={{ fontSize: '0.82rem' }}>Published {publishDate}</span>
               </div>
-            </div>}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', fontSize: '0.85rem' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <IconClock size={14} />
                 <span>{readingTime} min read</span>
               </span>
-              {item.category && <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <IconBookOpen size={14} />
-                <span>{item.category}</span>
-              </span>}
+                <span>Verified Editorial</span>
+              </span>
             </div>
           </div>
 
@@ -265,7 +276,7 @@ export default async function ArticleDetailPage({ params }) {
         {/* ====================================================
             2. COVER IMAGE
             ==================================================== */}
-        {coverUrl && <div className="page-shell" style={{ maxWidth: '1040px', marginBottom: '2.5rem' }}>
+        <div className="page-shell" style={{ maxWidth: '1040px', marginBottom: '2.5rem' }}>
           <figure style={{ margin: 0 }}>
             <div style={{ width: '100%', aspectRatio: '16/9', maxHeight: '520px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
               <img
@@ -284,7 +295,7 @@ export default async function ArticleDetailPage({ params }) {
               </figcaption>
             )}
           </figure>
-        </div>}
+        </div>
 
         {/* ====================================================
             3. ARTICLE BODY & TABLE OF CONTENTS
@@ -379,16 +390,14 @@ export default async function ArticleDetailPage({ params }) {
                 {relatedArticles.map((rel) => (
                   <Link key={rel.slug} href={`/articles/${rel.slug}`} className="story-card-item" style={{ textDecoration: 'none' }}>
                     <div className="story-card-media" style={{ height: '180px' }}>
-                      {(rel.cover_image_url || relatedCoverImages[rel.slug]) ? (
-                        <img
-                          src={rel.cover_image_url || relatedCoverImages[rel.slug]}
-                          alt={rel.cover_image_alt || rel.title_en}
-                          loading="lazy"
-                          decoding="async"
-                          width="600"
-                          height="360"
-                        />
-                      ) : <div aria-hidden="true" style={{ height: '100%', display: 'grid', placeItems: 'center', background: 'var(--sand-bg)', color: 'var(--text-muted)', fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Travel Guide</div>}
+                      <img
+                        src={rel.cover_image_url || '/hero.jpg'}
+                        alt={rel.cover_image_alt || rel.title_en}
+                        loading="lazy"
+                        decoding="async"
+                        width="600"
+                        height="360"
+                      />
                     </div>
                     <div className="story-card-body">
                       <p className="story-card-kicker">{rel.category || 'TRAVEL GUIDE'}</p>

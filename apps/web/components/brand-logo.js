@@ -11,7 +11,7 @@ export default function BrandLogo({
   const isSm = size === 'sm';
   const isLg = size === 'lg';
   const logoHeight = isSm ? 32 : isLg ? 48 : 40;
-  const logoSrc = customLogoUrl || '/logo-horizontal.svg';
+  const logoSrc = customLogoUrl || '/image.png';
 
   return (
     <Link

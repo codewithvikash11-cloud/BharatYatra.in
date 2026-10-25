@@ -39,7 +39,6 @@ export default async function sitemap() {
         select: { slug: true, published_at: true, updated_at: true, cover_image_url: true },
       }),
       prisma.states.findMany({
-        where: { status: 'PUBLISHED' },
         select: { slug: true, updated_at: true },
       }),
     ]);
@@ -51,12 +50,22 @@ export default async function sitemap() {
       priority: 0.8,
     }));
 
-    const destUrls = destinations.map((item) => ({
+    // Curated Jaipur destination guide
+    const curatedJaipur = {
+      url: `${base}/destinations/jaipur`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    };
+
+    const destUrls = destinations
+      .filter((item) => item.slug !== 'jaipur')
+      .map((item) => ({
         url: `${base}/destinations/${encodeURIComponent(item.slug)}`,
         lastModified: item.updated_at || item.published_at || new Date(),
         changeFrequency: 'weekly',
         priority: 0.85,
-    }));
+      }));
 
     const attrUrls = attractions
       .filter((item) => item.destinations?.slug)
@@ -75,7 +84,7 @@ export default async function sitemap() {
       ...(item.cover_image_url ? { images: [item.cover_image_url] } : {}),
     }));
 
-    return [...staticPages, ...stateUrls, ...destUrls, ...attrUrls, ...articleUrls];
+    return [...staticPages, curatedJaipur, ...stateUrls, ...destUrls, ...attrUrls, ...articleUrls];
   } catch (err) {
     console.error('Failed to generate dynamic sitemap:', err);
     return staticPages;
