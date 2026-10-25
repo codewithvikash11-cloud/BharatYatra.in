@@ -402,19 +402,53 @@ async function validateLocationHierarchy(tx, type, data, old = {}) {
           const old=await tx[resource.model].findUnique({where:{id:request.params.id}});
           if(!old)return null;
           if (isPermanent) {
-            await tx[resource.model].delete({where:{id:old.id}});
-            await createAudit(tx,request.adminPrincipal,{action:'content_deleted',entity_type:type,entity_id:old.id,previous_status:old.status,next_status:'DELETED',changed_fields:['deleted']});
+            // Safely disassociate or clean up dependent foreign key references before permanent deletion
+            if (type === 'destinations') {
+              await tx.articles.updateMany({ where: { destination_id: old.id }, data: { destination_id: null } });
+              await tx.itineraries.updateMany({ where: { destination_id: old.id }, data: { destination_id: null } });
+            } else if (type === 'attractions') {
+              await tx.itinerary_stops.updateMany({ where: { attraction_id: old.id }, data: { attraction_id: null } });
+            } else if (type === 'states') {
+              await tx.articles.updateMany({ where: { state_id: old.id }, data: { state_id: null } });
+              await tx.destinations.updateMany({ where: { state_id: old.id }, data: { state_id: null } });
+            } else if (type === 'districts') {
+              await tx.destinations.updateMany({ where: { district_id: old.id }, data: { district_id: null } });
+            } else if (type === 'tehsils') {
+              await tx.destinations.updateMany({ where: { tehsil_id: old.id }, data: { tehsil_id: null } });
+            }
+
+            await tx[resource.model].delete({ where: { id: old.id } });
+            await createAudit(tx, request.adminPrincipal, {
+              action: 'content_deleted',
+              entity_type: type,
+              entity_id: old.id,
+              previous_status: old.status,
+              next_status: 'DELETED',
+              changed_fields: ['deleted'],
+            });
             return { id: old.id, permanently_deleted: true };
           }
-          if(old.status==='ARCHIVED')return old;
-          const row=await tx[resource.model].update({where:{id:old.id},data:{status:'ARCHIVED',published_at:null,updated_at:new Date()}});
-          await createAudit(tx,request.adminPrincipal,{action:'status_changed',entity_type:type,entity_id:row.id,previous_status:old.status,next_status:'ARCHIVED',changed_fields:['status']});
+          if (old.status === 'ARCHIVED') return old;
+          const row = await tx[resource.model].update({
+            where: { id: old.id },
+            data: { status: 'ARCHIVED', published_at: null, updated_at: new Date() },
+          });
+          await createAudit(tx, request.adminPrincipal, {
+            action: 'status_changed',
+            entity_type: type,
+            entity_id: row.id,
+            previous_status: old.status,
+            next_status: 'ARCHIVED',
+            changed_fields: ['status'],
+          });
           return row;
         });
-        return result?response.set('Cache-Control','no-store').json({data:result}):safeError(response,404,'Record not found');
-      }catch(err){
-        console.error('Delete/archive error:', err);
-        return safeError(response,503,'Content could not be deleted; check database constraints or audit migration');
+        return result
+          ? response.set('Cache-Control', 'no-store').json({ data: result })
+          : safeError(response, 404, 'Record not found');
+      } catch (err) {
+        console.error(`[Admin Delete Error] Type: ${type}, ID: ${request.params.id}:`, err?.message || err);
+        return safeError(response, 503, err?.message ? `Content could not be deleted: ${err.message}` : 'Content could not be deleted; check database constraints or audit migration');
       }
     });
   }

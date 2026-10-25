@@ -13,9 +13,9 @@ export default function NewArticleClient({ role }) {
       onBack={() => router.push('/articles')}
       onSaved={(saved) => {
         if (saved?.id) {
-          router.push(`/articles/${saved.id}`);
+          router.replace(`/articles/${saved.id}`);
         } else {
-          router.push('/articles');
+          router.replace('/articles');
         }
       }}
     />

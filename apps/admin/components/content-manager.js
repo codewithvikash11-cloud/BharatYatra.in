@@ -306,6 +306,8 @@ export default function ContentManager({ type, role }) {
       for (const id of ids) {
         if (action === 'trash') {
           await fetch(`/api/admin/${type}/${id}`, { method: 'DELETE' });
+        } else if (action === 'delete_permanent') {
+          await fetch(`/api/admin/${type}/${id}?permanent=true`, { method: 'DELETE' });
         } else if (action === 'publish') {
           await fetch(`/api/admin/${type}/${id}/status`, {
             method: 'PATCH',
@@ -448,7 +450,13 @@ export default function ContentManager({ type, role }) {
     if (!window.confirm(`Are you sure you want to ${verb} this ${config.label.slice(0, -1).toLowerCase()}?`)) return;
     setBusy(true);
     setError('');
+
     try {
+      const saved = await save();
+      if (!saved) {
+        setBusy(false);
+        return;
+      }
       const res = await fetch(`/api/admin/${type}/${selected.id}/status`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
@@ -661,6 +669,17 @@ export default function ContentManager({ type, role }) {
               >
                 ♻ Restore
               </button>
+              {role === 'admin' && (
+                <button
+                  type="button"
+                  className="bulk-btn"
+                  style={{ color: '#b91c1c', borderColor: '#fca5a5' }}
+                  onClick={() => handleBulkAction('delete_permanent')}
+                  title="Permanently remove selected items from database"
+                >
+                  ❌ Delete Permanently
+                </button>
+              )}
               <button
                 type="button"
                 className="bulk-btn subtle"
@@ -786,6 +805,58 @@ export default function ContentManager({ type, role }) {
                           >
                             📋 Copy
                           </button>
+                          {!isPublished && !isArchived && (
+                            <button
+                              type="button"
+                              className="row-action-btn success"
+                              onClick={async () => {
+                                if (window.confirm(`Publish "${row.title_en}" live now?`)) {
+                                  try {
+                                    const res = await fetch(`/api/admin/articles/${row.id}/status`, {
+                                      method: 'PATCH',
+                                      headers: { 'content-type': 'application/json' },
+                                      body: JSON.stringify({ status: 'PUBLISHED' }),
+                                    });
+                                    const payload = await res.json();
+                                    if (!res.ok) throw new Error(payload.error || 'Publish failed');
+                                    setNotice('Published successfully.');
+                                    await refresh();
+                                  } catch (err) {
+                                    setError(err.message || 'Publish failed');
+                                  }
+                                }
+                              }}
+                              title="Publish Live"
+                            >
+                              🚀 Publish
+                            </button>
+                          )}
+                          {isPublished && (
+                            <button
+                              type="button"
+                              className="row-action-btn"
+                              onClick={async () => {
+                                if (window.confirm(`Unpublish "${row.title_en}" back to draft?`)) {
+                                  try {
+                                    const res = await fetch(`/api/admin/articles/${row.id}/status`, {
+                                      method: 'PATCH',
+                                      headers: { 'content-type': 'application/json' },
+                                      body: JSON.stringify({ status: 'DRAFT' }),
+                                    });
+                                    const payload = await res.json();
+                                    if (!res.ok) throw new Error(payload.error || 'Unpublish failed');
+                                    setNotice('Unpublished to draft.');
+                                    await refresh();
+                                  } catch (err) {
+                                    setError(err.message || 'Unpublish failed');
+                                  }
+                                }
+                              }}
+                              title="Unpublish to Draft"
+                            >
+                              ↩ Unpublish
+                            </button>
+                          )}
                           {!isArchived ? (
                             <button
                               type="button"
@@ -819,12 +890,12 @@ export default function ContentManager({ type, role }) {
                               ♻ Restore
                             </button>
                           )}
-                          {isArchived && role === 'admin' && (
+                          {role === 'admin' && (
                             <button
                               type="button"
                               className="row-action-btn danger"
                               onClick={() => permanentDeleteRecord(row)}
-                              title="Delete permanently"
+                              title="Permanently remove from database"
                             >
                               ❌ Delete
                             </button>
@@ -1381,7 +1452,7 @@ export default function ContentManager({ type, role }) {
               </button>
             )}
 
-            {selected && selected.status === 'ARCHIVED' && role === 'admin' && (
+            {selected && role === 'admin' && (
               <button
                 type="button"
                 className="button danger"

@@ -246,7 +246,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
   };
 
   // Save (Draft or Update)
-  const handleSave = async (isAutosave = false) => {
+  const handleSave = async (isAutosave = false, skipNavigation = false) => {
     if (!form.title_en.trim()) {
       if (!isAutosave) setErrorMessage('Please enter an article title.');
       return null;
@@ -277,7 +277,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
         slug: form.slug.trim(),
         category: form.category || 'Destination Guide',
         tags: form.tags || null,
-        author_name: form.author_name || 'BharatYatra Editorial',
+        author_name: form.author_name?.trim() || 'BharatYatra Editorial',
         state_id: form.state_id || null,
         destination_id: form.destination_id || null,
         cover_image_url: form.cover_image_url || null,
@@ -312,7 +312,7 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
 
       if (!isAutosave) {
         setNoticeMessage(isUpdate ? 'Article changes saved successfully.' : 'New draft article created.');
-        if (onSaved) onSaved(result.data);
+        if (!skipNavigation && onSaved) onSaved(result.data);
       }
       return result.data;
     } catch (err) {
@@ -324,21 +324,24 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
 
   // Publish / Unpublish / Workflow Transition
   const handleStatusChange = async (targetStatus) => {
-    let currentId = form.id;
-    if (!currentId || isDirty) {
-      const saved = await handleSave();
-      if (!saved) return;
-      currentId = saved.id;
-    }
-
+    // 1. Validate publishing requirements FIRST before performing any save
     if (targetStatus === 'PUBLISHED') {
+      if (!form.title_en?.trim()) {
+        setErrorMessage('Article Title is required before publishing.');
+        return;
+      }
+      if (!form.slug?.trim()) {
+        setErrorMessage('Article URL slug is required before publishing.');
+        return;
+      }
       if (!form.excerpt_en?.trim()) {
         setErrorMessage('Article Excerpt is required before publishing.');
         setActiveTab('settings');
         setAccordionState((prev) => ({ ...prev, category: true }));
         return;
       }
-      if (!form.body_en?.trim() || form.body_en === '<p></p>') {
+      const strippedBody = (form.body_en || '').replace(/<[^>]+>/g, '').trim();
+      if (!strippedBody || form.body_en === '<p></p>') {
         setErrorMessage('Article Body content is required before publishing.');
         return;
       }
@@ -355,6 +358,15 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
     setErrorMessage('');
     setNoticeMessage('');
 
+    // 2. Ensure current record is saved as draft first without triggering premature page navigation
+    let currentId = form.id;
+    if (!currentId || isDirty) {
+      const saved = await handleSave(false, true);
+      if (!saved) return;
+      currentId = saved.id;
+    }
+
+    // 3. Perform the status transition on the backend
     try {
       const res = await fetch(`/api/admin/articles/${currentId}/status`, {
         method: 'PATCH',
@@ -366,15 +378,19 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
 
       setForm((prev) => ({
         ...prev,
+        id: result.data.id,
         status: result.data.status,
         published_at: result.data.published_at,
       }));
       setSaveStatus('saved');
+      setIsDirty(false);
       setNoticeMessage(
         targetStatus === 'PUBLISHED'
           ? '🎉 Article published live to BharatYatra!'
           : `Article status changed to ${targetStatus}.`
       );
+
+      if (onSaved) onSaved(result.data);
 
       // Automatic IndexNow discovery notification for search engines
       try {
@@ -588,16 +604,28 @@ export default function ArticleEditor({ article, onBack, onSaved, role = 'admin'
           </button>
 
           {form.status === 'PUBLISHED' ? (
-            <button
-              type="button"
-              className="button primary"
-              onClick={() => handleSave(false)}
-              disabled={saveStatus === 'saving'}
-              title="Update Published Article"
-            >
-              <Send size={14} style={{ marginRight: '5px' }} />
-              Update
-            </button>
+            <>
+              <button
+                type="button"
+                className="button subtle danger"
+                onClick={() => handleStatusChange('DRAFT')}
+                disabled={saveStatus === 'saving'}
+                title="Unpublish Article back to Draft"
+              >
+                <RotateCcw size={14} style={{ marginRight: '5px' }} />
+                Unpublish
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                onClick={() => handleSave(false)}
+                disabled={saveStatus === 'saving'}
+                title="Update Published Article"
+              >
+                <Send size={14} style={{ marginRight: '5px' }} />
+                Update
+              </button>
+            </>
           ) : (
             <button
               type="button"

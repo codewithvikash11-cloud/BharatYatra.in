@@ -200,15 +200,6 @@ const essentialInfoCards = [
   },
 ];
 
-const sacredDestinations = [
-  'Prayagraj', 'Ayodhya', 'Varanasi', 'Vrindavan', 'Ujjain', 'Jagannath Puri',
-  'Kedarnath', 'Tirupati', 'Rishikesh', 'Somnath', 'Badrinath', 'Mathura',
-  'Haridwar', 'Vaishno Devi', 'Amritsar', 'Shirdi', 'Dwarka', 'Yamunotri',
-  'Gangotri', 'Pushkar', 'Nashik', 'Palani',
-];
-
-const destinationImage = 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=240&q=75';
-
 export default async function HomePage() {
   // Fetch real articles, destinations, itineraries, and live appearance settings
   const [destRes, articleRes, itinRes, appearance] = await Promise.all([
@@ -296,21 +287,21 @@ export default async function HomePage() {
       {/* ========================================================
           3. FEATURED EDITORIAL STORIES & RECENT JOURNAL POSTS
           ======================================================== */}
-      {dbArticles.length > 0 && (
-        <section className="by-section">
-          <div className="by-container">
-            <div className="by-section-header">
-              <div>
-                <p className="section-eyebrow">EDITORIAL TRAVEL JOURNAL</p>
-                <h2 className="by-section-title">Stories for the Road</h2>
-                <p className="by-section-desc">In-depth guides, living traditions, and cultural journeys written by BharatYatra editors.</p>
-              </div>
-              <Link href="/articles" className="by-section-more-link">
-                <span>All Articles</span>
-                <IconArrowRight size={16} />
-              </Link>
+      <section className="by-section">
+        <div className="by-container">
+          <div className="by-section-header">
+            <div>
+              <p className="section-eyebrow">EDITORIAL TRAVEL JOURNAL</p>
+              <h2 className="by-section-title">Stories for the Road</h2>
+              <p className="by-section-desc">In-depth guides, living traditions, and cultural journeys written by BharatYatra editors.</p>
             </div>
+            <Link href="/articles" className="by-section-more-link">
+              <span>All Articles</span>
+              <IconArrowRight size={16} />
+            </Link>
+          </div>
 
+          {dbArticles.length > 0 ? (
             <div className="by-articles-grid">
               {dbArticles.slice(0, 6).map((art, idx) => {
                 const articleImage = getEditorialImage(art, idx % 2 === 0 ? 'haveli' : 'food');
@@ -344,43 +335,51 @@ export default async function HomePage() {
                 );
               })}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="by-editorial-empty-notice" style={{ padding: '2.5rem 1.5rem', background: '#f8faf9', border: '1px dashed #c9d6cf', borderRadius: '12px', textAlign: 'center' }}>
+              <p style={{ margin: '0 0 0.5rem', color: '#173633', fontWeight: 600 }}>Editorial Stories are Being Prepared</p>
+              <p style={{ margin: 0, color: '#62726d', fontSize: '0.9rem' }}>Newly published travel essays and regional deep-dives from the editorial studio will appear here.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* ========================================================
           4. POPULAR DESTINATIONS
           ======================================================== */}
       <section className="by-section by-section-cream by-sacred-section">
-          <div className="by-container">
-            <div className="by-section-header">
-              <div>
-                <p className="section-eyebrow">CURATED DISCOVERY</p>
-                <h2 className="by-section-title">Journeys to remember</h2>
-                <p className="by-section-desc">Explore India’s sacred cities, mountain shrines, and living heritage towns.</p>
-              </div>
-              <Link href="/destinations" className="by-section-more-link">
-                <span>View All Destinations</span>
-                <IconArrowRight size={16} />
-              </Link>
+        <div className="by-container">
+          <div className="by-section-header">
+            <div>
+              <p className="section-eyebrow">CURATED DISCOVERY</p>
+              <h2 className="by-section-title">Journeys to remember</h2>
+              <p className="by-section-desc">Explore India’s sacred cities, mountain shrines, and living heritage towns.</p>
             </div>
+            <Link href="/destinations" className="by-section-more-link">
+              <span>View All Destinations</span>
+              <IconArrowRight size={16} />
+            </Link>
+          </div>
 
+          {dbDestinations.length > 0 ? (
             <div className="by-sacred-destinations" aria-label="Popular destinations">
-              {sacredDestinations.map((name) => {
-                const published = dbDestinations.find((destination) =>
-                  destination.name_en?.trim().toLocaleLowerCase() === name.toLocaleLowerCase()
-                  || destination.slug === name.toLocaleLowerCase().replaceAll(' ', '-'));
-                const href = published ? `/destinations/${published.slug}` : `/destinations?q=${encodeURIComponent(name)}`;
-                const image = published?.cover_image_url || destinationImage;
+              {dbDestinations.slice(0, 24).map((dest) => {
+                const image = dest.cover_image_url || getEditorialImage(dest, 'haveli');
                 return (
-                  <Link key={name} href={href} className="by-sacred-destination">
-                    <img src={image} alt="" width="112" height="112" loading="lazy" decoding="async" />
-                    <span>{name}</span>
+                  <Link key={dest.slug} href={`/destinations/${dest.slug}`} className="by-sacred-destination">
+                    <img src={image} alt={dest.name_en} width="112" height="112" loading="lazy" decoding="async" />
+                    <span>{dest.name_en}</span>
                   </Link>
                 );
               })}
             </div>
-          </div>
+          ) : (
+            <div className="by-editorial-empty-notice" style={{ padding: '2.5rem 1.5rem', background: '#f5f0e6', border: '1px dashed #d5c8b0', borderRadius: '12px', textAlign: 'center' }}>
+              <p style={{ margin: '0 0 0.5rem', color: '#173633', fontWeight: 600 }}>Destinations Directory Updating</p>
+              <p style={{ margin: 0, color: '#62726d', fontSize: '0.9rem' }}>Curated destinations published from the editorial studio will be listed here.</p>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ========================================================
